@@ -1,0 +1,146 @@
+
+COIN.png
+size: 1278,93
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+0001
+  rotate: false
+  xy: 2, 6
+  size: 85, 85
+  orig: 91, 91
+  offset: 3, 3
+  index: -1
+0002
+  rotate: false
+  xy: 431, 5
+  size: 81, 86
+  orig: 87, 92
+  offset: 3, 3
+  index: -1
+0003
+  rotate: false
+  xy: 674, 4
+  size: 73, 87
+  orig: 79, 93
+  offset: 3, 3
+  index: -1
+0004
+  rotate: false
+  xy: 960, 4
+  size: 56, 87
+  orig: 62, 93
+  offset: 3, 3
+  index: -1
+0005
+  rotate: false
+  xy: 1170, 2
+  size: 32, 89
+  orig: 38, 95
+  offset: 3, 3
+  index: -1
+0006
+  rotate: false
+  xy: 1238, 4
+  size: 18, 87
+  orig: 24, 93
+  offset: 3, 3
+  index: -1
+0007
+  rotate: false
+  xy: 1076, 2
+  size: 45, 89
+  orig: 51, 95
+  offset: 3, 3
+  index: -1
+0008
+  rotate: false
+  xy: 824, 4
+  size: 66, 87
+  orig: 72, 93
+  offset: 3, 3
+  index: -1
+0009
+  rotate: false
+  xy: 514, 4
+  size: 78, 87
+  orig: 84, 93
+  offset: 3, 3
+  index: -1
+0010
+  rotate: false
+  xy: 176, 6
+  size: 84, 85
+  orig: 90, 91
+  offset: 3, 3
+  index: -1
+0011
+  rotate: false
+  xy: 262, 6
+  size: 84, 85
+  orig: 90, 91
+  offset: 3, 3
+  index: -1
+0012
+  rotate: false
+  xy: 594, 4
+  size: 78, 87
+  orig: 84, 93
+  offset: 3, 3
+  index: -1
+0013
+  rotate: false
+  xy: 892, 4
+  size: 66, 87
+  orig: 72, 93
+  offset: 3, 3
+  index: -1
+0014
+  rotate: false
+  xy: 1123, 2
+  size: 45, 89
+  orig: 51, 95
+  offset: 3, 3
+  index: -1
+0015
+  rotate: false
+  xy: 1258, 4
+  size: 18, 87
+  orig: 24, 93
+  offset: 3, 3
+  index: -1
+0016
+  rotate: false
+  xy: 1204, 2
+  size: 32, 89
+  orig: 38, 95
+  offset: 3, 3
+  index: -1
+0017
+  rotate: false
+  xy: 1018, 4
+  size: 56, 87
+  orig: 62, 93
+  offset: 3, 3
+  index: -1
+0018
+  rotate: false
+  xy: 749, 4
+  size: 73, 87
+  orig: 79, 93
+  offset: 3, 3
+  index: -1
+0019
+  rotate: false
+  xy: 348, 4
+  size: 81, 87
+  orig: 87, 93
+  offset: 3, 3
+  index: -1
+0020
+  rotate: false
+  xy: 89, 6
+  size: 85, 85
+  orig: 91, 91
+  offset: 3, 3
+  index: -1

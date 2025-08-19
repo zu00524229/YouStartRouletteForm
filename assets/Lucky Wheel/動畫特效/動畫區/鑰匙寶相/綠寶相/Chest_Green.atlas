@@ -1,0 +1,20 @@
+
+Chest_Green.png
+size: 888,414
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Green_Chest
+  rotate: true
+  xy: 522, 38
+  size: 374, 364
+  orig: 382, 372
+  offset: 4, 4
+  index: -1
+Green_Open
+  rotate: true
+  xy: 2, 2
+  size: 410, 518
+  orig: 422, 531
+  offset: 6, 6
+  index: -1

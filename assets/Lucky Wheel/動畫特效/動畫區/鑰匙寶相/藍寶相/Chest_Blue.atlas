@@ -1,0 +1,20 @@
+
+Chest_Blue.png
+size: 882,425
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Blue_Chest
+  rotate: true
+  xy: 520, 47
+  size: 376, 360
+  orig: 384, 369
+  offset: 4, 4
+  index: -1
+Blue_Open
+  rotate: true
+  xy: 2, 2
+  size: 421, 516
+  orig: 433, 529
+  offset: 6, 6
+  index: -1

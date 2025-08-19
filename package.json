@@ -1,0 +1,10 @@
+{
+  "name": "GOLDEN",
+  "uuid": "477b918d-2c4b-4aea-a3d8-f434839c673b",
+  "creator": {
+    "version": "3.8.6"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

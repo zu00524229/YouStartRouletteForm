@@ -1,0 +1,13 @@
+
+Chest_Glow.png
+size: 356,376
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BigWin_Light
+  rotate: false
+  xy: 2, 2
+  size: 352, 372
+  orig: 475, 475
+  offset: 66, 45
+  index: -1

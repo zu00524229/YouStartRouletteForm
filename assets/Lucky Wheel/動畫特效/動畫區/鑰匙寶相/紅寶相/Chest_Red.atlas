@@ -1,0 +1,20 @@
+
+Chest_Red.png
+size: 867,418
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Red_Chest
+  rotate: true
+  xy: 505, 30
+  size: 386, 360
+  orig: 394, 368
+  offset: 4, 4
+  index: -1
+Red_Open
+  rotate: true
+  xy: 2, 2
+  size: 414, 501
+  orig: 426, 511
+  offset: 6, 5
+  index: -1

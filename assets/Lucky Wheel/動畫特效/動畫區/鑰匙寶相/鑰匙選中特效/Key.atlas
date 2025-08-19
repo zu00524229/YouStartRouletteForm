@@ -1,0 +1,104 @@
+
+Key.png
+size: 1895,1615
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Key_Glow_00000
+  rotate: false
+  xy: 728, 1075
+  size: 357, 538
+  orig: 402, 598
+  offset: 12, 28
+  index: -1
+Key_Glow_00001
+  rotate: false
+  xy: 751, 537
+  size: 354, 536
+  orig: 399, 598
+  offset: 11, 30
+  index: -1
+Key_Glow_00002
+  rotate: false
+  xy: 2, 1059
+  size: 351, 554
+  orig: 398, 595
+  offset: 15, 27
+  index: -1
+Key_Glow_00003
+  rotate: false
+  xy: 2, 504
+  size: 364, 553
+  orig: 405, 598
+  offset: 13, 30
+  index: -1
+Key_Glow_00004
+  rotate: false
+  xy: 355, 1061
+  size: 371, 552
+  orig: 409, 601
+  offset: 14, 31
+  index: -1
+Key_Glow_00005
+  rotate: false
+  xy: 368, 510
+  size: 381, 549
+  orig: 405, 596
+  offset: 11, 26
+  index: -1
+Key_Glow_00006
+  rotate: false
+  xy: 1087, 1080
+  size: 381, 533
+  orig: 402, 578
+  offset: 11, 12
+  index: -1
+Key_Glow_00007
+  rotate: false
+  xy: 1107, 547
+  size: 376, 531
+  orig: 400, 573
+  offset: 12, 13
+  index: -1
+Key_Glow_00008
+  rotate: false
+  xy: 1053, 2
+  size: 396, 533
+  orig: 459, 568
+  offset: 31, 15
+  index: -1
+Key_Glow_00009
+  rotate: false
+  xy: 1451, 19
+  size: 420, 526
+  orig: 477, 571
+  offset: 22, 22
+  index: -1
+Key_Glow_00010
+  rotate: true
+  xy: 2, 71
+  size: 431, 523
+  orig: 470, 596
+  offset: 17, 16
+  index: -1
+Key_Glow_00011
+  rotate: true
+  xy: 527, 78
+  size: 430, 524
+  orig: 461, 597
+  offset: 14, 14
+  index: -1
+Key_Glow_00012
+  rotate: false
+  xy: 1470, 1086
+  size: 423, 527
+  orig: 454, 599
+  offset: 15, 14
+  index: -1
+Key_Glow_00013
+  rotate: false
+  xy: 1485, 555
+  size: 405, 529
+  orig: 448, 604
+  offset: 25, 17
+  index: -1

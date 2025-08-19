@@ -1,0 +1,37 @@
+{
+  "__version__": "1.0.6",
+  "general": {
+    "designResolution": {
+      "width": 591,
+      "height": 1280
+    }
+  },
+  "custom_joint_texture_layouts": [],
+  "physics": {
+    "collisionMatrix": {
+      "0": 7,
+      "1": 7,
+      "2": 7
+    },
+    "collisionGroups": [
+      {
+        "index": 1,
+        "name": "WHEEL_Dot"
+      },
+      {
+        "index": 2,
+        "name": "WHEEL_Pointer"
+      }
+    ]
+  },
+  "layer": [
+    {
+      "name": "WHEEL_Dot",
+      "value": 1
+    },
+    {
+      "name": "WHEEL_Pointer",
+      "value": 2
+    }
+  ]
+}

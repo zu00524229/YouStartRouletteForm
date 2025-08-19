@@ -1,0 +1,5 @@
+Standby
+
+銜接選中-Standby_Pick-Standby_Pick_Glow-Standby_Pick_Glow_Loop
+
+銜接未選中-Standby_No_picking
