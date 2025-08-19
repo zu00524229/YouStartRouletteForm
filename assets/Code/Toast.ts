@@ -16,7 +16,7 @@ export class Toast extends Component {
   @property(Node) PleaseBetNow: Node = null; // 遊戲開始顯示提示(玩家下注)
   @property(Node) BetLocked: Node = null; // Start 轉盤開始後(禁止下注)
 
-  @property(Label) WinTotal: Label = null; // 獲得獎金提示文字
+  // @property(Label) WinTotal: Label = null; // 獲得獎金提示文字
 
   @property(Node) WinningTips: Node = null; // 獲得獎金外框容器
   @property(Node) WinTotalContainer: Node = null; // 用來放數字圖的節點
@@ -24,8 +24,8 @@ export class Toast extends Component {
 
   @property([SpriteFrame]) digitSprites: SpriteFrame[] = []; // 數字圖集（0~9）
   @property([SpriteFrame]) multSprites: SpriteFrame[] = []; // 倍率數字
-  @property(SpriteFrame) winSprite: SpriteFrame = null; // WIN 圖片
-  @property(SpriteFrame) xSprite: SpriteFrame = null; // x 圖片
+  // @property(SpriteFrame) winSprite: SpriteFrame = null; // WIN 圖片
+  // @property(SpriteFrame) xSprite: SpriteFrame = null; // x 圖片
 
   @property(Node) bonusGameUI: Node = null; // 導入提示大獎父節點
   @property(Node) MANIABg: Node = null; // 內容父節點
@@ -134,6 +134,11 @@ export class Toast extends Component {
     this.bonusGameUI.active = true; // 啟用父層節點（外框）
     this.MANIABg.active = true;
     this.BobusTitle.active = true;
+
+    // 先全部關閉
+    this.pickNode.active = false;
+    this.maniaNode.active = false;
+    this.superNode.active = false;
 
     // 顯示指定哪個
     let targetNode: Node | null = null;

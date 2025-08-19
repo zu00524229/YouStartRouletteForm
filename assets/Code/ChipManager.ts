@@ -1,4 +1,4 @@
-import { playerState } from './Login/playerState';
+// import { playerState } from './Login/playerState';
 import { _decorator, Button, CCInteger, Component, EventTouch, instantiate, Label, Node, Prefab, Sprite, SpriteFrame, tween, UIOpacity, UITransform, Vec3 } from 'cc';
 import { AudioManager } from './Audio/AudioManager';
 import { BetHighlighter } from './BetHightlight';
@@ -25,16 +25,16 @@ export class ChipManager extends Component {
   @property({ type: Button }) Proportion: Button = null;
   @property(Node) ProporMask: Node = null;
 
-  @property({ type: Button }) StartButton: Button = null;
+  // @property({ type: Button }) StartButton: Button = null;
   @property({ type: Button }) AllButton: Button = null;
   @property({ type: Button }) X2Button: Button = null; // 雙倍按鈕
 
-  @property({ type: Button }) AgainButton: Button = null;
+  // @property({ type: Button }) AgainButton: Button = null;
   @property({ type: Button }) AutoButton: Button = null;
-  @property(Label) AutoLabel: Label = null;
-  @property(Sprite) AutoSprite: Sprite = null;
-  @property(SpriteFrame) AutoSpriteFrame: SpriteFrame = null; // Auto 按鈕的圖片
-  @property(SpriteFrame) StopSpriteFrame: SpriteFrame = null; // Stop 按鈕的圖片
+  // @property(Label) AutoLabel: Label = null;
+  // @property(Sprite) AutoSprite: Sprite = null;
+  // @property(SpriteFrame) AutoSpriteFrame: SpriteFrame = null; // Auto 按鈕的圖片
+  // @property(SpriteFrame) StopSpriteFrame: SpriteFrame = null; // Stop 按鈕的圖片
 
   @property({ type: Button }) UndoButton: Button = null;
   @property({ type: Button }) ClearButton: Button = null;
@@ -50,14 +50,14 @@ export class ChipManager extends Component {
   @property([Prefab]) chipPrefab: Prefab[] = []; // [Bet_50, Bet_100, Bet_500 對應 chipValues] (對應籌碼顯示圖庫)
   @property(Prefab) chipButtonPrefab: Prefab = null; // 掛在 ChipButton 上的 Sprite 元件 (最後顯示)
 
-  @property(Label) Bet_TitleLabel: Label = null; // 下注額度標題
+  // @property(Label) Bet_TitleLabel: Label = null; // 下注額度標題
   @property(Label) Bet_Label: Label = null; // 顯示下注額度
-  @property(Label) Balance_TitleLabel: Label = null; // 餘額標題
+  // @property(Label) Balance_TitleLabel: Label = null; // 餘額標題
   @property(Label) Balance_Label: Label = null; // 顯示玩家餘額
-  @property(Label) Win_TitleLabel: Label = null; // 贏得條碼標題
+  // @property(Label) Win_TitleLabel: Label = null; // 贏得條碼標題
   @property(Label) Win_Label: Label = null; // 導入贏得籌碼
 
-  Balance_Num: number = player.currentPlayer.balance; // 初始餘額(未來會連後端)
+  Balance_Num: number = 0; // 初始餘額(未來會連後端)
 
   // set Balance_Num(val: number) {
   //   console.log('🔎 Balance 改變:', this._balance, '→', val, new Error().stack);
@@ -234,7 +234,7 @@ export class ChipManager extends Component {
     // ===== 控制(Start / X2 / Undo / Clear) 是否啟動 ====
     const shouldEnableButtons = hasAnyBet && !isLotteryRunning && !isAutoMode;
     this.AutoButton.interactable = shouldEnableButtons;
-    this.StartButton.interactable = shouldEnableButtons;
+    // this.StartButton.interactable = shouldEnableButtons;
     this.X2Button.interactable = shouldEnableButtons;
     this.UndoButton.interactable = shouldEnableButtons;
     this.ClearButton.interactable = shouldEnableButtons;
@@ -261,31 +261,31 @@ export class ChipManager extends Component {
       // Auto 模式開啟
       this.AutoButton.node.active = true;
       this.AutoButton.interactable = true;
-      this.AgainButton.node.active = false;
+      // this.AgainButton.node.active = false;
     } else if (hasAnyBet) {
       // 有下注 → 顯示 Auto，Again 隱藏
       this.AutoButton.node.active = true;
       this.AutoButton.interactable = true;
-      this.AgainButton.node.active = false;
+      // this.AgainButton.node.active = false;
     } else if (hasLastBet) {
       // 有上局下注紀錄
-      this.AgainButton.node.active = true;
-      this.AgainButton.interactable = true;
+      // this.AgainButton.node.active = true;
+      // this.AgainButton.interactable = true;
       this.AutoButton.node.active = true;
     } else {
       // 無可操作項目
-      this.AgainButton.node.active = true;
-      this.AgainButton.interactable = false;
+      // this.AgainButton.node.active = true;
+      // this.AgainButton.interactable = false;
       this.AutoButton.node.active = true;
     }
   }
 
   // ==== 按下 START 後按鈕關燈 (鎖定所有下注與操作按鈕) ======
   offLightButton() {
-    this.StartButton.interactable = false;
+    // this.StartButton.interactable = false;
     this.AllButton.interactable = false;
     this.X2Button.interactable = false;
-    this.AgainButton.interactable = false;
+    // this.AgainButton.interactable = false;
     this.UndoButton.interactable = false;
     this.ClearButton.interactable = false;
     this.GOLDENTREASUREBet.interactable = false;
@@ -501,6 +501,7 @@ export class ChipManager extends Component {
   // ================== 下注區域點擊事件 ==================
   // 下注區域點擊事件（需在下注區域節點）
   onBetClick(event: EventTouch) {
+    console.log('👉 onBetClick 被觸發', event.currentTarget?.name);
     const betNode = event.currentTarget as Node; // 取得被點擊的下注區域節點
     const chipValue = this.selectedChipValue; // 取得目前選擇的籌碼金額
     const actionId = ++this.currentActionId;

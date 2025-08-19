@@ -15,7 +15,7 @@ export class index extends Component {
   @property(Node) WheelSprite_Node: Node = null; // 導入輪盤自身節點
   @property(Node) Poin_Node: Node = null; // 導入指針父節點
   @property(Node) pointerNode: Node = null; // 指針節點
-  @property([Node]) dotNodes: Node[] = []; // <<< 圓盤小圓點
+  // @property([Node]) dotNodes: Node[] = []; // <<< 圓盤小圓點
   // @property(Button) StartButton: Button = null;
   // @property({ type: Button }) AutoButton: Button = null; //
 
@@ -165,7 +165,7 @@ export class index extends Component {
     // 如果 Auto 模式已開啟 → 停止
     if (this.chipManager._isAutoMode) {
       this.chipManager._isAutoMode = false; // 關閉 Auto 模式
-      this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame; // 更新 Auto 按鈕圖片
+      // this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame; // 更新 Auto 按鈕圖片
       console.log('🛑 Auto 模式已手動關閉');
       // this.toast.showToast("Auto 模式已關閉");
       this.chipManager.updateStartButton();
@@ -180,7 +180,7 @@ export class index extends Component {
 
     // 開啟 Auto 模式
     this.chipManager._isAutoMode = true;
-    this.chipManager.AutoSprite.spriteFrame = this.chipManager.StopSpriteFrame; // 更新 Auto 按鈕圖片(Stop)
+    // this.chipManager.AutoSprite.spriteFrame = this.chipManager.StopSpriteFrame; // 更新 Auto 按鈕圖片(Stop)
     this.chipManager.offLightButton(); // 關閉按鈕(關燈)
 
     // 儲存目前下注狀態作為 lastBetAmounts（只做一次）
@@ -212,7 +212,7 @@ export class index extends Component {
       console.warn('🛑 餘額不足，停止自動下注');
       this.chipManager._isAutoMode = false;
       this.Lottery._isAutoRunning = false;
-      this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame;
+      // this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame;
       this.chipManager.updateStartButton();
       this.chipManager.AllButton.interactable = true;
       this.toast.showToast('餘額不足，自動已停止');
