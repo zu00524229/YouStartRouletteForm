@@ -151,6 +151,7 @@ export class index extends Component {
 
     this.chipManager.AllButton.interactable = true;
     this.chipManager.offLightButton(); // 按下start後 鎖住按鈕(關燈)
+    // this.chipManager.setAllMasksActive(true); // 開啟所有mask-2
     this.Lottery.onGoLotterEventCallback(); // 轉盤轉動(隨機抽獎)
     window.addEventListener('error', function (e) {
       console.error('🔴 Global Error 捕捉：', e.message, e.filename, e.lineno, e.colno);
@@ -165,7 +166,7 @@ export class index extends Component {
     // 如果 Auto 模式已開啟 → 停止
     if (this.chipManager._isAutoMode) {
       this.chipManager._isAutoMode = false; // 關閉 Auto 模式
-      // this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame; // 更新 Auto 按鈕圖片
+      this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame; // 更新 Auto 按鈕圖片
       console.log('🛑 Auto 模式已手動關閉');
       // this.toast.showToast("Auto 模式已關閉");
       this.chipManager.updateStartButton();
@@ -180,8 +181,9 @@ export class index extends Component {
 
     // 開啟 Auto 模式
     this.chipManager._isAutoMode = true;
-    // this.chipManager.AutoSprite.spriteFrame = this.chipManager.StopSpriteFrame; // 更新 Auto 按鈕圖片(Stop)
+    this.chipManager.AutoSprite.spriteFrame = this.chipManager.StopSpriteFrame; // 更新 Auto 按鈕圖片(Stop)
     this.chipManager.offLightButton(); // 關閉按鈕(關燈)
+    // this.chipManager.setAllMasksActive(true); // 開啟所有mask-2
 
     // 儲存目前下注狀態作為 lastBetAmounts（只做一次）
     this.chipManager.lastBetAmounts = { ...this.chipManager.betAmounts };

@@ -3,7 +3,7 @@ const { ccclass, property } = _decorator;
 
 export const player = {
   isLoggedIn: false,
-  currentPlayer: null as { username: string; balance: number } | null,
+  currentPlayer: { username: '', balance: 0 }, // 預設 balance=0
 };
 
 @ccclass('playerState')

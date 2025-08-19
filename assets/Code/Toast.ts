@@ -214,7 +214,7 @@ export class Toast extends Component {
   // ========================== EXTRA PAY 提示 ==============================
   showExtraPay() {
     this.ExtraPayNode.active = true;
-    const uiOpacity = this.ExtraPayNode.getComponent(UIOpacity)!;
+    const uiOpacity = this.ExtraPayNode.getComponentInChildren(UIOpacity)!;
     this.ExtraPayNode.scale = new Vec3(0.5, 0.5, 1); //
     uiOpacity.opacity = 0;
 
@@ -232,7 +232,7 @@ export class Toast extends Component {
   }
 
   hideExtraPay() {
-    const uiOpacity = this.ExtraPayNode.getComponent(UIOpacity)!;
+    const uiOpacity = this.ExtraPayNode.getComponentInChildren(UIOpacity)!;
 
     tween(uiOpacity)
       .to(0.3, { opacity: 0 }, { easing: 'fade' })

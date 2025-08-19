@@ -11,7 +11,6 @@ const { ccclass, property } = _decorator;
 export class ChipManager extends Component {
   @property(Toast) toast: Toast = null; // 連結 Toast 組件，用於顯示提示訊息
   @property(AudioManager) Audio: AudioManager = null; // 連結 AudioManager
-  // @property(TurnLottery) Lottery: TurnLottery = null; // 連結 TurnLottery
   // ========= 下注區域(設置Button(無功能) 是為了視覺) ======
   @property({ type: Button }) GOLDENTREASUREBet: Button = null;
   @property({ type: Button }) GOLDMANIABet: Button = null;
@@ -29,12 +28,10 @@ export class ChipManager extends Component {
   @property({ type: Button }) AllButton: Button = null;
   @property({ type: Button }) X2Button: Button = null; // 雙倍按鈕
 
-  // @property({ type: Button }) AgainButton: Button = null;
   @property({ type: Button }) AutoButton: Button = null;
-  // @property(Label) AutoLabel: Label = null;
-  // @property(Sprite) AutoSprite: Sprite = null;
-  // @property(SpriteFrame) AutoSpriteFrame: SpriteFrame = null; // Auto 按鈕的圖片
-  // @property(SpriteFrame) StopSpriteFrame: SpriteFrame = null; // Stop 按鈕的圖片
+  @property(Sprite) AutoSprite: Sprite = null;
+  @property(SpriteFrame) AutoSpriteFrame: SpriteFrame = null;
+  @property(SpriteFrame) StopSpriteFrame: SpriteFrame = null;
 
   @property({ type: Button }) UndoButton: Button = null;
   @property({ type: Button }) ClearButton: Button = null;
@@ -57,21 +54,12 @@ export class ChipManager extends Component {
   // @property(Label) Win_TitleLabel: Label = null; // 贏得條碼標題
   @property(Label) Win_Label: Label = null; // 導入贏得籌碼
 
-  Balance_Num: number = 0; // 初始餘額(未來會連後端)
-
-  // set Balance_Num(val: number) {
-  //   console.log('🔎 Balance 改變:', this._balance, '→', val, new Error().stack);
-  //   this._balance = val;
-  // }
-
-  // get Balance_Num(): number {
-  //   return this._balance;
-  // }
+  Balance_Num: number = player.currentPlayer.balance; // 初始餘額(未來會連後端)
 
   Bet_Num: number = 0; // 玩家總下注金額(預設0)
   Win_Num: number = 0; // 初始化0
 
-  selectedChipValue: number = 50; // 玩家當前籌碼金額 預設50
+  selectedChipValue: number = 100; // 玩家當前籌碼金額 預設100
   totalNeeded = this.selectedChipValue * this.betAreaNodes.length; // 總共需要的下注金額(每個下注區域都下注選擇的籌碼金額) 用來判斷餘額夠不夠
 
   betAmounts: { [areaName: string]: number } = {}; // 儲存每個下注區域的累積下注金額(哈希表)
@@ -177,6 +165,7 @@ export class ChipManager extends Component {
 
   // 顯示動畫
   showChipPopup() {
+    console.log('已啟用');
     this.Audio.AudioSources[1].play(); // 播放按鈕音效
     this.chipPopupPanel.active = true;
     // 以 chipButton 為基準定位
@@ -341,10 +330,10 @@ export class ChipManager extends Component {
     betNode.addChild(newChip); // 加入至對應下注區節點下
 
     // === 動畫效果：出現時放大後縮回原狀 ===
-    newChip.setScale(new Vec3(0.6, 0.6, 1)); // 初始縮小
+    newChip.setScale(new Vec3(1.0, 1.0, 1)); // 初始縮小
     tween(newChip)
-      .to(0.1, { scale: new Vec3(0.9, 0.9, 1) }) // 瞬間放大
-      .to(0.1, { scale: new Vec3(0.6, 0.6, 1) }) // 縮回正常大小
+      .to(0.1, { scale: new Vec3(1.2, 1.2, 1) }) // 瞬間放大
+      .to(0.1, { scale: new Vec3(1.0, 1.0, 1) }) // 縮回正常大小
       .start();
 
     this.Audio.AudioSources[2].play(); // 播放押注(索引2)音效
@@ -457,7 +446,7 @@ export class ChipManager extends Component {
     const node = this.betAreaNodes[index];
     if (!node) return;
 
-    const highlighter = node.getComponent(BetHighlighter);
+    const highlighter = node.getComponent(BetHighlighter); // 撈子節點getComponentInChildren / 撈父節點getComponent
     if (highlighter) {
       this.scheduleOnce(() => {
         highlighter.showWinEffect();
@@ -493,7 +482,7 @@ export class ChipManager extends Component {
   // 清除下注區上的 ExtraPay 標記
   public clearAllExtraPayMarks() {
     for (const node of this.betAreaNodes) {
-      const controller = node.getComponent(ExtraPayController);
+      const controller = node.getComponentInChildren(ExtraPayController);
       if (controller) controller.hide(); // hide() 就是讓 .active = false
     }
   }
@@ -501,7 +490,7 @@ export class ChipManager extends Component {
   // ================== 下注區域點擊事件 ==================
   // 下注區域點擊事件（需在下注區域節點）
   onBetClick(event: EventTouch) {
-    console.log('👉 onBetClick 被觸發', event.currentTarget?.name);
+    // console.log('👉 onBetClick 被觸發', event.currentTarget?.name);
     const betNode = event.currentTarget as Node; // 取得被點擊的下注區域節點
     const chipValue = this.selectedChipValue; // 取得目前選擇的籌碼金額
     const actionId = ++this.currentActionId;

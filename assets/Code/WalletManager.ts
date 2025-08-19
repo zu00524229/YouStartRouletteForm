@@ -31,7 +31,8 @@ export class WalletManager extends Component {
       // 3. 顯示提示
       this.toast.showPleaseBetNow();
       this.chipManager.clearAllExtraPayMarks();
-      this.chipManager.onLightBetArea();
+      // this.chipManager.onLightBetArea();
+      // this.chipManager.setAllMasksActive(true); // 開啟所有mask-2
       this._isLottery = false;
       director.emit('LotteryEnded');
       console.log('🔔 [WalletManager] 已發送 LotteryEnded 事件');

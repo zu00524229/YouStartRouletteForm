@@ -204,7 +204,7 @@ export class TurnLottery extends Component {
     // 🔍 在送出之前 log 清楚數字
     // console.log('📤 [下注送出前] balanceBefore(前端):', balanceBefore);
 
-    // this.chipManager.offLightButton()
+    this.chipManager.offLightButton();
     this.toast.showBetLocked(); // 顯示(BetLocked)
     this.scheduleOnce(() => {
       this.toast.hideBetLocked(); // 隱藏(BetLocked)
@@ -265,7 +265,7 @@ export class TurnLottery extends Component {
     // this.turnBgNode.angle %= 360;   // 隨機角度初始化
 
     // 顯示 BetLocked 提示
-    this.toast.showBetLocked();
+    // this.toast.showBetLocked();
 
     // 等待 2.5 秒後開始轉盤動畫
     this.scheduleOnce(() => {
@@ -324,155 +324,161 @@ export class TurnLottery extends Component {
       this.chipManager.highlightBetArea(betKey);
     }
 
-    // ===== 特殊獎項處理 =====
-    switch (rewardName) {
-      case 'GOLDEN_TREASURE':
-        this._isSceneTransitioning = true;
-        this.toast.showBonusUI('SUPER');
+    if (winAmount > 0) {
+      if (['GOLDEN_TREASURE', 'GOLD_MANIA', 'PRIZE_PICK'].indexOf(rewardName) === -1) {
+        this.chipManager.Win_Num += winAmount; // 獲得獎金
+        this.chipManager.updateGlobalLabels(); // 更新畫面
+        this.showTargetEffect(); // ✅ 只做特效，不更新得分
+      }
+
+      // ===== 特殊獎項處理 =====
+      switch (rewardName) {
+        case 'GOLDEN_TREASURE':
+          this._isSceneTransitioning = true;
+          this.toast.showBonusUI('SUPER');
+
+          this.scheduleOnce(() => {
+            this.toast.hideBonusUI();
+
+            // 顯示並啟動 main RL rotation effect 節點動畫
+            if (this.RLRota) {
+              this.RLRota.node.active = true;
+
+              this.RLRota.playRotationEffect(); // 持續 3 秒左右
+
+              this.scheduleOnce(() => {
+                director.loadScene('SUPER'); // 動畫結束轉場
+              }, 3); // 水波動畫3秒後轉場
+            } else {
+              console.warn('❌ 找不到 main RL rotation effect 節點！');
+              director.loadScene('SUPER'); // 安全 fallback
+            }
+          }, this.Delay_Hide); // hide 完再做動畫
+          break;
+
+        case 'GOLD_MANIA':
+          this._isSceneTransitioning = true;
+          this.toast.showBonusUI('MANIABOX');
+          this.scheduleOnce(() => {
+            this.toast.hideBonusUI();
+            director.loadScene('MANIA');
+            // 未來會有轉場 到特殊畫面再次抽獎
+          }, this.Delay_Hide);
+          //  抽完後再回到原畫面繼續轉盤
+          break;
+        case 'PRIZE_PICK':
+          this._isSceneTransitioning = true;
+          this.toast.showBonusUI('PICKPK');
+          this.scheduleOnce(() => {
+            this.toast.hideBonusUI();
+            director.loadScene('PICK');
+            // 未來會有轉場 到特殊畫面再次抽獎
+          }, this.Delay_Hide);
+          //  抽完後再回到原畫面繼續轉盤
+          break;
+        case '10X':
+        case '6X':
+        case '4X':
+        case '2X':
+          this.scheduleOnce(() => {
+            this.toast.showWinningTips(multiplier, winAmount);
+          }, this.Delay_Show); // 延遲 x 秒後顯示中獎提示
+          break;
+        // default:
+        //     this.scheduleOnce(() => {
+        //         this.toast.showWinningTips(multiplier, winAmount);
+        //     }, this.Delay_Show); // 延遲 x 秒後顯示中獎提示
+      }
+
+      this.scheduleOnce(() => {
+        //  若正在轉場（如水波動畫還在跑），就不進行 reset 與自動下注
+        if (this._isSceneTransitioning) {
+          console.log('⛔ 正在轉場動畫中，阻止畫面 reset 與自動下注');
+          return;
+        }
+
+        // 1.隱藏中獎提示
+        this.toast.hideWinningTips();
+
+        // 2.更新餘額（後端 balanceAfter 為準）
+        // ✅ 再次確保餘額同步
+        // console.log('第二次設定 Balance_Num:', balanceAfter, resp?.balanceAfter, this.chipManager.Balance_Num);
+        // this.chipManager.Balance_Num = balanceAfter;
+        this.chipManager.updateGlobalLabels(); // 更新畫面
+
+        // 3.清除籌碼與重設UI
+        this.chipManager.clearAllBets(); // 清除籌碼與結算
+        this.chipManager.updateStartButton(); // 若有下注且輪盤停止，開啟操作按鈕
+        this.chipManager.AllButton.interactable = true;
+        this.chipManager.AutoButton.node.active = true;
+        // this.chipManager.StopButton.node.active = false;
+
+        // 顯示提示(玩家下注)新的回合
+        this.toast.showPleaseBetNow();
+        this._isLottery = false;
+        director.emit('LotteryEnded'); // 更新 StartButton (重啟)
+        this.chipManager.clearAllExtraPayMarks();
+        // this.chipManager.onLightButton(); // 開啟按鈕
+        // this.chipManager.Win_Num = 0;
+
+        if (this.chipManager._isAutoMode) {
+          this.chipManager.offLightButton(); // 關閉自動下注按鈕
+          // this.chipManager.offLightBetArea()
+        }
 
         this.scheduleOnce(() => {
-          this.toast.hideBonusUI();
+          this.toast.hidePleaseBetNow();
 
-          // 顯示並啟動 main RL rotation effect 節點動畫
-          if (this.RLRota) {
-            this.RLRota.node.active = true;
-
-            this.RLRota.playRotationEffect(); // 持續 3 秒左右
-
+          if (this.chipManager._isAutoMode) {
             this.scheduleOnce(() => {
-              director.loadScene('SUPER'); // 動畫結束轉場
-            }, 3); // 水波動畫3秒後轉場
-          } else {
-            console.warn('❌ 找不到 main RL rotation effect 節點！');
-            director.loadScene('SUPER'); // 安全 fallback
+              this.onGoLotterEventCallback(); // 下一輪自動抽獎（不再呼叫 onStartButton）
+              // director.emit('DO_AUTO_BET');
+            }, 1);
           }
-        }, this.Delay_Hide); // hide 完再做動畫
-        break;
+        }, this.Delay_Hide); // X 秒後隱藏提示(Auto 模式下)
+      }, this.Delay_Hide + this.Delay_Show);
+    } else {
+      // 🔴 沒中獎也要處理：清除籌碼與 UI 重置
+      this.scheduleOnce(() => {
+        this.chipManager.clearAllBets(); // 清除下注與籌碼
+        this.chipManager.updateGlobalLabels(); // 更新畫面數值
+        this.chipManager.updateStartButton(); // 啟用按鈕（若上局有下注）
+        this.chipManager.AllButton.interactable = true;
+        this.chipManager.AutoButton.node.active = true;
+        // this.chipManager.StopButton.node.active = false;
 
-      case 'GOLD_MANIA':
-        this._isSceneTransitioning = true;
-        this.toast.showBonusUI('MANIABOX');
+        this.toast.showPleaseBetNow();
+        this._isLottery = false; // 重置抽獎狀態
+        director.emit('LotteryEnded'); // 更新 StartButton (重啟)
+        this.chipManager.clearAllExtraPayMarks();
+        // this.chipManager.onLightBetArea();
+        // this.chipManager.onLightButton(); // 開啟按鈕
+
+        if (this.chipManager._isAutoMode) {
+          this.chipManager.offLightButton(); // 關閉自動下注按鈕
+        }
+
         this.scheduleOnce(() => {
-          this.toast.hideBonusUI();
-          director.loadScene('MANIA');
-          // 未來會有轉場 到特殊畫面再次抽獎
-        }, this.Delay_Hide);
-        //  抽完後再回到原畫面繼續轉盤
-        break;
-      case 'PRIZE_PICK':
-        this._isSceneTransitioning = true;
-        this.toast.showBonusUI('PICKPK');
-        this.scheduleOnce(() => {
-          this.toast.hideBonusUI();
-          director.loadScene('PICK');
-          // 未來會有轉場 到特殊畫面再次抽獎
-        }, this.Delay_Hide);
-        //  抽完後再回到原畫面繼續轉盤
-        break;
-      case '10X':
-      case '6X':
-      case '4X':
-      case '2X':
-        this.scheduleOnce(() => {
-          this.toast.showWinningTips(multiplier, winAmount);
-        }, this.Delay_Show); // 延遲 x 秒後顯示中獎提示
-        break;
-      // default:
-      //     this.scheduleOnce(() => {
-      //         this.toast.showWinningTips(multiplier, winAmount);
-      //     }, this.Delay_Show); // 延遲 x 秒後顯示中獎提示
+          // ✅ 若正在轉場（如水波動畫還在跑），就不進行 reset 與自動下注
+          if (this._isSceneTransitioning) {
+            console.log('⛔ 正在轉場動畫中，阻止畫面 reset 與自動下注');
+            return;
+          }
+          this.toast.hidePleaseBetNow();
+
+          if (this.chipManager._isAutoMode) {
+            this.scheduleOnce(() => {
+              this.onGoLotterEventCallback(); // 下一輪自動抽獎（不再呼叫 onStartButton）
+            }, 1);
+          }
+        }, this.Delay_Hide); // 3秒後隱藏提示(Auto 模式下)
+      }, this.Delay_Hide + this.Delay_Show);
     }
-
-    // if (winAmount > 0) {
-    //   // if (['GOLDEN_TREASURE', 'GOLD_MANIA', 'PRIZE_PICK'].indexOf(rewardName) === -1) {
-    //   //   this.chipManager.Win_Num += winAmount; // 獲得獎金
-    //   //   this.chipManager.updateGlobalLabels(); // 更新畫面
-    //   //   // this.showTargetEffect(); // ✅ 只做特效，不更新得分
-    //   // }
-
-    //   this.scheduleOnce(() => {
-    //     //  若正在轉場（如水波動畫還在跑），就不進行 reset 與自動下注
-    //     if (this._isSceneTransitioning) {
-    //       console.log('⛔ 正在轉場動畫中，阻止畫面 reset 與自動下注');
-    //       return;
-    //     }
-
-    //     // 1.隱藏中獎提示
-    //     this.toast.hideWinningTips();
-
-    //     // 2.更新餘額（後端 balanceAfter 為準）
-    //     // ✅ 再次確保餘額同步
-    //     // console.log('第二次設定 Balance_Num:', balanceAfter, resp?.balanceAfter, this.chipManager.Balance_Num);
-    //     // this.chipManager.Balance_Num = balanceAfter;
-    //     this.chipManager.updateGlobalLabels(); // 更新畫面
-
-    //     // 3.清除籌碼與重設UI
-    //     this.chipManager.clearAllBets(); // 清除籌碼與結算
-    //     this.chipManager.updateStartButton(); // 若有下注且輪盤停止，開啟操作按鈕
-    //     this.chipManager.AllButton.interactable = true;
-
-    //     // 顯示提示(玩家下注)新的回合
-    //     this.toast.showPleaseBetNow();
-    //     this._isLottery = false;
-    //     director.emit('LotteryEnded'); // 更新 StartButton (重啟)
-    //     this.chipManager.clearAllExtraPayMarks();
-    //     this.chipManager.onLightBetArea();
-    //     // this.chipManager.Win_Num = 0;
-
-    //     if (this.chipManager._isAutoMode) {
-    //       this.chipManager.offLightButton(); // 關閉自動下注按鈕
-    //       // this.chipManager.offLightBetArea()
-    //     }
-
-    //     this.scheduleOnce(() => {
-    //       this.toast.hidePleaseBetNow();
-
-    //       if (this.chipManager._isAutoMode) {
-    //         this.scheduleOnce(() => {
-    //           this.onGoLotterEventCallback(); // 下一輪自動抽獎（不再呼叫 onStartButton）
-    //           director.emit('DO_AUTO_BET');
-    //         }, 1);
-    //       }
-    //     }, this.Delay_Hide); // X 秒後隱藏提示(Auto 模式下)
-    //   }, this.Delay_Hide + this.Delay_Show);
-    // } else {
-    //   // 🔴 沒中獎也要處理：清除籌碼與 UI 重置
-    //   this.scheduleOnce(() => {
-    //     this.chipManager.clearAllBets(); // 清除下注與籌碼
-    //     this.chipManager.updateGlobalLabels(); // 更新畫面數值
-    //     this.chipManager.updateStartButton(); // 啟用按鈕（若上局有下注）
-    //     this.chipManager.AllButton.interactable = true;
-
-    //     this.toast.showPleaseBetNow();
-    //     this._isLottery = false; // 重置抽獎狀態
-    //     director.emit('LotteryEnded'); // 更新 StartButton (重啟)
-    //     this.chipManager.clearAllExtraPayMarks();
-    //     this.chipManager.onLightBetArea();
-
-    //     if (this.chipManager._isAutoMode) {
-    //       this.chipManager.offLightButton(); // 關閉自動下注按鈕
-    //     }
-
-    //     this.scheduleOnce(() => {
-    //       // ✅ 若正在轉場（如水波動畫還在跑），就不進行 reset 與自動下注
-    //       if (this._isSceneTransitioning) {
-    //         console.log('⛔ 正在轉場動畫中，阻止畫面 reset 與自動下注');
-    //         return;
-    //       }
-    //       this.toast.hidePleaseBetNow();
-
-    //       if (this.chipManager._isAutoMode) {
-    //         this.scheduleOnce(() => {
-    //           this.onGoLotterEventCallback(); // 下一輪自動抽獎（不再呼叫 onStartButton）
-    //         }, 1);
-    //       }
-    //     }, this.Delay_Hide); // 3秒後隱藏提示(Auto 模式下)
-    //   }, this.Delay_Hide + this.Delay_Show);
-    // }
   }
 
   //  中獎特效：顯示 target 光圈並閃爍
   public showTargetEffect() {
+    // console.log('呼叫Target');
     try {
       if (!this.targetEffect) {
         console.warn('❗ targetEffect 為 null');
@@ -513,12 +519,14 @@ export class TurnLottery extends Component {
 
   // ExtraPay
   private handleExtraPay(extraPay: any, callback: () => void) {
+    console.log('啟動handleExtraPay');
     if (!extraPay?.rewardName || !extraPay?.extraMultiplier) {
       callback();
       return;
     }
 
     const betArea = TurnLottery.getRewardByBetArea(extraPay.rewardName);
+    console.log('extraPay.rewardName =', extraPay.rewardName, '轉換後 betArea =', betArea);
     if (!betArea) {
       console.warn('⚠ 無法從 rewardName 取得下注區');
       callback();
@@ -531,7 +539,7 @@ export class TurnLottery extends Component {
     // const areaNode = this.chipManager.getBetAreaNode(betArea);
     const index = this.chipManager.betAreaMap[betArea];
     const areaNode = this.chipManager.betAreaNodes[index];
-    const extraCtrl = areaNode?.getComponent(ExtraPayController);
+    const extraCtrl = areaNode?.getComponentInChildren(ExtraPayController);
     extraCtrl?.show();
 
     // 等動畫播完後 callback（開始轉盤）

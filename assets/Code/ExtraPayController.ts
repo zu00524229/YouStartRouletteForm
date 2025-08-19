@@ -13,9 +13,13 @@ export class ExtraPayController extends Component {
   }
 
   public show(multiplier: number = 2) {
+    console.log('>>> 呼叫 ExtraPayController.show()');
+    console.log('ExtraPaySprite node =', this.ExtraPaySprite);
     if (!this.ExtraPaySprite) return;
-
+    console.log(`🎯 ExtraPay 顯示: ${this.node.name}, 倍率=${multiplier}`);
     this.ExtraPaySprite.active = true;
+    // 確保整個控制器節點打開
+    this.node.active = true;
 
     this.ExtraPaySprite.setScale(new Vec3(1, 1, 1)); // 重設縮放初始值
 
@@ -28,6 +32,7 @@ export class ExtraPayController extends Component {
   public hide() {
     if (this.ExtraPaySprite) {
       this.ExtraPaySprite.active = false;
+      this.node.active = false;
     }
   }
 }
