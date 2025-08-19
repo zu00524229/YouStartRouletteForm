@@ -161,7 +161,7 @@ export class MANIAController extends Component {
 
         // 再延遲 2 秒 回主畫面
         this.scheduleOnce(() => {
-          director.loadScene('C1');
+          director.loadScene('Game');
         }, this.Delay_Back); // 延遲 回主場景 (C1)
       }, this.Delay_Math); // 延遲加總
     }, this.Delay_Show); // 顯示獎金提示框的延遲（倍率動畫播完）

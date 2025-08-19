@@ -190,7 +190,7 @@ export class PickController extends Component {
 
         // 延遲 Delay_Back 秒後回主畫面
         this.scheduleOnce(() => {
-          director.loadScene('C1'); // 回主畫面
+          director.loadScene('Game'); // 回主畫面
         }, this.Delay_Back); // 回主畫面延遲
       }, this.Delay_Math); // 加總與顯示餘額延遲
     }, this.Delay_Show); // 顯示提示延遲

@@ -71,7 +71,7 @@ export class LoginPanel extends Component {
           // 把餘額暫存到全域，進入遊戲場景再設定
           // this.node.active = false; // 登入成功隱藏視窗
           // 切換到遊戲場景
-          director.loadScene('C1'); // 這裡換成你遊戲場景的名字
+          director.loadScene('Game'); // 這裡換成你遊戲場景的名字
         } else {
           console.warn('❌ 登入失敗：', res.message);
         }

@@ -273,7 +273,7 @@ export class SuperController extends Component {
 
             LotteryCache.lastResult.balanceAfterWin = this.Balance_Num; // 快取資料(準備給主畫面)
             this.scheduleOnce(() => {
-              director.loadScene('C1');
+              director.loadScene('Game');
             }, this.Delay_Back); // 4秒 + 前面6秒 = 10秒 回主畫面延遲
           }, this.Delay_Math); // 轉盤結束後第6秒，顯示WIN並結算
         }, this.Delay_Show); // 轉盤結束後第2秒，顯示EPIC提示
