@@ -122,12 +122,12 @@ export class index extends Component {
   private handleLotteryBalance(resp: LotteryResponse) {
     console.log('💰 收到 LotteryResponse：', resp);
     this._lastLotteryResp = resp;
-    // this.chipManager.Balance_Num = resp.balanceAfter ?? this.chipManager.Balance_Num;
-    // this.chipManager.Win_Num = resp.netChange ?? 0;
+    this.chipManager.Balance_Num = resp.balanceAfter ?? this.chipManager.Balance_Num;
+    this.chipManager.Win_Num = resp.netChange ?? 0;
 
-    // console.log('💰 更新餘額：', this.chipManager.Balance_Num, '淨變化：', this.chipManager.Win_Num);
+    console.log('💰 更新餘額：', this.chipManager.Balance_Num, '淨變化：', this.chipManager.Win_Num);
 
-    // this.chipManager.updateGlobalLabels();
+    this.chipManager.updateGlobalLabels();
   }
 
   onSendClick() {
