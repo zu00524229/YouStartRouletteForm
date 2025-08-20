@@ -167,6 +167,7 @@ export class index extends Component {
     if (this.chipManager._isAutoMode) {
       this.chipManager._isAutoMode = false; // 關閉 Auto 模式
       this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame; // 更新 Auto 按鈕圖片
+      this.chipManager.AutoBouttonSprite.spriteFrame = this.chipManager.AutoStartFrame; // 更新 Auto 按鈕圖片 (藍)
       console.log('🛑 Auto 模式已手動關閉');
       // this.toast.showToast("Auto 模式已關閉");
       this.chipManager.updateStartButton();
@@ -182,6 +183,7 @@ export class index extends Component {
     // 開啟 Auto 模式
     this.chipManager._isAutoMode = true;
     this.chipManager.AutoSprite.spriteFrame = this.chipManager.StopSpriteFrame; // 更新 Auto 按鈕圖片(Stop)
+    this.chipManager.AutoBouttonSprite.spriteFrame = this.chipManager.StopStopFrame; // 更新 Auto 按鈕圖片(粉)
     this.chipManager.offLightButton(); // 關閉按鈕(關燈)
     // this.chipManager.setAllMasksActive(true); // 開啟所有mask-2
 

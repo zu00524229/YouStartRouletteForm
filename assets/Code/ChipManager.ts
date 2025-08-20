@@ -29,9 +29,13 @@ export class ChipManager extends Component {
   @property({ type: Button }) X2Button: Button = null; // 雙倍按鈕
 
   @property({ type: Button }) AutoButton: Button = null;
-  @property(Sprite) AutoSprite: Sprite = null;
-  @property(SpriteFrame) AutoSpriteFrame: SpriteFrame = null;
-  @property(SpriteFrame) StopSpriteFrame: SpriteFrame = null;
+  @property(Sprite) AutoSprite: Sprite = null; // 按鈕上預設圖示
+  @property(SpriteFrame) AutoSpriteFrame: SpriteFrame = null; // auto 圖示  (play)
+  @property(SpriteFrame) StopSpriteFrame: SpriteFrame = null; // stop圖示 (方)
+
+  @property(Sprite) AutoBouttonSprite: Sprite = null; // 預設按鈕圖片(藍)
+  @property(SpriteFrame) AutoStartFrame: SpriteFrame = null; // 按鈕預設圖  (藍)
+  @property(SpriteFrame) StopStopFrame: SpriteFrame = null; // 按鈕stop圖 (粉)
 
   @property({ type: Button }) UndoButton: Button = null;
   @property({ type: Button }) ClearButton: Button = null;

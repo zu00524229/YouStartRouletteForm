@@ -10364,6 +10364,17 @@
       "__uuid__": "2df3927e-6ea3-42ac-ac47-03114b9f71e7@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
+    "AutoBouttonSprite": {
+      "__id__": 481
+    },
+    "AutoStartFrame": {
+      "__uuid__": "726995e2-7659-4dcf-b46d-3d58fdfc2d7a@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
+    "StopStopFrame": {
+      "__uuid__": "721d937c-792b-463f-b9b4-c47de52fd9db@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
     "UndoButton": {
       "__id__": 670
     },
