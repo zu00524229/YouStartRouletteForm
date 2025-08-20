@@ -1,5 +1,5 @@
 import { _decorator, Component, director, Node } from 'cc';
-import { LotteryResponse, PlaceBetRequest, SIGNALR_EVENTS } from '../Type/Types'; // 型別呼叫
+import { LotteryResponse, LotteryResultEvent, PlaceBetRequest, SIGNALR_EVENTS, UnifiedLotteryEvent } from '../Type/Types'; // 型別呼叫
 
 const { ccclass } = _decorator;
 declare const $: any;
@@ -85,16 +85,43 @@ export class SignalRClient {
   private static registerLotteryHandlers() {
     if (!this._hubProxy) return;
 
+    let lastResult: LotteryResultEvent | null = null;
+    let lastBalance: LotteryResponse | null = null;
+
+    // 🚀 整合器：檢查是否兩邊都回來了
+    const tryEmitUnified = () => {
+      if (lastResult && lastBalance) {
+        const unified: UnifiedLotteryEvent = {
+          ...lastResult,
+          balanceBefore: lastBalance.balanceBefore,
+          balanceAfter: lastBalance.balanceAfter,
+          totalBet: lastBalance.totalBet,
+          netChange: lastBalance.netChange,
+          insufficientBalance: lastBalance.insufficientBalance,
+          message: lastBalance.message,
+        };
+
+        console.log('🚀 發射 UnifiedLotteryEvent：', unified);
+        director.emit(SIGNALR_EVENTS.UNIFIED_LOTTERY_EVENT, unified);
+
+        // 用完清掉，避免舊資料卡住
+        lastResult = null;
+        lastBalance = null;
+      }
+    };
+
     // 🎯 轉盤動畫用：只有抽獎結果
-    this._hubProxy.on('broadcastLotteryResult', (result: any) => {
+    this._hubProxy.on('broadcastLotteryResult', (result: LotteryResultEvent) => {
       console.log('🎯 收到 broadcastLotteryResult：', result);
-      director.emit(SIGNALR_EVENTS.LOTTERY_RESULT, result);
+      lastResult = result;
+      tryEmitUnified();
     });
 
     // 📦 完整封包：錢包 / UI 用
     this._hubProxy.on('lotteryResult', (resp: LotteryResponse) => {
       console.log('📦 收到 lotteryResult (完整封包)：', resp);
-      director.emit(SIGNALR_EVENTS.LOTTERY_BALANCE, resp);
+      lastBalance = resp;
+      tryEmitUnified();
     });
   }
 

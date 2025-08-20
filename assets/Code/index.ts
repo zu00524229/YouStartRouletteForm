@@ -2,7 +2,7 @@ import { _decorator, Component, director, EventTouch, game, Label, Node, Prefab 
 import { AudioManager } from './Audio/AudioManager';
 import { ChipManager } from './ChipManager';
 import { SignalRClient } from './Signal/SignalRClient';
-import { LotteryResponse, SIGNALR_EVENTS } from './Type/Types'; // 型別呼叫
+import { LotteryResponse, SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types'; // 型別呼叫
 import { Toast } from './Toast';
 import { LotteryCache, TurnLottery } from './TurnLottery';
 import { player } from './Login/playerState';
@@ -95,12 +95,12 @@ export class index extends Component {
     // });
 
     // 當事件 OnLotteryResult 被觸發時，就執行對應的回呼函式（抽獎結果處理）
+    director.on(SIGNALR_EVENTS.UNIFIED_LOTTERY_EVENT, this.handleLotteryResult, this);
 
-    director.on(SIGNALR_EVENTS.LOTTERY_RESULT, this.handleLotteryResult, this); // 🎯 轉盤動畫用
-    // director.on('LotteryResultEvent', this.handleLotteryResult, this);
-
-    // 💰 錢包更新
-    director.on(SIGNALR_EVENTS.LOTTERY_BALANCE, this.handleLotteryBalance, this);
+    // director.on(SIGNALR_EVENTS.LOTTERY_RESULT, this.handleLotteryResult, this); // 🎯 轉盤動畫用
+    // // director.on('LotteryResultEvent', this.handleLotteryResult, this);
+    // // 💰 錢包更新
+    // director.on(SIGNALR_EVENTS.LOTTERY_BALANCE, this.handleLotteryBalance, this);
 
     // 當事件 GetLottryRewardRstEvent 被觸發時，重啟 UI 狀態
     director.on('LotteryEnded', this.onLotteryEnd, this);
@@ -113,7 +113,7 @@ export class index extends Component {
   }
 
   // ==== 回調Lottery 抽獎(PICK)結束後的值 ========
-  private handleLotteryResult = (data: any) => {
+  private handleLotteryResult = (data: UnifiedLotteryEvent) => {
     this.Lottery.onGetLotteryRewardRstEventCallback(data);
   };
 
@@ -122,12 +122,12 @@ export class index extends Component {
   private handleLotteryBalance(resp: LotteryResponse) {
     console.log('💰 收到 LotteryResponse：', resp);
     this._lastLotteryResp = resp;
-    this.chipManager.Balance_Num = resp.balanceAfter ?? this.chipManager.Balance_Num;
-    this.chipManager.Win_Num = resp.netChange ?? 0;
+    // this.chipManager.Balance_Num = resp.balanceAfter ?? this.chipManager.Balance_Num;
+    // this.chipManager.Win_Num = resp.netChange ?? 0;
 
     console.log('💰 更新餘額：', this.chipManager.Balance_Num, '淨變化：', this.chipManager.Win_Num);
-
-    this.chipManager.updateGlobalLabels();
+    // this.chipManager.updateGlobalLabels();
+    // ❌ 不直接更新 UI，等整合器 push UnifiedLotteryEvent
   }
 
   onSendClick() {

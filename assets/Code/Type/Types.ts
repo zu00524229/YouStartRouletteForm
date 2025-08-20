@@ -3,6 +3,7 @@
 export const SIGNALR_EVENTS = {
   LOTTERY_RESULT: 'LotteryResultEvent',
   LOTTERY_BALANCE: 'LotteryBalanceUpdate', // 錢包更新
+  UNIFIED_LOTTERY_EVENT: 'UnifiedLotteryEvent', // 統一的抽獎事件
 } as const;
 
 // ==================== 前端傳給後端：單次下注 ====================
@@ -49,6 +50,22 @@ export type LotteryResponse = {
   // result: LotteryResult; // 單次抽獎結果
   balanceBefore: number; // 抽獎前餘額
   balanceAfter: number; // 抽獎後餘額（含派彩）
+  totalBet: number; // 總下注金額
+  netChange: number; // 後端自動算好的淨變化 (派彩 - 下注)
+  insufficientBalance: boolean; // 是否餘額不足
+  message: string; // "OK" | "餘額不足" | "未登入" ...
+};
+
+// ==================== 前端整合後的統一事件 ====================
+export type UnifiedLotteryEvent = {
+  rewardName: string; // 獎項名稱（決定動畫/音效）
+  rewardIndex: number; // 落點 index（轉盤停在哪）
+  multiplier: number; // 倍率（不中獎為 0）
+  payout: number; // 實際派彩
+  isJackpot: boolean; // 是否大獎（特效/演出
+  extraPay?: ExtraPayInfo | null; // 觸發加倍才會有
+  balanceBefore: number; // 抽獎前餘額
+  balanceAfter: number; // 抽獎後餘額（含派彩
   totalBet: number; // 總下注金額
   netChange: number; // 後端自動算好的淨變化 (派彩 - 下注)
   insufficientBalance: boolean; // 是否餘額不足

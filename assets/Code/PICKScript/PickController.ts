@@ -185,8 +185,8 @@ export class PickController extends Component {
         this.Balance_Label.string = this.Balance_Num.toFixed(2); // 保留兩位小數
         this.Win_Label.string = this.Win_Num.toFixed(2);
 
-        LotteryCache.lastResult.balanceAfterWin = this.Balance_Num; // 快取資料, 給 C1 場景
-        console.log('快取資料,準備帶回C1主畫面', this.Balance_Num);
+        LotteryCache.lastResult.balanceAfterWin = this.Balance_Num; // 快取資料, 給 Game 場景
+        console.log('快取資料,準備帶回 Game 主畫面', this.Balance_Num);
 
         // 延遲 Delay_Back 秒後回主畫面
         this.scheduleOnce(() => {

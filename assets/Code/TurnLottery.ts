@@ -4,7 +4,7 @@ import { Toast } from './Toast';
 import { SignalRClient } from './Signal/SignalRClient';
 import { ExtraPayController } from './ExtraPayController';
 import { RLRotation } from './Main_RL/RLRotation';
-import { LotteryResponse } from './Type/Types';
+import { SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types';
 const { ccclass, property } = _decorator;
 
 // ✅ 定義倍率與 index 對應表（Super 轉盤用）
@@ -112,8 +112,15 @@ export class TurnLottery extends Component {
     this._isSceneTransitioning = false;
   }
 
+  onDestroy() {
+    director.off('DO_AUTO_BET', this.onGoLotterEventCallback, this);
+    // director.off(SIGNALR_EVENTS.UNIFIED_LOTTERY_EVENT, this.onGetLotteryRewardRstEventCallback, this);
+  }
+
   start() {
     director.on('DO_AUTO_BET', this.onGoLotterEventCallback, this);
+    // 監聽整合後的抽獎結果
+    // director.on(SIGNALR_EVENTS.UNIFIED_LOTTERY_EVENT, this.onGetLotteryRewardRstEventCallback, this);
   }
 
   // betAreaName → rewardName（下注區 → 獎勵名稱）
@@ -194,6 +201,7 @@ export class TurnLottery extends Component {
     this._isLottery = true;
     console.log('🎰 抽獎開始，_isLottery 設為 true');
 
+    this.chipManager.Win_Num = 0;
     this.chipManager.updateGlobalLabels();
 
     // === 送出下注資料給後端 ===
@@ -212,9 +220,8 @@ export class TurnLottery extends Component {
   }
 
   //============== 抽獎結果回調 ====================
-  onGetLotteryRewardRstEventCallback(data: any) {
-    console.log('📦 LotteryResultEvent 收到資料：', JSON.stringify(data, null, 2));
-    console.log('📦 參數 data 是：', data);
+  onGetLotteryRewardRstEventCallback(data: UnifiedLotteryEvent) {
+    console.log('🎡 TurnLottery 收到 UnifiedLotteryEvent：', data);
 
     // 從後端取得獎項資料
     let rewardIndex: number = data.rewardIndex;
@@ -243,9 +250,7 @@ export class TurnLottery extends Component {
         rewardIndex: finalRewardIndex, // 只有在大獎才覆蓋掉原本的rewardIndex
         pickBetAmount: pickBetAmount,
         winAmount: winAmount,
-        balanceAfterWin: this.chipManager.Balance_Num,
-        payout: data.payout || 0,
-        isJackpot: !!data.isJackpot,
+        balanceAfterWin: data.balanceAfter, //  用後端回傳的 balanceAfter
       };
       // LotteryCache.lastResult = data;     // 儲存資料準備轉場用
       console.log('🗂 已快取 Lottery 資料給下一個場景：', data);
@@ -303,7 +308,7 @@ export class TurnLottery extends Component {
               console.log(`🎉 命中 EXTRA PAY 區域，倍數提升為 ${multiplier}`);
             }
 
-            this.onWheelAnimationFinished(rewardName, multiplier, data.payout || 0); // 輪盤結束
+            this.onWheelAnimationFinished(data); // 輪盤結束
           })
           .start();
       });
@@ -313,26 +318,26 @@ export class TurnLottery extends Component {
   private _isSceneTransitioning: boolean = false; // 是否抽中三大獎(準備轉場所以停止繼續自動下注)
 
   // ======== 轉盤動畫結束後的處理 ========
-  onWheelAnimationFinished(rewardName: string, multiplier: number, payout: number) {
-    console.log('🎯 動畫結束 rewardName:', rewardName, 'multiplier:', multiplier, 'payout:', payout);
+  onWheelAnimationFinished(data: UnifiedLotteryEvent) {
+    console.log('🎯 動畫結束 rewardName:', data.rewardName, 'multiplier:', data.multiplier, 'payout:', data.payout);
 
-    let winAmount = payout || 0; // 後端傳來的 payout
+    let winAmount = data.payout || 0; // 後端傳來的 payout
 
     // 找到對應下注區並高亮
-    const betKey = TurnLottery.getRewardByBetArea(rewardName);
+    const betKey = TurnLottery.getRewardByBetArea(data.rewardName);
     if (betKey) {
       this.chipManager.highlightBetArea(betKey);
     }
 
     if (winAmount > 0) {
-      if (['GOLDEN_TREASURE', 'GOLD_MANIA', 'PRIZE_PICK'].indexOf(rewardName) === -1) {
+      if (['GOLDEN_TREASURE', 'GOLD_MANIA', 'PRIZE_PICK'].indexOf(data.rewardName) === -1) {
         this.chipManager.Win_Num += winAmount; // 獲得獎金
         this.chipManager.updateGlobalLabels(); // 更新畫面
         this.showTargetEffect(); // ✅ 只做特效，不更新得分
       }
 
       // ===== 特殊獎項處理 =====
-      switch (rewardName) {
+      switch (data.rewardName) {
         case 'GOLDEN_TREASURE':
           this._isSceneTransitioning = true;
           this.toast.showBonusUI('SUPER');
@@ -381,7 +386,7 @@ export class TurnLottery extends Component {
         case '4X':
         case '2X':
           this.scheduleOnce(() => {
-            this.toast.showWinningTips(multiplier, winAmount);
+            this.toast.showWinningTips(data.multiplier, winAmount);
           }, this.Delay_Show); // 延遲 x 秒後顯示中獎提示
           break;
         // default:
@@ -402,8 +407,7 @@ export class TurnLottery extends Component {
 
         // 2.更新餘額（後端 balanceAfter 為準）
         // ✅ 再次確保餘額同步
-        // console.log('第二次設定 Balance_Num:', balanceAfter, resp?.balanceAfter, this.chipManager.Balance_Num);
-        // this.chipManager.Balance_Num = balanceAfter;
+        this.chipManager.Balance_Num = data.balanceAfter; // ✅ 直接用整合後的數字
         this.chipManager.updateGlobalLabels(); // 更新畫面
 
         // 3.清除籌碼與重設UI
