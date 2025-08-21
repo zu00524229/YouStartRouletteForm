@@ -5,6 +5,8 @@ import { SignalRClient } from './Signal/SignalRClient';
 import { ExtraPayController } from './ExtraPayController';
 import { RLRotation } from './Main_RL/RLRotation';
 import { SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types';
+import { PointerSpring } from './Main_RL/PointerSpring';
+import { TurnAnim } from './Main_RL/TurnAnim';
 const { ccclass, property } = _decorator;
 
 // ✅ 定義倍率與 index 對應表（Super 轉盤用）
@@ -33,12 +35,11 @@ export class TurnLottery extends Component {
   @property(ChipManager) chipManager: ChipManager = null; // 連結 ChipManager
   @property(Toast) toast: Toast = null; // 連結 Toast 腳本
   @property(RLRotation) RLRota: RLRotation = null; // 連結 RLRotation
+  @property(PointerSpring) pointer: PointerSpring = null; // 🎯 拖拽連結場景上的指針
+  @property(TurnAnim) Turn: TurnAnim = null; // 連結 TurnAnim
   // @property(SignalRClient) SingalR: SignalRClient = null; // 連結 SignalRclient 腳本
 
-  @property(Node) turnBgNode: Node = null;
-  @property(CCInteger) rewardTypeCount: number = 50; // 轉盤中獎品分區數量
-  @property(CCInteger) rotatelottertSecs: number = 12; // 轉盤動畫旋轉次數
-  @property(CCInteger) lotterSecsL: number = 7; // 抽獎動畫持續時間
+  // 轉圈動畫已搬到TurnAnim.ts
 
   // @property(Node) rlNode: Node = null;    // 水波動畫節點
 
@@ -263,12 +264,6 @@ export class TurnLottery extends Component {
     const rewardName = data.rewardName || this.rewardMap[rewardIndex]; // 後端有給就用，沒有就 fallback
     let multiplier = data.multiplier || 0;
 
-    // 播放轉盤動畫
-    // let targetAngle = -this.rotatelottertSecs * 360 + rewardIndex * (360 / this.rewardTypeCount);
-    // console.log("✅ turnBgNode 是否為 null：", this.turnBgNode);  // 這裡先驗證
-    // console.log("🎯 準備轉盤角度", targetAngle);
-    // this.turnBgNode.angle %= 360;   // 隨機角度初始化
-
     // 顯示 BetLocked 提示
     // this.toast.showBetLocked();
 
@@ -277,40 +272,16 @@ export class TurnLottery extends Component {
       this.toast.hideBetLocked();
       this.handleExtraPay(data.extraPay, () => {
         // 執行轉盤動畫
+        this.Turn.playWheelAnimation(rewardIndex, rewardName, multiplier, data, () => {
+          // ExtraPay 命中加倍處理
+          const hitArea = TurnLottery.getRewardByBetArea(rewardName);
+          const extraArea = data.extraPay?.rewardName ? TurnLottery.getRewardByBetArea(data.extraPay.rewardName) : null;
 
-        // 先初始化轉盤角度，避免轉盤累積太多旋轉角度
-        this.turnBgNode.angle %= 360;
-
-        // 計算最終目標角度
-        let targetAngle = -this.rotatelottertSecs * 360 + rewardIndex * (360 / this.rewardTypeCount);
-        console.log('🎯 準備轉盤角度', targetAngle);
-
-        // 設定超轉角度（轉過頭一點）
-        let overshoot = 10; // 10 度超過目標（可調整）
-        let overshootAngle = targetAngle - overshoot;
-
-        // 分段時間控制（例如總時間 7 秒：前段 4.5 秒，後段回彈 2.5 秒）
-        let overshootTime = this.lotterSecsL - 3.5;
-        let reboundTime = 1.0;
-
-        // 播放動畫：先轉超過，再回正
-        tween(this.turnBgNode)
-          .to(overshootTime, { angle: overshootAngle }, { easing: 'cubicOut' }) // 主旋轉 + 過頭
-          .to(reboundTime, { angle: targetAngle }, { easing: 'quadInOut' }) // 小幅回正
-          .call(() => {
-            //  ExtraPay 命中加倍處理（在這裡進行）
-            const hitArea = TurnLottery.getRewardByBetArea(rewardName);
-            const extraArea = data.extraPay?.rewardName ? TurnLottery.getRewardByBetArea(data.extraPay.rewardName) : null;
-            // const extraMultiplier = data.extraPay?.extraMultiplier || 1;
-
-            if (hitArea && extraArea && hitArea === extraArea) {
-              // multiplier *= extraMultiplier;
-              console.log(`🎉 命中 EXTRA PAY 區域，倍數提升為 ${multiplier}`);
-            }
-
-            this.onWheelAnimationFinished(data); // 輪盤結束
-          })
-          .start();
+          if (hitArea && extraArea && hitArea === extraArea) {
+            console.log(`🎉 命中 EXTRA PAY 區域，倍數提升為 ${multiplier}`);
+          }
+          this.onWheelAnimationFinished(data);
+        });
       });
     }, this.Delay_Hide);
   }

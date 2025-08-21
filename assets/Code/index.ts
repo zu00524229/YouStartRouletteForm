@@ -1,4 +1,4 @@
-import { _decorator, Component, director, EventTouch, game, Label, Node, Prefab } from 'cc';
+import { _decorator, Collider2D, Component, director, EPhysics2DDrawFlags, EventTouch, game, Label, Node, PhysicsSystem2D, Prefab } from 'cc';
 import { AudioManager } from './Audio/AudioManager';
 import { ChipManager } from './ChipManager';
 import { SignalRClient } from './Signal/SignalRClient';
@@ -14,14 +14,12 @@ export class index extends Component {
   @property(Label) TimeLabel: Label = null;
   @property(Node) WheelSprite_Node: Node = null; // 導入輪盤自身節點
   @property(Node) Poin_Node: Node = null; // 導入指針父節點
-  @property(Node) pointerNode: Node = null; // 指針節點
   // @property([Node]) dotNodes: Node[] = []; // <<< 圓盤小圓點
   // @property(Button) StartButton: Button = null;
   // @property({ type: Button }) AutoButton: Button = null; //
 
   @property(Prefab) Pointer_Prefab: Prefab = null; // 導入指針預製體
 
-  // @property(LoginPanel) Login: LoginPanel = null; // 連結LoginPanel
   @property(TurnLottery) Lottery: TurnLottery = null; // 連結 TurnLottery
   @property(ChipManager) chipManager: ChipManager = null; // 連結 ChipManager
   @property(AudioManager) Audio: AudioManager = null; // 連結 AudioManager
@@ -32,6 +30,14 @@ export class index extends Component {
 
   // === 初始化階段 ===
   protected onLoad(): void {
+    // 開啟 Debug Draw
+    if (PhysicsSystem2D.instance) {
+      PhysicsSystem2D.instance.debugDrawFlags =
+        // EPhysics2DDrawFlags.Aabb | // 碰撞區域框
+        EPhysics2DDrawFlags.Pair | // 碰撞點
+        EPhysics2DDrawFlags.CenterOfMass | // 質心
+        EPhysics2DDrawFlags.Shape; // Collider 形狀
+    }
     // 先顯示登入面板
     const loginPanelNode = this.node.getChildByName('login');
     if (loginPanelNode) {
@@ -276,11 +282,11 @@ export class index extends Component {
 
   // === 遊戲 UI 更新 ===
   start() {
-    // if (!player.isLoggedIn) {
-    //   console.log('⚠ 請先登入');
-    //   return;
-    // }
     console.log('🎮 遊戲開始！');
+    // const dots = this.node.getComponentsInChildren(Collider2D);
+    // dots.forEach((dot) => {
+    //   console.log('Dot parent =', dot.node.parent?.name, 'Dot name =', dot.node.name);
+    // });
     // AudioManager.instance.playBGM("Lucky Wheel-背景音樂");
     this.chipManager.updateStartButton(); // 判斷 Start 與 下排按鈕是否啟用
     this.toast.showPleaseBetNow(); // 遊戲開始顯示提示(玩家下注)
@@ -290,15 +296,6 @@ export class index extends Component {
     }, 1); // 1秒後隱藏提示
 
     //=================== StatusBar 顯示區 ====================
-    // // this.Bet_Label.string = 'Bet ' + this.chipManager.Bet_Num
-    // if (this.chipManager.Bet_TitleLabel) {this.chipManager.Bet_TitleLabel.string = 'Bet'}
-    // // if (this.chipManager.Bet_Label) {this.chipManager.Bet_Label.string = String(this.chipManager.Bet_Num)}
-    // if (this.chipManager.Bet_Label) {this.chipManager.Bet_Label.string = this.chipManager.Bet_Num.toFixed(2)}
-
-    // // this.Win_Label.string = 'WIN ' + this.Win_Num
-    // if (this.chipManager.Win_TitleLabel) {this.chipManager.Win_TitleLabel.string = 'WIN'}
-    // // if (this.chipManager.Win_Label) {this.chipManager.Win_Label.string = String(this.chipManager.Win_Num)}
-    // if (this.chipManager.Win_Label) {this.chipManager.Win_Label.string = this.chipManager.Win_Num.toFixed(2)}
     this.chipManager.updateGlobalLabels(); // 更新下方的 Bet / Balance / Win 顯示
 
     // this.ID_Label.string = '帳號: Ethan';
