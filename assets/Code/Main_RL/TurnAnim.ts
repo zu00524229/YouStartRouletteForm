@@ -44,6 +44,12 @@ export class TurnAnim extends Component {
     let overshootTime = this.lotterSecsL - 3.5;
     let reboundTime = 1.0;
 
+    // 找到指針組件
+    const pointer = this.dotContainerNode.getComponent('PointerAnim') as any;
+    if (pointer) {
+      pointer.playPointerSwing(this.lotterSecsL, overshootTime, reboundTime); // 傳入轉盤持續時間，讓指針擺動時間一致
+    }
+
     tween(this.turnBgNode)
       .to(overshootTime, { angle: overshootAngle }, { easing: 'cubicOut' })
       .to(reboundTime, { angle: targetAngle }, { easing: 'quadInOut' })

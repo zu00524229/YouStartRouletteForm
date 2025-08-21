@@ -5,7 +5,7 @@ import { SignalRClient } from './Signal/SignalRClient';
 import { ExtraPayController } from './ExtraPayController';
 import { RLRotation } from './Main_RL/RLRotation';
 import { SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types';
-import { PointerSpring } from './Main_RL/PointerSpring';
+// import { PointerSpring } from './Main_RL/PointerSpring';
 import { TurnAnim } from './Main_RL/TurnAnim';
 const { ccclass, property } = _decorator;
 
@@ -35,7 +35,7 @@ export class TurnLottery extends Component {
   @property(ChipManager) chipManager: ChipManager = null; // 連結 ChipManager
   @property(Toast) toast: Toast = null; // 連結 Toast 腳本
   @property(RLRotation) RLRota: RLRotation = null; // 連結 RLRotation
-  @property(PointerSpring) pointer: PointerSpring = null; // 🎯 拖拽連結場景上的指針
+  // @property(PointerSpring) pointer: PointerSpring = null; // 🎯 拖拽連結場景上的指針
   @property(TurnAnim) Turn: TurnAnim = null; // 連結 TurnAnim
   // @property(SignalRClient) SingalR: SignalRClient = null; // 連結 SignalRclient 腳本
 

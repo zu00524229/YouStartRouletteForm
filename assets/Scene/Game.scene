@@ -9868,7 +9868,7 @@
     "node": {
       "__id__": 260
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": null,
     "tag": 0,
     "_group": 4,
@@ -9917,7 +9917,7 @@
     "node": {
       "__id__": 260
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": null,
     "enabledContactListener": true,
     "bullet": true,
@@ -9949,7 +9949,7 @@
     "node": {
       "__id__": 260
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": null,
     "anchor": {
       "__type__": "cc.Vec2",
@@ -9981,7 +9981,7 @@
     "node": {
       "__id__": 270
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": null,
     "enabledContactListener": false,
     "bullet": false,
@@ -10116,13 +10116,13 @@
     "node": {
       "__id__": 260
     },
-    "_enabled": false,
+    "_enabled": true,
     "__prefab": null,
-    "Audio": {
-      "__id__": 12
+    "pivotNode": {
+      "__id__": 260
     },
-    "stiffness": 50,
-    "damping": 10,
+    "swingAngle": 30,
+    "swingInterval": 0.15,
     "_id": "2f8JJgOClL6ZVTNwaYeNqB"
   },
   {
@@ -17289,9 +17289,6 @@
     },
     "RLRota": {
       "__id__": 1607
-    },
-    "pointer": {
-      "__id__": 273
     },
     "Turn": {
       "__id__": 1610
@@ -43040,7 +43037,7 @@
       "__id__": 238
     },
     "dotContainerNode": {
-      "__id__": 293
+      "__id__": 260
     },
     "rewardTypeCount": 50,
     "rotatelottertSecs": 5,
