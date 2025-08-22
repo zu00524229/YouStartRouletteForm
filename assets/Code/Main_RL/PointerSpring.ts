@@ -24,8 +24,8 @@ export class PointerAnim extends Component {
     tween(this.pivotNode).stop();
 
     // const fullTime = preStopTime + WheelThreeConfig.delayPointerSwing + reboundTime;
-    const totalSwings = 11;
-    const activeSwings = 9;
+    const totalSwings = 16;
+    const activeSwings = 14;
     const times: number[] = [];
 
     // 前快後慢
@@ -42,24 +42,29 @@ export class PointerAnim extends Component {
 
     let seq = tween(this.pivotNode);
 
-    // 前 9 下：在 40 ↔ 30 間擺動
-    swingIntervals.forEach((dt) => {
+    // 前 14 下：在 40 ↔ 30 間擺動
+    swingIntervals.forEach((dt, i) => {
       const half = dt / 2;
-      seq = seq
-        .to(half, { angle: this.swingAngle }, { easing: 'quadOut' })
-        .call(() => this.Audio.AudioSources[5].play())
-        .to(half, { angle: 30 }, { easing: 'quadIn' });
+      if (i === 14) {
+        seq = seq
+          .to(half, { angle: this.swingAngle }, { easing: 'quadOut' })
+          .call(() => this.Audio.AudioSources[5].play())
+          .to(half, { angle: 20 }, { easing: 'quadIn' });
+      } else {
+        seq = seq
+          .to(half, { angle: this.swingAngle }, { easing: 'quadOut' })
+          .call(() => this.Audio.AudioSources[5].play())
+          .to(half, { angle: 30 }, { easing: 'quadIn' });
+      }
     });
 
-    // 第 9 下
-
-    // 第 10 下：停在 swingAngle
-    seq = seq.to(WheelThreeConfig.reboundTime * 1.9, { angle: 8 }, { easing: 'quadOut' }).call(() => this.Audio.AudioSources[5].play());
+    // 第 15 下：停在 swingAngle
+    seq = seq.to(WheelThreeConfig.reboundTime * 0.5, { angle: 8 }, { easing: 'quadOut' }).call(() => this.Audio.AudioSources[5].play());
 
     // 停留
     seq = seq.delay(WheelThreeConfig.delayPointerSwing); // 高點停留時間
 
-    // 第 11 下：補進終點回正
+    // 第 16 下：補進終點回正
     // 最後：先被「頂上去」再回正
     seq = seq
       .to(WheelThreeConfig.reboundTime * 1.5, { angle: 40 }, { easing: 'quadOut' }) //
