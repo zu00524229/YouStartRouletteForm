@@ -43036,6 +43036,9 @@
     },
     "_enabled": true,
     "__prefab": null,
+    "poin": {
+      "__id__": 273
+    },
     "turnBgNode": {
       "__id__": 238
     },
@@ -43044,7 +43047,6 @@
     },
     "rewardTypeCount": 50,
     "rotatelottertSecs": 5,
-    "lotterSecsL": 7,
     "_id": "9eILiGKCVMwbr4LZnoTKiD"
   },
   {

@@ -271,7 +271,7 @@ export class TurnLottery extends Component {
       this.toast.hideBetLocked();
       this.handleExtraPay(data.extraPay, () => {
         // 執行轉盤動畫
-        this.Turn.playWheelAnimation2(rewardIndex, rewardName, multiplier, data, () => {
+        this.Turn.playWheelAnimation3(rewardIndex, rewardName, multiplier, data, () => {
           // ExtraPay 命中加倍處理
           const hitArea = TurnLottery.getRewardByBetArea(rewardName);
           const extraArea = data.extraPay?.rewardName ? TurnLottery.getRewardByBetArea(data.extraPay.rewardName) : null;

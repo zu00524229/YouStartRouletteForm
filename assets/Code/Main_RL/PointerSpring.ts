@@ -1,5 +1,6 @@
 import { _decorator, Component, Node, tween } from 'cc';
 import { AudioManager } from '../Audio/AudioManager';
+import { WheelConfig, WheelSyncConfig, WheelThreeConfig } from './WheelConfig'; // 引入 轉盤指針動畫同步變數
 const { ccclass, property } = _decorator;
 
 @ccclass('PointerAnim')
@@ -14,7 +15,58 @@ export class PointerAnim extends Component {
   @property
   swingInterval: number = 0.15; // 每次來回時間（越小越快）
 
-  Deley_PointerWing2 = 0.5; // 指針動畫2高點停留
+  //! 指針動畫3
+  playPointerSwing3(fullTime: number) {
+    if (!this.pivotNode) {
+      console.warn('⚠️ pivotNode 未設置，請在 Inspector 拖一個控節點進來！');
+      return;
+    }
+    tween(this.pivotNode).stop();
+
+    // const fullTime = preStopTime + WheelThreeConfig.delayPointerSwing + reboundTime;
+    const totalSwings = 11;
+    const activeSwings = 9;
+    const times: number[] = [];
+
+    // 前快後慢
+    for (let i = 1; i <= activeSwings; i++) {
+      times.push(Math.pow(i / totalSwings, 3));
+    }
+
+    let prev = 0;
+    const swingIntervals = times.map((t) => {
+      const dt = (t - prev) * fullTime;
+      prev = t;
+      return dt;
+    });
+
+    let seq = tween(this.pivotNode);
+
+    // 前 9 下：在 40 ↔ 30 間擺動
+    swingIntervals.forEach((dt) => {
+      const half = dt / 2;
+      seq = seq
+        .to(half, { angle: this.swingAngle }, { easing: 'quadOut' })
+        .call(() => this.Audio.AudioSources[5].play())
+        .to(half, { angle: 30 }, { easing: 'quadIn' });
+    });
+
+    // 第 9 下
+
+    // 第 10 下：停在 swingAngle
+    seq = seq.to(WheelThreeConfig.reboundTime * 1.9, { angle: 8 }, { easing: 'quadOut' }).call(() => this.Audio.AudioSources[5].play());
+
+    // 停留
+    seq = seq.delay(WheelThreeConfig.delayPointerSwing); // 高點停留時間
+
+    // 第 11 下：補進終點回正
+    // 最後：先被「頂上去」再回正
+    seq = seq
+      .to(WheelThreeConfig.reboundTime * 1.5, { angle: 40 }, { easing: 'quadOut' }) //
+      .to(WheelThreeConfig.reboundTime * 0.8, { angle: 0 }, { easing: 'quadIn' }); // ➡️ 再回正
+
+    seq.call(() => console.log('✅ 指針動畫3完成')).start();
+  }
 
   //! 指針動畫2
   playPointerSwing2(totalTime: number, slowThreshold: number) {
@@ -28,9 +80,8 @@ export class PointerAnim extends Component {
     const slowSwings = 2; // 後段（最後 90°）保留 2 下
     const activeSwings = totalSwings - slowSwings; // 前段下數 = 9
 
-    // 根據 slowThreshold 拆分時間
+    // 🔑 前段時間 = totalTime * slowThreshold
     const mainSpinTime = totalTime * slowThreshold;
-    const slowSpinTime = totalTime * (1 - slowThreshold);
 
     // ===== 1) 前段：產生 9 下間隔 (cubicOut 節奏) =====
     const eased: number[] = [];
@@ -40,15 +91,10 @@ export class PointerAnim extends Component {
     }
 
     // 每下的時間 = 當前 eased - 前一個 eased
-    const swingIntervals = [];
+    const swingIntervals: number[] = [];
     for (let i = 1; i < eased.length; i++) {
       swingIntervals.push((eased[i] - eased[i - 1]) * mainSpinTime);
     }
-
-    console.log(
-      '👉 前 9 下間隔 =',
-      swingIntervals.map((v) => v.toFixed(2))
-    );
 
     let seq = tween(this.pivotNode);
 
@@ -61,34 +107,28 @@ export class PointerAnim extends Component {
       if (isLast) {
         // ✨ 最後一下：停留後再回正
         seq = seq
-          .delay(this.Deley_PointerWing2) // 高點停留
-          .to(0.6, { angle: 0 }, { easing: 'quadInOut' });
+          .delay(WheelConfig.delayPointerSwing) // 高點停留
+          .to(WheelConfig.reboundTime, { angle: 0 }, { easing: 'quadInOut' });
       } else {
         // 其他下：正常回正
-        seq = seq.to(half, { angle: 0 }, { easing: 'quadIn' });
+        seq = seq.to(half, { angle: 30 }, { easing: 'quadIn' });
       }
     });
-
-    // // ===== 最後一下：停留在最高點 → 再回正 =====
-    // seq = seq
-    //   .to(slowSpinTime * 0.4, { angle: this.swingAngle }, { easing: 'quadOut' }) // 上去並停留
-    //   .call(() => this.Audio?.AudioSources[5]?.play()) // 最後一次音效
-    //   .delay(0.2) // 🛑 停留一下
-    //   .to(slowSpinTime * 0.6, { angle: 0 }, { easing: 'quadInOut' }); // 再慢慢回正
 
     seq.call(() => console.log('✅ 指針動畫完成')).start();
   }
 
   //! 指針動畫
-  playPointerSwing(totalTime: number, overshootTime: number = 3.5, reboundTime: number = 1.0) {
+  playPointerSwing(overshootTime: number, reboundTime: number) {
     if (!this.pivotNode) {
       console.warn('⚠️ pivotNode 未設置，請在 Inspector 拖一個控節點進來！');
       return;
     }
     tween(this.pivotNode).stop();
 
-    // 🔑 總時間必須跟轉盤一樣 = overshootTime + reboundTime
-    const fullTime = overshootTime + reboundTime;
+    // // 🔑 總時間必須跟轉盤一樣 = overshootTime + reboundTime
+    // WheelSyncConfig.lotterSecsL = overshootTime + WheelSyncConfig.reboundTime;
+    const fullTime = overshootTime + reboundTime; // 🔑 和轉盤完全一致
 
     const totalSwings = 11; // 你要 11 下
     const activeSwings = 9; // 前面正常擺動
@@ -118,7 +158,7 @@ export class PointerAnim extends Component {
       seq = seq
         .to(half, { angle: this.swingAngle }, { easing: 'quadOut' })
         .call(() => this.Audio.AudioSources[5].play()) // 播放指針音效
-        .to(half, { angle: 0 }, { easing: 'quadIn' });
+        .to(half, { angle: 30 }, { easing: 'quadIn' });
     });
 
     // 2) 第 10 下：到 swingAngle 停住// 這裡時間可微調 停留時間

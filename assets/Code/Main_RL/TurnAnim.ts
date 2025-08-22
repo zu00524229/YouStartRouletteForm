@@ -1,6 +1,7 @@
 import { _decorator, CCInteger, Collider2D, Component, Node, tween } from 'cc';
 import { SIGNALR_EVENTS, UnifiedLotteryEvent } from '../Type/Types';
 import { PointerAnim } from './PointerSpring';
+import { WheelConfig, WheelSyncConfig, WheelThreeConfig } from './WheelConfig'; // 引入 轉盤指針動畫同步變數
 
 const { ccclass, property } = _decorator;
 
@@ -35,7 +36,7 @@ export class TurnAnim extends Component {
 
   @property(CCInteger) rewardTypeCount: number = 50; // 轉盤中獎品分區數量
   @property(CCInteger) rotatelottertSecs: number = 5; // 轉盤動畫旋轉次數
-  @property(CCInteger) lotterSecsL: number = 7; // 抽獎動畫持續時間
+  // @property(CCInteger) lotterSecsL: number = 7; // 抽獎動畫持續時間
 
   // TurnLottery.ts
 
@@ -45,7 +46,50 @@ export class TurnAnim extends Component {
   // console.log("🎯 準備轉盤角度", targetAngle);
   // this.turnBgNode.angle %= 360;   // 隨機角度初始化
 
-  //! 播放轉盤動畫2
+  //! 轉盤動畫3
+  playWheelAnimation3(rewardIndex: number, rewardName: string, multiplier: number, data: UnifiedLotteryEvent, onFinished: () => void) {
+    this.turnBgNode.angle %= 360;
+    // const startAngle = this.turnBgNode.angle;
+
+    // 最終目標角度
+    let targetAngle = -this.rotatelottertSecs * 360 + rewardIndex * (360 / this.rewardTypeCount);
+
+    console.log('🎯 準備轉盤角度', targetAngle);
+
+    // 🎯 提前停在終點前 preStopAngle
+    let preStopAngle = targetAngle + WheelThreeConfig.preStopAngle;
+
+    // 時間切分
+    let preStopTime = WheelThreeConfig.lotterSecsL - WheelThreeConfig.reboundTime;
+    let reboundTime = WheelThreeConfig.reboundTime;
+    let delay = WheelThreeConfig.delayPointerSwing;
+
+    let fullTime = preStopTime + delay + reboundTime; // 總時間 = 前段 + 停留 + 回正;
+
+    // 找到指針動畫
+    const pointer = this.dotContainerNode.getComponent('PointerAnim') as any;
+    if (pointer) {
+      pointer.playPointerSwing3(fullTime);
+    }
+
+    tween(this.turnBgNode)
+      // 前段：到終點前角度（幾乎停下）
+      .to(preStopTime, { angle: preStopAngle }, { easing: 'cubicOut' })
+      .delay(WheelThreeConfig.delayPointerSwing) // 停留時間
+
+      // 第二段：往回「過頭」一點 (像是被指針卡住往回甩)
+      .to(reboundTime * 2.0, { angle: preStopAngle - 10 }, { easing: 'quadOut' })
+
+      // 身為被指針往回推
+      .to(reboundTime * 0.8, { angle: targetAngle + 1.5 }, { easing: 'quadOut' })
+
+      // 後段：再補進終點
+      .to(reboundTime * 0.6, { angle: targetAngle }, { easing: 'quadInOut' })
+      .call(() => onFinished?.())
+      .start();
+  }
+
+  //! 轉盤動畫2
   playWheelAnimation2(rewardIndex: number, rewardName: string, multiplier: number, data: UnifiedLotteryEvent, onFinished: () => void) {
     // 初始化角度
     this.turnBgNode.angle %= 360;
@@ -56,18 +100,18 @@ export class TurnAnim extends Component {
     console.log('🎯 準備轉盤角度', targetAngle);
 
     //? 超轉設定
-    let overshoot = 10; // 超過目標的角度
-    let overshootAngle = targetAngle - overshoot;
+    let overshootAngle = targetAngle - WheelConfig.overshootAngle;
     //? 時間分配
-    let overshootTime = this.lotterSecsL - 1.0; // 超轉時間
-    let reboundTime = 1.0; // 回正時間
+    let overshootTime = WheelConfig.lotterSecsL - WheelConfig.reboundTime; // 超轉時間
+    let reboundTime = WheelConfig.reboundTime; // 回正時間
+    let fullTime = overshootTime + WheelConfig.delayPointerSwing + reboundTime; // 總時間 (把停留算進去)
 
     // 找到指針動畫2
     const pointer = this.dotContainerNode.getComponent('PointerAnim') as any;
     if (pointer) {
       const totalAngle = Math.abs(overshootAngle - startAngle);
       const slowThreshold = (totalAngle - 90) / totalAngle; // 0~1 區間
-      pointer.playPointerSwing2(this.lotterSecsL, slowThreshold);
+      pointer.playPointerSwing2(fullTime, slowThreshold);
     }
 
     tween(this.turnBgNode)
@@ -80,7 +124,7 @@ export class TurnAnim extends Component {
         }
       )
       // ✨ 停留  秒（可調整）
-      .delay(this.poin.Deley_PointerWing2)
+      .delay(WheelConfig.delayPointerSwing)
       // 後段：從 overshootAngle 回 targetAngle
       .to(reboundTime, { angle: targetAngle }, { easing: 'quadOut' })
       .call(() => onFinished?.())
@@ -97,22 +141,21 @@ export class TurnAnim extends Component {
     console.log('🎯 準備轉盤角度', targetAngle);
 
     // 設定超轉角度（轉過頭一點）
-    let overshoot = 10; // 10 度超過目標（可調整）
-    let overshootAngle = targetAngle - overshoot;
+    let overshootAngle = targetAngle - WheelSyncConfig.overshootAngle;
 
     // 分段時間控制
-    let overshootTime = this.lotterSecsL - 3.5;
-    let reboundTime = 1.0;
+    let overshootTime = WheelSyncConfig.lotterSecsL - WheelSyncConfig.overshootTime;
+    let reboundTime = WheelSyncConfig.reboundTime;
 
     // 找到指針組件
     const pointer = this.dotContainerNode.getComponent('PointerAnim') as any;
     if (pointer) {
-      pointer.playPointerSwing(this.lotterSecsL, overshootTime, reboundTime); // 傳入轉盤持續時間，讓指針擺動時間一致
+      pointer.playPointerSwing(overshootTime, reboundTime); // 傳入轉盤持續時間，讓指針擺動時間一致
     }
 
     tween(this.turnBgNode)
       .to(overshootTime, { angle: overshootAngle }, { easing: 'cubicOut' }) //  從超過的位置 → 回到正確格子 (targetAngle)
-      .to(reboundTime, { angle: targetAngle }, { easing: 'quadInOut' }) // quadInOut 平滑進出，像彈簧收尾
+      .to(WheelSyncConfig.reboundTime, { angle: targetAngle }, { easing: 'quadInOut' }) // quadInOut 平滑進出，像彈簧收尾
       .call(() => {
         if (onFinished) onFinished();
       })
