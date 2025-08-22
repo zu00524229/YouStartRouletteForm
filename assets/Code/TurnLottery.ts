@@ -35,7 +35,6 @@ export class TurnLottery extends Component {
   @property(ChipManager) chipManager: ChipManager = null; // 連結 ChipManager
   @property(Toast) toast: Toast = null; // 連結 Toast 腳本
   @property(RLRotation) RLRota: RLRotation = null; // 連結 RLRotation
-  // @property(PointerSpring) pointer: PointerSpring = null; // 🎯 拖拽連結場景上的指針
   @property(TurnAnim) Turn: TurnAnim = null; // 連結 TurnAnim
   // @property(SignalRClient) SingalR: SignalRClient = null; // 連結 SignalRclient 腳本
 
@@ -272,7 +271,7 @@ export class TurnLottery extends Component {
       this.toast.hideBetLocked();
       this.handleExtraPay(data.extraPay, () => {
         // 執行轉盤動畫
-        this.Turn.playWheelAnimation(rewardIndex, rewardName, multiplier, data, () => {
+        this.Turn.playWheelAnimation2(rewardIndex, rewardName, multiplier, data, () => {
           // ExtraPay 命中加倍處理
           const hitArea = TurnLottery.getRewardByBetArea(rewardName);
           const extraArea = data.extraPay?.rewardName ? TurnLottery.getRewardByBetArea(data.extraPay.rewardName) : null;
