@@ -10118,10 +10118,13 @@
     },
     "_enabled": true,
     "__prefab": null,
+    "Audio": {
+      "__id__": 12
+    },
     "pivotNode": {
       "__id__": 260
     },
-    "swingAngle": 30,
+    "swingAngle": 40,
     "swingInterval": 0.15,
     "_id": "2f8JJgOClL6ZVTNwaYeNqB"
   },

@@ -1,13 +1,15 @@
 import { _decorator, Component, Node, tween } from 'cc';
+import { AudioManager } from '../Audio/AudioManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('PointerAnim')
 export class PointerAnim extends Component {
+  @property(AudioManager) Audio: AudioManager = null; // 連結 AudioManager
   @property(Node)
   pivotNode: Node | null = null; // 🎯 旋轉軸心（拖指針的控節點進來）
 
   @property
-  swingAngle: number = 45; // 最大右擺角度
+  swingAngle: number = 40; // 最大右擺角度
 
   @property
   swingInterval: number = 0.15; // 每次來回時間（越小越快）
@@ -53,11 +55,14 @@ export class PointerAnim extends Component {
     // 1) 前 9 下正常擺動
     swingIntervals.forEach((dt) => {
       const half = dt / 2;
-      seq = seq.to(half, { angle: this.swingAngle }, { easing: 'quadOut' }).to(half, { angle: 0 }, { easing: 'quadIn' });
+      seq = seq
+        .to(half, { angle: this.swingAngle }, { easing: 'quadOut' })
+        .call(() => this.Audio.AudioSources[5].play()) // 播放指針音效
+        .to(half, { angle: 0 }, { easing: 'quadIn' });
     });
 
-    // 2) 第 10 下：到 swingAngle 停住
-    seq = seq.to(1.0, { angle: this.swingAngle }, { easing: 'quadOut' }); // 這裡時間可微調
+    // 2) 第 10 下：到 swingAngle 停住// 這裡時間可微調 停留時間
+    seq = seq.to(1.0, { angle: this.swingAngle }, { easing: 'quadOut' }).call(() => this.Audio.AudioSources[5].play()); // 播放指針音效;
 
     // 3) 第 11 下：用 reboundTime 回正
     seq = seq.to(reboundTime, { angle: 0 }, { easing: 'quadInOut' });
