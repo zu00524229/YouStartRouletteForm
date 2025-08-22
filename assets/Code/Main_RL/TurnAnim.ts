@@ -6,7 +6,7 @@ const { ccclass, property } = _decorator;
 @ccclass('TurnAnim')
 export class TurnAnim extends Component {
   @property(Node) turnBgNode: Node = null; //
-  @property(Node) dotContainerNode: Node = null; // Dot 容器
+  @property(Node) dotContainerNode: Node = null; // 指針容器節點
 
   @property(CCInteger) rewardTypeCount: number = 50; // 轉盤中獎品分區數量
   @property(CCInteger) rotatelottertSecs: number = 5; // 轉盤動畫旋轉次數
@@ -20,15 +20,8 @@ export class TurnAnim extends Component {
   // console.log("🎯 準備轉盤角度", targetAngle);
   // this.turnBgNode.angle %= 360;   // 隨機角度初始化
 
+  //! 轉盤動畫1
   playWheelAnimation(rewardIndex: number, rewardName: string, multiplier: number, data: UnifiedLotteryEvent, onFinished: () => void) {
-    console.log('🎡 開始旋轉的節點=', this.turnBgNode.name);
-    console.log(
-      'turnBgNode =',
-      this.turnBgNode.name,
-      'children=',
-      this.turnBgNode.children.map((c) => c.name)
-    );
-
     // 先初始化轉盤角度，避免累積太多旋轉角度
     this.turnBgNode.angle %= 360;
 
@@ -51,8 +44,8 @@ export class TurnAnim extends Component {
     }
 
     tween(this.turnBgNode)
-      .to(overshootTime, { angle: overshootAngle }, { easing: 'cubicOut' })
-      .to(reboundTime, { angle: targetAngle }, { easing: 'quadInOut' })
+      .to(overshootTime, { angle: overshootAngle }, { easing: 'cubicOut' }) //  從超過的位置 → 回到正確格子 (targetAngle)
+      .to(reboundTime, { angle: targetAngle }, { easing: 'quadInOut' }) // quadInOut 平滑進出，像彈簧收尾
       .call(() => {
         if (onFinished) onFinished();
       })

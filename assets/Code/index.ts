@@ -31,13 +31,12 @@ export class index extends Component {
   // === 初始化階段 ===
   protected onLoad(): void {
     // 開啟 Debug Draw
-    if (PhysicsSystem2D.instance) {
-      PhysicsSystem2D.instance.debugDrawFlags =
-        // EPhysics2DDrawFlags.Aabb | // 碰撞區域框
-        EPhysics2DDrawFlags.Pair | // 碰撞點
-        EPhysics2DDrawFlags.CenterOfMass | // 質心
-        EPhysics2DDrawFlags.Shape; // Collider 形狀
-    }
+    // if (PhysicsSystem2D.instance) {
+    //   PhysicsSystem2D.instance.debugDrawFlags =
+    //     EPhysics2DDrawFlags.Pair | // 碰撞點
+    //     EPhysics2DDrawFlags.CenterOfMass | // 質心
+    //     EPhysics2DDrawFlags.Shape; // Collider 形狀
+    // }
     // 先顯示登入面板
     const loginPanelNode = this.node.getChildByName('login');
     if (loginPanelNode) {
