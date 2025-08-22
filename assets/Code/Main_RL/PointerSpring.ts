@@ -85,8 +85,10 @@ export class PointerAnim extends Component {
     const slowSwings = 2; // 後段（最後 90°）保留 2 下
     const activeSwings = totalSwings - slowSwings; // 前段下數 = 9
 
-    // 🔑 前段時間 = totalTime * slowThreshold
-    const mainSpinTime = totalTime * slowThreshold;
+    // 前段時間
+    const overshootTime = WheelConfig.lotterSecsL - WheelConfig.reboundTime - WheelConfig.delayPointerSwing;
+    const mainSpinTime = overshootTime * slowThreshold;
+    const lastSwingTime = overshootTime - mainSpinTime; // 最後 2 下的時間
 
     // ===== 1) 前段：產生 9 下間隔 (cubicOut 節奏) =====
     const eased: number[] = [];
@@ -112,13 +114,19 @@ export class PointerAnim extends Component {
       if (isLast) {
         // ✨ 最後一下：停留後再回正
         seq = seq
+          .to(lastSwingTime, { angle: 35 }, { easing: 'quadOut' }) // 高點往下 10 度
+          .call(() => this.Audio?.AudioSources[5]?.play())
           .delay(WheelConfig.delayPointerSwing) // 高點停留
-          .to(WheelConfig.reboundTime, { angle: 0 }, { easing: 'quadInOut' });
+          .to(WheelConfig.reboundTime, { angle: 0 }, { easing: 'quadOut' });
       } else {
         // 其他下：正常回正
         seq = seq.to(half, { angle: 30 }, { easing: 'quadIn' });
       }
     });
+    console.log('overshootTime', overshootTime);
+    console.log('mainSpinTime', mainSpinTime);
+    console.log('lastSwingTime', lastSwingTime);
+    console.log('sum', mainSpinTime + lastSwingTime);
 
     seq.call(() => console.log('✅ 指針動畫完成')).start();
   }

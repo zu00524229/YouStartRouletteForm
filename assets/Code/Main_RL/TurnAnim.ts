@@ -102,15 +102,15 @@ export class TurnAnim extends Component {
     //? 超轉設定
     let overshootAngle = targetAngle - WheelConfig.overshootAngle;
     //? 時間分配
-    let overshootTime = WheelConfig.lotterSecsL - WheelConfig.reboundTime; // 超轉時間
-    let reboundTime = WheelConfig.reboundTime; // 回正時間
-    let fullTime = overshootTime + WheelConfig.delayPointerSwing + reboundTime; // 總時間 (把停留算進去)
+    let overshootTime = WheelConfig.lotterSecsL - WheelConfig.reboundTime - WheelConfig.delayPointerSwing;
+    let reboundTime = WheelConfig.reboundTime;
+    let fullTime = WheelConfig.lotterSecsL;
 
     // 找到指針動畫2
     const pointer = this.dotContainerNode.getComponent('PointerAnim') as any;
     if (pointer) {
       const totalAngle = Math.abs(overshootAngle - startAngle);
-      const slowThreshold = (totalAngle - 90) / totalAngle; // 0~1 區間
+      const slowThreshold = (totalAngle - 90) / totalAngle;
       pointer.playPointerSwing2(fullTime, slowThreshold);
     }
 
