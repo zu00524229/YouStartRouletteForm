@@ -3,6 +3,8 @@ import { LotteryResponse, LotteryResultEvent, PlaceBetRequest, SIGNALR_EVENTS, U
 
 const { ccclass } = _decorator;
 declare const $: any;
+declare const CC_DEV: boolean;
+
 @ccclass('SignalRClient')
 export class SignalRClient {
   private static _connection: any = null;
@@ -20,8 +22,11 @@ export class SignalRClient {
   // ========== 建立連線 ==========
   public static async connect(onMessageReceived: (user: string, message: string) => void) {
     try {
-      await this.loadScriptWithCheck('http://localhost:5001/signalr/jquery-3.6.0.min.js', () => typeof (window as any).$ !== 'undefined');
-      await this.loadScriptWithCheck('http://localhost:5001/signalr/jquery.signalR-2.4.3.min.js', () => typeof (window as any).$?.hubConnection !== 'undefined');
+      // 測試用
+      if (CC_DEV) {
+        await this.loadScriptWithCheck('http://localhost:5001/signalr/jquery-3.6.0.min.js', () => typeof (window as any).$ !== 'undefined');
+        await this.loadScriptWithCheck('http://localhost:5001/signalr/jquery.signalR-2.4.3.min.js', () => typeof (window as any).$?.hubConnection !== 'undefined');
+      }
 
       if (typeof $ === 'undefined' || !$.hubConnection) {
         console.error('❌ SignalR 未正確載入 jQuery');
@@ -34,7 +39,7 @@ export class SignalRClient {
       }
       console.log('✅ jQuery 與 SignalR 載入成功');
 
-      this._connection = $.hubConnection('http://localhost:5000'); // 這條線插哪台伺服器（URL/Port/協定）
+      this._connection = $.hubConnection('http://172.16.5.21:5000'); // 這條線插哪台伺服器（URL/Port/協定）
       this._hubProxy = this._connection.createHubProxy('ChatHub'); // 後端 Hub 名稱（注意大小寫）最好一致
       console.log(this._hubProxy.hubName);
 

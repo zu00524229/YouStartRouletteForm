@@ -224,7 +224,7 @@ export class index extends Component {
       // this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame;
       this.chipManager.updateStartButton();
       this.chipManager.AllButton.interactable = true;
-      this.toast.showToast('餘額不足，自動已停止');
+      Toast.showToast('餘額不足，自動已停止');
       return; // 不夠錢就不下注，直接退出
     }
     // let totalBet = 0;

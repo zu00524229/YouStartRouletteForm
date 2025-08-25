@@ -178,8 +178,8 @@ export class ChipManager extends Component {
     // 將世界座標轉換為 chipPopupPanel 的父節點座標
     const localBtnPos = this.chipPopupPanel.parent!.getComponent(UITransform).convertToNodeSpaceAR(worldBtnPos);
     // 再根據這個位置設定起點與終點
-    const popupStart = new Vec3(localBtnPos.x, localBtnPos.y - 100, 0); // 從按鈕下方開始
-    const popupEnd = new Vec3(localBtnPos.x, localBtnPos.y + 180, 0); // 動畫滑到按鈕上方
+    const popupStart = new Vec3(localBtnPos.x, localBtnPos.y - 50, 0); // 從按鈕下方開始
+    const popupEnd = new Vec3(localBtnPos.x, localBtnPos.y + 50, 0); // 動畫滑到按鈕上方
 
     this.chipPopupPanel.setPosition(popupStart);
 
@@ -502,7 +502,7 @@ export class ChipManager extends Component {
     // 餘額不足就不能下注
     if (this.Balance_Num < chipValue) {
       console.log('❌ 餘額不足，無法下注！');
-      this.toast.showToast('餘額不足，無法下注！'); // 呼叫方法(提示訊息框)
+      Toast.showToast('餘額不足，無法下注！'); // 呼叫方法(提示訊息框)
       return;
     }
 
@@ -515,7 +515,7 @@ export class ChipManager extends Component {
     // 確認餘額是否足夠
     const totalNeeded = this.selectedChipValue * this.betAreaNodes.length;
     if (this.Balance_Num < totalNeeded) {
-      this.toast.showToast('餘額不足，無法全部下注');
+      Toast.showToast('餘額不足，無法全部下注');
       return;
     }
 
@@ -583,7 +583,7 @@ export class ChipManager extends Component {
 
       // 餘額不足，無法加倍，跳過該區域
       if (this.Balance_Num < doubleAmount) {
-        this.toast.showToast(`❌ 餘額不足，無法在加倍下注！`);
+        Toast.showToast(`❌ 餘額不足，無法在加倍下注！`);
         continue;
       }
 
@@ -629,7 +629,7 @@ export class ChipManager extends Component {
   undoBet() {
     this.Audio.AudioSources[1].play(); // 播放按鈕音效
     if (this.actionHistory.length === 0) {
-      this.toast.showToast('❌ 沒有可撤銷的動作');
+      Toast.showToast('❌ 沒有可撤銷的動作');
       return;
     }
 
@@ -691,7 +691,7 @@ export class ChipManager extends Component {
   onAgainBet() {
     // 檢查是否有上次下注的紀錄
     if (!this.lastBetAmounts || Object.keys(this.lastBetAmounts).length === 0) {
-      this.toast.showToast('尚無可重複的下注紀錄');
+      Toast.showToast('尚無可重複的下注紀錄');
       return;
     }
 
@@ -717,7 +717,7 @@ export class ChipManager extends Component {
 
         // 若餘額不足，則中止下注
         if (this.Balance_Num < chip) {
-          this.toast.showToast('餘額不足，無法重複下注');
+          Toast.showToast('餘額不足，無法重複下注');
           return;
         }
 

@@ -1,3 +1,4 @@
+import { Toast } from './../Toast';
 import { SignalRClient } from './../Signal/SignalRClient';
 import { index } from '../index';
 import { _decorator, Component, director, EditBox, Node } from 'cc';
@@ -7,6 +8,7 @@ const { ccclass, property } = _decorator;
 @ccclass('LoginPanel')
 export class LoginPanel extends Component {
   // @property(playerState) player: playerState = null;
+  // @property(Toast) Toast: Toast = null;
 
   @property(EditBox) usernameInput: EditBox = null;
 
@@ -74,6 +76,7 @@ export class LoginPanel extends Component {
           director.loadScene('Game'); // 這裡換成你遊戲場景的名字
         } else {
           console.warn('❌ 登入失敗：', res.message);
+          Toast.showToast('登入失敗：' + res.message);
         }
       })
       .fail((err: any) => {

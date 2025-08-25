@@ -34,6 +34,9 @@ export class Toast extends Component {
   @property(Node) maniaNode: Node = null;
   @property(Node) superNode: Node = null;
 
+  // 🔑 單例
+  static instance: Toast;
+
   onLoad() {
     this.ExtraPayNode.active = false;
     this.PleaseBetNow.active = false;
@@ -41,6 +44,8 @@ export class Toast extends Component {
     this.WinningTips.active = false;
 
     this.bonusGameUI.active = false;
+    // 綁定單例
+    Toast.instance = this;
   }
 
   // ================= 一般中獎提示 ===========================
@@ -302,20 +307,18 @@ export class Toast extends Component {
       .start();
   }
 
-  //============================== 餘額不足提示訊息 ============================
+  //============================== 一般提示訊息 ============================
 
-  showToast(message: string) {
-    // 顯示提示訊息
-    if (this.toastNode && this.toastText) {
-      this.toastNode.active = true;
-      this.toastText.string = message;
+  public static showToast(message: string) {
+    if (Toast.instance?.toastNode && Toast.instance.toastText) {
+      Toast.instance.toastNode.active = true;
+      Toast.instance.toastText.string = message;
     }
   }
 
-  hideToast() {
-    // 隱藏提示訊息
-    if (this.toastNode) {
-      this.toastNode.active = false;
+  public static hideToast() {
+    if (Toast.instance?.toastNode) {
+      Toast.instance.toastNode.active = false;
     }
   }
 }
