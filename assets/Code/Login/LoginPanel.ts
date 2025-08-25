@@ -1,15 +1,11 @@
-import { Toast } from './../Toast';
 import { SignalRClient } from './../Signal/SignalRClient';
-import { index } from '../index';
 import { _decorator, Component, director, EditBox, Node } from 'cc';
 import { player, playerState } from './playerState';
+import { ToastMessage } from '../Toast/ToastMessage';
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
 export class LoginPanel extends Component {
-  // @property(playerState) player: playerState = null;
-  // @property(Toast) Toast: Toast = null;
-
   @property(EditBox) usernameInput: EditBox = null;
 
   @property(EditBox) passwordInput: EditBox = null;
@@ -24,12 +20,17 @@ export class LoginPanel extends Component {
       console.log(`📩 [訊息忽略] ${user}: ${message}`);
     });
     this.loginButton.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
+    console.log('✅ LoginPanel 已初始化');
   }
 
   onDestroy() {
-    // this.loginButton.off(Node.EventType.TOUCH_END, this.onLoginClick, this);
+    this.loginButton.off(Node.EventType.TOUCH_END, this.onLoginClick, this);
   }
-  start() {}
+
+  start() {
+    this.loginButton.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
+    console.log('✅ LoginPanel 已綁定登入按鈕');
+  }
 
   onLoginClick() {
     if (this.isLoggingIn) return; // 防止重複送出
@@ -76,7 +77,12 @@ export class LoginPanel extends Component {
           director.loadScene('Game'); // 這裡換成你遊戲場景的名字
         } else {
           console.warn('❌ 登入失敗：', res.message);
-          Toast.showToast('登入失敗：' + res.message);
+
+          if (ToastMessage && ToastMessage.showToast) {
+            ToastMessage.showToast('登入失敗：' + res.message);
+          } else {
+            console.error('❌ ToastMessage.showToast 不存在，檢查 class 定義或編譯');
+          }
         }
       })
       .fail((err: any) => {

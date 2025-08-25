@@ -5,6 +5,7 @@ import { BetHighlighter } from './BetHightlight';
 import { ExtraPayController } from './ExtraPayController';
 import { Toast } from './Toast';
 import { player } from './Login/playerState';
+import { ToastMessage } from './Toast/ToastMessage';
 const { ccclass, property } = _decorator;
 
 @ccclass('ChipManager')
@@ -502,7 +503,7 @@ export class ChipManager extends Component {
     // 餘額不足就不能下注
     if (this.Balance_Num < chipValue) {
       console.log('❌ 餘額不足，無法下注！');
-      Toast.showToast('餘額不足，無法下注！'); // 呼叫方法(提示訊息框)
+      ToastMessage.showToast('餘額不足，無法下注！'); // 呼叫方法(提示訊息框)
       return;
     }
 
@@ -515,7 +516,7 @@ export class ChipManager extends Component {
     // 確認餘額是否足夠
     const totalNeeded = this.selectedChipValue * this.betAreaNodes.length;
     if (this.Balance_Num < totalNeeded) {
-      Toast.showToast('餘額不足，無法全部下注');
+      ToastMessage.showToast('餘額不足，無法全部下注');
       return;
     }
 
@@ -583,7 +584,7 @@ export class ChipManager extends Component {
 
       // 餘額不足，無法加倍，跳過該區域
       if (this.Balance_Num < doubleAmount) {
-        Toast.showToast(`❌ 餘額不足，無法在加倍下注！`);
+        ToastMessage.showToast(`❌ 餘額不足，無法在加倍下注！`);
         continue;
       }
 
@@ -629,7 +630,7 @@ export class ChipManager extends Component {
   undoBet() {
     this.Audio.AudioSources[1].play(); // 播放按鈕音效
     if (this.actionHistory.length === 0) {
-      Toast.showToast('❌ 沒有可撤銷的動作');
+      ToastMessage.showToast('❌ 沒有可撤銷的動作');
       return;
     }
 
@@ -691,7 +692,7 @@ export class ChipManager extends Component {
   onAgainBet() {
     // 檢查是否有上次下注的紀錄
     if (!this.lastBetAmounts || Object.keys(this.lastBetAmounts).length === 0) {
-      Toast.showToast('尚無可重複的下注紀錄');
+      ToastMessage.showToast('尚無可重複的下注紀錄');
       return;
     }
 
@@ -717,7 +718,7 @@ export class ChipManager extends Component {
 
         // 若餘額不足，則中止下注
         if (this.Balance_Num < chip) {
-          Toast.showToast('餘額不足，無法重複下注');
+          ToastMessage.showToast('餘額不足，無法重複下注');
           return;
         }
 

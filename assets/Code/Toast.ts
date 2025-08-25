@@ -10,9 +10,6 @@ export class Toast extends Component {
 
   @property(Node) ExtraPayNode: Node = null; // EXTRAPAY 發生提示
 
-  @property(Node) toastNode: Node = null; // 提示訊息(餘額不足)
-  @property(Label) toastText: Label = null; // 提示訊息文字
-
   @property(Node) PleaseBetNow: Node = null; // 遊戲開始顯示提示(玩家下注)
   @property(Node) BetLocked: Node = null; // Start 轉盤開始後(禁止下注)
 
@@ -305,20 +302,5 @@ export class Toast extends Component {
         this.BetLocked.active = false;
       })
       .start();
-  }
-
-  //============================== 一般提示訊息 ============================
-
-  public static showToast(message: string) {
-    if (Toast.instance?.toastNode && Toast.instance.toastText) {
-      Toast.instance.toastNode.active = true;
-      Toast.instance.toastText.string = message;
-    }
-  }
-
-  public static hideToast() {
-    if (Toast.instance?.toastNode) {
-      Toast.instance.toastNode.active = false;
-    }
   }
 }
