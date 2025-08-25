@@ -114,7 +114,7 @@ export class PointerAnim extends Component {
       if (isLast) {
         // ✨ 最後一下：停留後再回正
         seq = seq
-          .to(lastSwingTime, { angle: 35 }, { easing: 'quadOut' }) // 高點往下 10 度
+          .to(WheelConfig.delayPointerSwing + 0.3, { angle: 35 }, { easing: 'quadOut' }) // 高點往下 10 度
           .call(() => this.Audio?.AudioSources[5]?.play())
           .delay(WheelConfig.delayPointerSwing) // 高點停留
           .to(WheelConfig.reboundTime, { angle: 0 }, { easing: 'quadOut' });

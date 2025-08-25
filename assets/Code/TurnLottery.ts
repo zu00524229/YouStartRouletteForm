@@ -112,16 +112,9 @@ export class TurnLottery extends Component {
     this._isSceneTransitioning = false;
   }
 
-  onDestroy() {
-    director.off('DO_AUTO_BET', this.onGoLotterEventCallback, this);
-    // director.off(SIGNALR_EVENTS.UNIFIED_LOTTERY_EVENT, this.onGetLotteryRewardRstEventCallback, this);
-  }
+  onDestroy() {}
 
-  start() {
-    director.on('DO_AUTO_BET', this.onGoLotterEventCallback, this);
-    // 監聽整合後的抽獎結果
-    // director.on(SIGNALR_EVENTS.UNIFIED_LOTTERY_EVENT, this.onGetLotteryRewardRstEventCallback, this);
-  }
+  start() {}
 
   // betAreaName → rewardName（下注區 → 獎勵名稱）
   private static readonly betAreaToRewardNameMap: { [key: string]: string } = {
@@ -209,8 +202,6 @@ export class TurnLottery extends Component {
       const betData = this.getBetDataJson();
       SignalRClient.sendBetData(betData); // 傳送下注資料給後端
     }
-    // 🔍 在送出之前 log 清楚數字
-    // console.log('📤 [下注送出前] balanceBefore(前端):', balanceBefore);
 
     this.chipManager.offLightButton();
     this.toast.showBetLocked(); // 顯示(BetLocked)
