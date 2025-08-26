@@ -181,7 +181,7 @@ export class index extends Component {
       console.log('🛑 Auto 模式已手動關閉');
       // this.toast.showToast("Auto 模式已關閉");
       this.chipManager.updateStartButton();
-      this.chipManager.AllButton.interactable = true;
+      // this.chipManager.AllButton.interactable = true;
       return;
     }
 
