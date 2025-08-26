@@ -1,5 +1,5 @@
 import { SignalRClient } from './../Signal/SignalRClient';
-import { _decorator, Component, director, EditBox, Node } from 'cc';
+import { _decorator, Component, director, EditBox, Label, Node } from 'cc';
 import { player, playerState } from './playerState';
 import { ToastMessage } from '../Toast/ToastMessage';
 const { ccclass, property } = _decorator;
@@ -12,25 +12,44 @@ export class LoginPanel extends Component {
 
   @property(Node) loginButton: Node = null;
 
+  @property(Label) errorLabel: Label = null;
+
   public static isLoggedIn: boolean = false; // 預設未登入
   private isLoggingIn: boolean = false;
 
   onLoad() {
+    this.errorLabel.string = ''; // 清空錯誤訊息
     SignalRClient.connect((user, message) => {
       console.log(`📩 [訊息忽略] ${user}: ${message}`);
     });
-    this.loginButton.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
+
+    // this.loginButton.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
     console.log('✅ LoginPanel 已初始化');
   }
 
-  onDestroy() {
-    this.loginButton.off(Node.EventType.TOUCH_END, this.onLoginClick, this);
+  onEnable() {
+    console.log('🔎 loginButton =', this.loginButton);
+    // ✅ 在啟用時綁定
+    // if (this.loginButton && this.loginButton.isValid) {
+    //   this.loginButton.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
+    // }
+    this.node.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
   }
 
-  start() {
-    this.loginButton.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
-    console.log('✅ LoginPanel 已綁定登入按鈕');
+  onDisable() {
+    console.log('🔎 loginButton =', this.loginButton);
+
+    // if (this.loginButton && this.loginButton.isValid) {
+    //   try {
+    //     this.loginButton.off(Node.EventType.TOUCH_END, this.onLoginClick, this);
+    //   } catch (e) {
+    //     console.warn('⚠️ loginButton 已被銷毀，跳過解綁');
+    //   }
+    // }
+    this.node.off(Node.EventType.TOUCH_END, this.onLoginClick, this);
   }
+
+  start() {}
 
   onLoginClick() {
     if (this.isLoggingIn) return; // 防止重複送出
@@ -63,6 +82,7 @@ export class LoginPanel extends Component {
 
         if (res.success) {
           console.log('✅ 登入成功，餘額：', res.balance);
+          this.errorLabel.string = '登入成功! 正在進入遊戲...';
 
           // 存玩家資料到全域
           player.currentPlayer = {
@@ -74,12 +94,15 @@ export class LoginPanel extends Component {
           // 把餘額暫存到全域，進入遊戲場景再設定
           // this.node.active = false; // 登入成功隱藏視窗
           // 切換到遊戲場景
-          director.loadScene('Game'); // 這裡換成你遊戲場景的名字
+          setTimeout(() => {
+            director.loadScene('Game');
+          }, 0);
         } else {
           console.warn('❌ 登入失敗：', res.message);
 
           if (ToastMessage && ToastMessage.showToast) {
-            ToastMessage.showToast('登入失敗：' + res.message);
+            // ToastMessage.showToast('登入失敗：' + res.message);
+            this.errorLabel.string = '登入失敗：' + res.message;
           } else {
             console.error('❌ ToastMessage.showToast 不存在，檢查 class 定義或編譯');
           }

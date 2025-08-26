@@ -6,6 +6,7 @@ import { LotteryResponse, SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Typ
 import { Toast } from './Toast';
 import { LotteryCache, TurnLottery } from './TurnLottery';
 import { player } from './Login/playerState';
+import { ToastMessage } from './Toast/ToastMessage';
 const { ccclass, property } = _decorator;
 
 @ccclass('index')
@@ -139,8 +140,12 @@ export class index extends Component {
     SignalRClient.sendMessage('Player1', 'Hello from Cocos');
   }
 
-  protected onDestroy(): void {
-    // director.off("LotteryResultEvent", this.Lottery.onGetLotteryRewardRstEventCallback, this);
+  // protected onDestroy(): void {
+  //   // director.off("LotteryResultEvent", this.Lottery.onGetLotteryRewardRstEventCallback, this);
+  //   director.off('LotteryResultEvent', this.handleLotteryResult, this);
+  //   director.off('LotteryEnded', this.onLotteryEnd, this);
+  // }
+  onDisable() {
     director.off('LotteryResultEvent', this.handleLotteryResult, this);
     director.off('LotteryEnded', this.onLotteryEnd, this);
   }
@@ -224,7 +229,7 @@ export class index extends Component {
       // this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame;
       this.chipManager.updateStartButton();
       this.chipManager.AllButton.interactable = true;
-      Toast.showToast('餘額不足，自動已停止');
+      ToastMessage.showToast('餘額不足，自動已停止');
       return; // 不夠錢就不下注，直接退出
     }
     // let totalBet = 0;

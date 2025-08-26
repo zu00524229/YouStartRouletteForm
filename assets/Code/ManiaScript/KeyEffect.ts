@@ -56,10 +56,11 @@ export class KeyEffect extends Component {
     this.Keykeffect.setToSetupPose(); // 重設靜止狀態
   }
 
-  onDestroy() {
-    // 移除事件監聽，避免重複註冊或記憶體洩漏
-    this.node.off(Node.EventType.MOUSE_MOVE, this.onMouseMove, this);
-    this.node.off(Node.EventType.MOUSE_LEAVE, this.onMouseLeave, this);
+  onDisable() {
+    if (this.node && this.node.isValid) {
+      this.node.off(Node.EventType.MOUSE_MOVE, this.onMouseMove, this);
+      this.node.off(Node.EventType.MOUSE_LEAVE, this.onMouseLeave, this);
+    }
   }
 
   // =============== 鑰匙點擊事件（包含飛行動畫、觸發寶箱、淡出其他鑰匙） ==================

@@ -112,8 +112,6 @@ export class TurnLottery extends Component {
     this._isSceneTransitioning = false;
   }
 
-  onDestroy() {}
-
   start() {}
 
   // betAreaName → rewardName（下注區 → 獎勵名稱）
