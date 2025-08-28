@@ -295,7 +295,7 @@ export class TurnLottery extends Component {
     const betKey = TurnLottery.getRewardByBetArea(data.rewardName);
     if (betKey) {
       HoverController._isHighlight = true; // 進入中獎高亮狀態 (讓 HoverController 也知道)
-      this.betManager.highlightBetArea(betKey);
+      this.chipManager.highlightBetArea(betKey);
     }
 
     if (winAmount > 0) {
@@ -391,8 +391,8 @@ export class TurnLottery extends Component {
         this.toast.showPleaseBetNow();
         this._isLottery = false;
         director.emit('LotteryEnded'); // 更新 StartButton (重啟)
-        this.betManager.clearAllExtraPayMarks();
-        this.betManager.onColseMask(); // 關閉遮罩(Mask)
+        this.chipManager.clearAllExtraPayMarks();
+        this.betManager.onCloseMask(); // 關閉遮罩(Mask)
         this.betManager.onLightBetArea(); // 開啟下注區域
         // this.chipManager.Win_Num = 0;
 
@@ -419,8 +419,8 @@ export class TurnLottery extends Component {
         this.toast.showPleaseBetNow();
         this._isLottery = false; // 重置抽獎狀態
         director.emit('LotteryEnded'); // 更新 StartButton (重啟)
-        this.betManager.clearAllExtraPayMarks();
-        this.betManager.onColseMask(); // 關閉遮罩(Mask)
+        this.chipManager.clearAllExtraPayMarks();
+        this.betManager.onCloseMask(); // 關閉遮罩(Mask)
         this.betManager.onLightBetArea(); // 開啟下注區域
 
         this.scheduleOnce(() => {
