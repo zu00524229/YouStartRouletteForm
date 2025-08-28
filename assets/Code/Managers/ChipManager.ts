@@ -1,11 +1,10 @@
-// import { playerState } from './Login/playerState';
 import { _decorator, Button, CCInteger, Component, EventTouch, instantiate, Label, Node, Prefab, Sprite, SpriteFrame, tween, UIOpacity, UITransform, Vec3 } from 'cc';
-import { AudioManager } from './Audio/AudioManager';
-import { BetHighlighter } from './BetHightlight';
-import { ExtraPayController } from './ExtraPayController';
-import { Toast } from './Toast';
-import { player } from './Login/playerState';
-import { ToastMessage } from './Toast/ToastMessage';
+import { AudioManager } from '../Audio/AudioManager';
+import { BetHighlighter } from '../BetHightlight';
+import { ExtraPayController } from '../ExtraPayController';
+import { Toast } from '../Toast';
+import { player } from '../Login/playerState';
+import { ToastMessage } from '../Toast/ToastMessage';
 const { ccclass, property } = _decorator;
 
 @ccclass('ChipManager')
@@ -26,10 +25,10 @@ export class ChipManager extends Component {
   @property(Node) ProporMask: Node = null;
 
   // @property({ type: Button }) StartButton: Button = null;
-  @property({ type: Button }) AllButton: Button = null;
+  @property({ type: Button }) AllButton: Button = null; // 全部下注按鈕
   @property({ type: Button }) X2Button: Button = null; // 雙倍按鈕
 
-  @property({ type: Button }) AutoButton: Button = null;
+  @property({ type: Button }) AutoButton: Button = null; // 自動按鈕(待刪除)
   @property(Sprite) AutoSprite: Sprite = null; // 按鈕上預設圖示
   @property(SpriteFrame) AutoSpriteFrame: SpriteFrame = null; // auto 圖示  (play)
   @property(SpriteFrame) StopSpriteFrame: SpriteFrame = null; // stop圖示 (方)
@@ -42,7 +41,6 @@ export class ChipManager extends Component {
   @property({ type: Button }) ClearButton: Button = null;
 
   @property([Node]) betAreaNodes: Node[] = []; // 下注區域節點
-  // @property({type: [Number]}) chipValues: number[] = [10, 200, 500, 1000, 10000];     // 對應籌碼金額
   @property({ type: [CCInteger] }) chipValues: number[] = [100, 200, 500, 1000, 10000]; // 對應籌碼金額
   @property([Prefab]) chipPrefabs: Prefab[] = []; // 依序對應 50、100 籌碼(預製體)
 
@@ -52,11 +50,8 @@ export class ChipManager extends Component {
   @property([Prefab]) chipPrefab: Prefab[] = []; // [Bet_50, Bet_100, Bet_500 對應 chipValues] (對應籌碼顯示圖庫)
   @property(Prefab) chipButtonPrefab: Prefab = null; // 掛在 ChipButton 上的 Sprite 元件 (最後顯示)
 
-  // @property(Label) Bet_TitleLabel: Label = null; // 下注額度標題
   @property(Label) Bet_Label: Label = null; // 顯示下注額度
-  // @property(Label) Balance_TitleLabel: Label = null; // 餘額標題
   @property(Label) Balance_Label: Label = null; // 顯示玩家餘額
-  // @property(Label) Win_TitleLabel: Label = null; // 贏得條碼標題
   @property(Label) Win_Label: Label = null; // 導入贏得籌碼
 
   Balance_Num: number = player.currentPlayer.balance; // 初始餘額(未來會連後端)
@@ -245,11 +240,6 @@ export class ChipManager extends Component {
     this.X4Bet.interactable = shouldEnableBet;
     this.X6Bet.interactable = shouldEnableBet;
     this.X10Bet.interactable = shouldEnableBet;
-    // if (!shouldEnableBet) {
-    //     this.ProporMask.active = true;
-    // } else {
-    //     this.ProporMask.active = false;
-    // }
 
     if (this._isAutoMode) {
       // Auto 模式開啟
@@ -275,8 +265,7 @@ export class ChipManager extends Component {
   }
 
   // ==== 按下 START 後按鈕關燈 (鎖定所有下注與操作按鈕) ======
-  offLightButton() {
-    // this.StartButton.interactable = false;
+  offLightButton(fromLongPress: boolean = false) {
     this.AllButton.interactable = false;
     this.X2Button.interactable = false;
     // this.AgainButton.interactable = false;
@@ -289,6 +278,11 @@ export class ChipManager extends Component {
     this.X4Bet.interactable = false;
     this.X6Bet.interactable = false;
     this.X10Bet.interactable = false;
+    console.log('🔧 offLightButton called, fromLongPress =', fromLongPress);
+    if (!fromLongPress) {
+      const mask = this.AutoButton.node.getChildByName('Mask');
+      if (mask) mask.active = true;
+    }
   }
 
   onLightBetArea() {
@@ -299,6 +293,12 @@ export class ChipManager extends Component {
     this.X4Bet.interactable = true;
     this.X6Bet.interactable = true;
     this.X10Bet.interactable = true;
+  }
+
+  // 關閉遮罩(Mask)
+  onColseMask() {
+    const mask = this.AutoButton.node.getChildByName('Mask');
+    if (mask) mask.active = false;
   }
 
   // ================ 下注區域相關方法 =================
@@ -446,16 +446,26 @@ export class ChipManager extends Component {
   // 高亮下注區域（用於中獎提示或視覺效果）
   public highlightBetArea(betKey: string) {
     // console.log("🎯 highlightBetArea:", betKey);
-    const index = this.betAreaMap[betKey];
     // console.log("👉 對應 index:", index);
+    const index = this.betAreaMap[betKey];
     const node = this.betAreaNodes[index];
     if (!node) return;
 
-    const highlighter = node.getComponent(BetHighlighter); // 撈子節點getComponentInChildren / 撈父節點getComponent
+    const highlighter = node.getComponent(BetHighlighter); // 撈子節點getComponentInChildren  撈父節點getComponent
     if (highlighter) {
       this.scheduleOnce(() => {
         highlighter.showWinEffect();
       }, this.Delay_Show);
+    }
+
+    const hoverLight = node.getChildByName('framelight');
+    console.log('👉 hoverLight 節點:', hoverLight);
+    if (hoverLight) {
+      hoverLight.active = true; // 顯示高亮效果
+
+      this.scheduleOnce(() => {
+        hoverLight.active = false; // 延遲後隱藏高亮效果
+      }, this.Delay_Show + 1);
     }
 
     // 2 對應下注按鈕高亮（啟用可互動）

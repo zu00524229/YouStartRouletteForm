@@ -1,5 +1,6 @@
 import { _decorator, Button, CCInteger, Component, director, Label, Node, tween, UIOpacity, Vec3 } from 'cc';
-import { ChipManager } from './ChipManager';
+import { HoverController } from './Hover/HoverController';
+import { ChipManager } from './Managers/ChipManager';
 import { Toast } from './Toast';
 import { SignalRClient } from './Signal/SignalRClient';
 import { ExtraPayController } from './ExtraPayController';
@@ -201,7 +202,6 @@ export class TurnLottery extends Component {
       SignalRClient.sendBetData(betData); // 傳送下注資料給後端
     }
 
-    this.chipManager.offLightButton();
     this.toast.showBetLocked(); // 顯示(BetLocked)
     this.scheduleOnce(() => {
       this.toast.hideBetLocked(); // 隱藏(BetLocked)
@@ -291,6 +291,7 @@ export class TurnLottery extends Component {
     // 找到對應下注區並高亮
     const betKey = TurnLottery.getRewardByBetArea(data.rewardName);
     if (betKey) {
+      HoverController._isHighlight = true; // 進入中獎高亮狀態 (讓 HoverController 也知道)
       this.chipManager.highlightBetArea(betKey);
     }
 
@@ -369,6 +370,7 @@ export class TurnLottery extends Component {
 
         // 1.隱藏中獎提示
         this.toast.hideWinningTips();
+        HoverController._isHighlight = false; // 🆕 中獎結束 → 恢復 hover
 
         // 2.更新餘額（後端 balanceAfter 為準）
         // ✅ 再次確保餘額同步
@@ -387,13 +389,9 @@ export class TurnLottery extends Component {
         this._isLottery = false;
         director.emit('LotteryEnded'); // 更新 StartButton (重啟)
         this.chipManager.clearAllExtraPayMarks();
-        // this.chipManager.onLightButton(); // 開啟按鈕
+        this.chipManager.onColseMask(); // 關閉遮罩(Mask)
+        this.chipManager.onLightBetArea(); // 開啟下注區域
         // this.chipManager.Win_Num = 0;
-
-        if (this.chipManager._isAutoMode) {
-          this.chipManager.offLightButton(); // 關閉自動下注按鈕
-          // this.chipManager.offLightBetArea()
-        }
 
         this.scheduleOnce(() => {
           this.toast.hidePleaseBetNow();
@@ -401,7 +399,6 @@ export class TurnLottery extends Component {
           if (this.chipManager._isAutoMode) {
             this.scheduleOnce(() => {
               this.onGoLotterEventCallback(); // 下一輪自動抽獎（不再呼叫 onStartButton）
-              // director.emit('DO_AUTO_BET');
             }, 1);
           }
         }, this.Delay_Hide); // X 秒後隱藏提示(Auto 模式下)
@@ -420,12 +417,8 @@ export class TurnLottery extends Component {
         this._isLottery = false; // 重置抽獎狀態
         director.emit('LotteryEnded'); // 更新 StartButton (重啟)
         this.chipManager.clearAllExtraPayMarks();
-        // this.chipManager.onLightBetArea();
-        // this.chipManager.onLightButton(); // 開啟按鈕
-
-        if (this.chipManager._isAutoMode) {
-          this.chipManager.offLightButton(); // 關閉自動下注按鈕
-        }
+        this.chipManager.onColseMask(); // 關閉遮罩(Mask)
+        this.chipManager.onLightBetArea(); // 開啟下注區域
 
         this.scheduleOnce(() => {
           // ✅ 若正在轉場（如水波動畫還在跑），就不進行 reset 與自動下注

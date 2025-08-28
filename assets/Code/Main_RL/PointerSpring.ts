@@ -67,7 +67,7 @@ export class PointerAnim extends Component {
     // 第 16 下：補進終點回正
     // 最後：先被「頂上去」再回正
     seq = seq
-      .to(WheelThreeConfig.reboundTime * 1.5, { angle: 40 }, { easing: 'quadOut' }) //
+      .to(WheelThreeConfig.reboundTime * 1.4, { angle: 40 }, { easing: 'quadOut' }) //
       .to(WheelThreeConfig.reboundTime * 0.8, { angle: 0 }, { easing: 'quadIn' }); // ➡️ 再回正
 
     seq.call(() => console.log('✅ 指針動畫3完成')).start();

@@ -1,6 +1,7 @@
-import { _decorator, Collider2D, Component, director, EPhysics2DDrawFlags, EventTouch, game, Label, Node, PhysicsSystem2D, Prefab } from 'cc';
+import { _decorator, Component, director, EventTouch, Label, Node, Prefab } from 'cc';
+import { StartTouch } from './Touch/StartTouch';
 import { AudioManager } from './Audio/AudioManager';
-import { ChipManager } from './ChipManager';
+import { ChipManager } from './Managers/ChipManager';
 import { SignalRClient } from './Signal/SignalRClient';
 import { LotteryResponse, SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types'; // 型別呼叫
 import { Toast } from './Toast';
@@ -15,9 +16,6 @@ export class index extends Component {
   @property(Label) TimeLabel: Label = null;
   @property(Node) WheelSprite_Node: Node = null; // 導入輪盤自身節點
   @property(Node) Poin_Node: Node = null; // 導入指針父節點
-  // @property([Node]) dotNodes: Node[] = []; // <<< 圓盤小圓點
-  // @property(Button) StartButton: Button = null;
-  // @property({ type: Button }) AutoButton: Button = null; //
 
   @property(Prefab) Pointer_Prefab: Prefab = null; // 導入指針預製體
 
@@ -31,13 +29,6 @@ export class index extends Component {
 
   // === 初始化階段 ===
   protected onLoad(): void {
-    // 開啟 Debug Draw
-    // if (PhysicsSystem2D.instance) {
-    //   PhysicsSystem2D.instance.debugDrawFlags =
-    //     EPhysics2DDrawFlags.Pair | // 碰撞點
-    //     EPhysics2DDrawFlags.CenterOfMass | // 質心
-    //     EPhysics2DDrawFlags.Shape; // Collider 形狀
-    // }
     // 先顯示登入面板
     const loginPanelNode = this.node.getChildByName('login');
     if (loginPanelNode) {
@@ -49,6 +40,32 @@ export class index extends Component {
     SignalRClient.connect((user, msg) => {
       console.log(`${user}: ${msg}`);
     });
+
+    // ============ StartTouch 組件綁定事件 ==============
+    const startTouch = this.getComponentInChildren(StartTouch); // 取得 StartTouch 組件
+    if (startTouch) {
+      startTouch.node.on(
+        'start-press',
+        () => {
+          if (this.chipManager._isAutoMode) {
+            this.onAutoBet(); // 如果在 Auto 模式，短按也觸發 onAutoBet
+            if (!this.toast.PleaseBetNow.active) this.chipManager.offLightButton(false); // 短按才開遮罩(觸發start)
+          } else {
+            this.onStartButton(); // 否則觸發 onStartButton
+            this.chipManager.offLightButton(false); // 一般 Start 也要遮罩
+          }
+        },
+        this
+      ); // 短按事件綁定到 onStartButton 方法
+      startTouch.node.on(
+        'auto-press',
+        () => {
+          this.onAutoBet(); // 長按 → 啟動 Auto
+          this.chipManager.offLightButton(true); // 長按 → 換圖但不開遮罩
+        },
+        this
+      );
+    }
 
     // ========= 接收 PICK 回傳的值 ==============
     if (LotteryCache.lastResult?.balanceAfterWin) {
@@ -103,11 +120,6 @@ export class index extends Component {
     // 當事件 OnLotteryResult 被觸發時，就執行對應的回呼函式（抽獎結果處理）
     director.on(SIGNALR_EVENTS.UNIFIED_LOTTERY_EVENT, this.handleLotteryResult, this);
 
-    // director.on(SIGNALR_EVENTS.LOTTERY_RESULT, this.handleLotteryResult, this); // 🎯 轉盤動畫用
-    // // director.on('LotteryResultEvent', this.handleLotteryResult, this);
-    // // 💰 錢包更新
-    // director.on(SIGNALR_EVENTS.LOTTERY_BALANCE, this.handleLotteryBalance, this);
-
     // 當事件 GetLottryRewardRstEvent 被觸發時，重啟 UI 狀態
     director.on('LotteryEnded', this.onLotteryEnd, this);
     this.chipManager.isLotteryRunning = () => this.Lottery._isLottery; // 委派注入(TrunLottery 的變數值)
@@ -122,19 +134,6 @@ export class index extends Component {
   private handleLotteryResult = (data: UnifiedLotteryEvent) => {
     this.Lottery.onGetLotteryRewardRstEventCallback(data);
   };
-
-  private _lastLotteryResp: LotteryResponse | null = null;
-  // 💰 錢包更新
-  private handleLotteryBalance(resp: LotteryResponse) {
-    console.log('💰 收到 LotteryResponse：', resp);
-    this._lastLotteryResp = resp;
-    // this.chipManager.Balance_Num = resp.balanceAfter ?? this.chipManager.Balance_Num;
-    // this.chipManager.Win_Num = resp.netChange ?? 0;
-
-    console.log('💰 更新餘額：', this.chipManager.Balance_Num, '淨變化：', this.chipManager.Win_Num);
-    // this.chipManager.updateGlobalLabels();
-    // ❌ 不直接更新 UI，等整合器 push UnifiedLotteryEvent
-  }
 
   onSendClick() {
     SignalRClient.sendMessage('Player1', 'Hello from Cocos');
@@ -160,8 +159,7 @@ export class index extends Component {
     console.log('上局下注資料:', this.chipManager.lastBetAmounts);
 
     this.chipManager.AllButton.interactable = true;
-    this.chipManager.offLightButton(); // 按下start後 鎖住按鈕(關燈)
-    // this.chipManager.setAllMasksActive(true); // 開啟所有mask-2
+
     this.Lottery.onGoLotterEventCallback(); // 轉盤轉動(隨機抽獎)
     window.addEventListener('error', function (e) {
       console.error('🔴 Global Error 捕捉：', e.message, e.filename, e.lineno, e.colno);
@@ -181,21 +179,18 @@ export class index extends Component {
       console.log('🛑 Auto 模式已手動關閉');
       // this.toast.showToast("Auto 模式已關閉");
       this.chipManager.updateStartButton();
-      // this.chipManager.AllButton.interactable = true;
       return;
     }
 
-    if (this.chipManager._isAutoMode) {
-      console.warn('已在轉動或 Auto 排程中，忽略此次點擊');
-      return;
-    }
+    // if (this.chipManager._isAutoMode) {
+    //   console.warn('已在轉動或 Auto 排程中，忽略此次點擊');
+    //   return;
+    // }
 
     // 開啟 Auto 模式
     this.chipManager._isAutoMode = true;
     this.chipManager.AutoSprite.spriteFrame = this.chipManager.StopSpriteFrame; // 更新 Auto 按鈕圖片(Stop)
     this.chipManager.AutoBouttonSprite.spriteFrame = this.chipManager.StopStopFrame; // 更新 Auto 按鈕圖片(粉)
-    this.chipManager.offLightButton(); // 關閉按鈕(關燈)
-    // this.chipManager.setAllMasksActive(true); // 開啟所有mask-2
 
     // 儲存目前下注狀態作為 lastBetAmounts（只做一次）
     this.chipManager.lastBetAmounts = { ...this.chipManager.betAmounts };
@@ -265,7 +260,6 @@ export class index extends Component {
   onLotteryEnd() {
     // 如果 Auto 模式是開的，就再來一輪
     if (this.chipManager._isAutoMode) {
-      this.chipManager.offLightButton();
       this.scheduleOnce(() => {
         this.rebetAndStart(); // 重播下注並啟動轉盤
       }, 0.25); // 延遲 0.3 秒啟動下一輪（可調）

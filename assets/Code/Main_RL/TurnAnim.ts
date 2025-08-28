@@ -81,7 +81,7 @@ export class TurnAnim extends Component {
       .to(reboundTime * 2.0, { angle: preStopAngle - 10 }, { easing: 'quadOut' })
 
       // 身為被指針往回推
-      .to(reboundTime * 0.8, { angle: targetAngle + 1.5 }, { easing: 'quadOut' })
+      .to(reboundTime * 0.8, { angle: targetAngle + 2.0 }, { easing: 'quadOut' })
 
       // 後段：再補進終點
       .to(reboundTime * 0.6, { angle: targetAngle }, { easing: 'quadInOut' })
