@@ -8,6 +8,7 @@ import { Toast } from './Toast';
 import { LotteryCache, TurnLottery } from './TurnLottery';
 import { player } from './Login/playerState';
 import { ToastMessage } from './Toast/ToastMessage';
+import { BetManager } from './Managers/BetManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('index')
@@ -22,6 +23,8 @@ export class index extends Component {
   @property(TurnLottery) Lottery: TurnLottery = null; // 連結 TurnLottery
   @property(ChipManager) chipManager: ChipManager = null; // 連結 ChipManager
   @property(AudioManager) Audio: AudioManager = null; // 連結 AudioManager
+  @property(BetManager) betManager: BetManager = null; // 連結 BetManager
+
   // 玩家目前選擇的籌碼金額(在chipManager.ts中管理)
   @property(Toast) toast: Toast = null; // 連結 Toast 腳本
 
@@ -49,10 +52,10 @@ export class index extends Component {
         () => {
           if (this.chipManager._isAutoMode) {
             this.onAutoBet(); // 如果在 Auto 模式，短按也觸發 onAutoBet
-            if (!this.toast.PleaseBetNow.active) this.chipManager.offLightButton(false); // 短按才開遮罩(觸發start)
+            if (!this.toast.PleaseBetNow.active) this.betManager.offLightButton(false); // 短按才開遮罩(觸發start)
           } else {
             this.onStartButton(); // 否則觸發 onStartButton
-            this.chipManager.offLightButton(false); // 一般 Start 也要遮罩
+            this.betManager.offLightButton(false); // 一般 Start 也要遮罩
           }
         },
         this
@@ -61,7 +64,7 @@ export class index extends Component {
         'auto-press',
         () => {
           this.onAutoBet(); // 長按 → 啟動 Auto
-          this.chipManager.offLightButton(true); // 長按 → 換圖但不開遮罩
+          this.betManager.offLightButton(true); // 長按 → 換圖但不開遮罩
         },
         this
       );

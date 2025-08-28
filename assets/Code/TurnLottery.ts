@@ -8,6 +8,7 @@ import { RLRotation } from './Main_RL/RLRotation';
 import { SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types';
 // import { PointerSpring } from './Main_RL/PointerSpring';
 import { TurnAnim } from './Main_RL/TurnAnim';
+import { BetManager } from './Managers/BetManager';
 const { ccclass, property } = _decorator;
 
 // ✅ 定義倍率與 index 對應表（Super 轉盤用）
@@ -37,6 +38,8 @@ export class TurnLottery extends Component {
   @property(Toast) toast: Toast = null; // 連結 Toast 腳本
   @property(RLRotation) RLRota: RLRotation = null; // 連結 RLRotation
   @property(TurnAnim) Turn: TurnAnim = null; // 連結 TurnAnim
+  @property(BetManager) betManager: BetManager = null; // 連結 BetManager
+
   // @property(SignalRClient) SingalR: SignalRClient = null; // 連結 SignalRclient 腳本
 
   // 轉圈動畫已搬到TurnAnim.ts
@@ -292,7 +295,7 @@ export class TurnLottery extends Component {
     const betKey = TurnLottery.getRewardByBetArea(data.rewardName);
     if (betKey) {
       HoverController._isHighlight = true; // 進入中獎高亮狀態 (讓 HoverController 也知道)
-      this.chipManager.highlightBetArea(betKey);
+      this.betManager.highlightBetArea(betKey);
     }
 
     if (winAmount > 0) {
@@ -388,9 +391,9 @@ export class TurnLottery extends Component {
         this.toast.showPleaseBetNow();
         this._isLottery = false;
         director.emit('LotteryEnded'); // 更新 StartButton (重啟)
-        this.chipManager.clearAllExtraPayMarks();
-        this.chipManager.onColseMask(); // 關閉遮罩(Mask)
-        this.chipManager.onLightBetArea(); // 開啟下注區域
+        this.betManager.clearAllExtraPayMarks();
+        this.betManager.onColseMask(); // 關閉遮罩(Mask)
+        this.betManager.onLightBetArea(); // 開啟下注區域
         // this.chipManager.Win_Num = 0;
 
         this.scheduleOnce(() => {
@@ -416,9 +419,9 @@ export class TurnLottery extends Component {
         this.toast.showPleaseBetNow();
         this._isLottery = false; // 重置抽獎狀態
         director.emit('LotteryEnded'); // 更新 StartButton (重啟)
-        this.chipManager.clearAllExtraPayMarks();
-        this.chipManager.onColseMask(); // 關閉遮罩(Mask)
-        this.chipManager.onLightBetArea(); // 開啟下注區域
+        this.betManager.clearAllExtraPayMarks();
+        this.betManager.onColseMask(); // 關閉遮罩(Mask)
+        this.betManager.onLightBetArea(); // 開啟下注區域
 
         this.scheduleOnce(() => {
           // ✅ 若正在轉場（如水波動畫還在跑），就不進行 reset 與自動下注
