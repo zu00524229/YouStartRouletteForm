@@ -5,13 +5,44 @@ const { ccclass, property } = _decorator;
 export class AudioManager extends Component {
   @property([AudioSource]) AudioSources: AudioSource[] = [];
 
+  private static _instance: AudioManager;
+
+  onLoad() {
+    AudioManager._instance = this;
+
+    // 如果會切場景，建議開啟常駐（現在先保留註解）
+    // game.addPersistRootNode(this.node);
+
+    this.loadVolume();
+  }
+
+  public static get instance(): AudioManager {
+    if (!this._instance) {
+      console.warn('[AudioManager] instance 尚未建立。請確認場景中有掛載 AudioManager。');
+    }
+    return this._instance!;
+  }
+
+  // 設定音量 (0 ~ 1)
+  public setVolume(value: number) {
+    this.AudioSources.forEach((src) => {
+      if (src) src.volume = value;
+    });
+    localStorage.setItem('volume', value.toString());
+  }
+
+  // 載入音量(預設1)
+  public loadVolume(): number {
+    const saved = localStorage.getItem('volume');
+    const v = saved ? parseFloat(saved) : 1;
+    this.setVolume(v);
+    return v;
+  }
+
+  // 播放按鈕音效
   playButtonSound(index: number) {
     if (this.AudioSources[index]) {
       this.AudioSources[index].play();
     }
   }
-
-  start() {}
-
-  update(deltaTime: number) {}
 }

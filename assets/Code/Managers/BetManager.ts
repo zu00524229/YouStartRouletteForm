@@ -134,57 +134,6 @@ export class BetManager extends Component {
     if (mask) mask.active = false;
   }
 
-  // // ================= 高亮下注區域（用於中獎提示或視覺效果）=======================
-  // public highlightBetArea(betKey: string) {
-  //   // console.log("🎯 highlightBetArea:", betKey);
-  //   // console.log("👉 對應 index:", index);
-  //   const index = this.betAreaMap[betKey];
-  //   const node = this.betAreaNodes[index];
-  //   if (!node) return;
-
-  //   const highlighter = node.getComponent(BetHighlighter); // 撈子節點getComponentInChildren  撈父節點getComponent
-  //   if (highlighter) {
-  //     this.scheduleOnce(() => {
-  //       highlighter.showWinEffect();
-  //     }, this.Delay_Show);
-  //   }
-
-  //   const hoverLight = node.getChildByName('framelight');
-  //   console.log('👉 hoverLight 節點:', hoverLight);
-  //   if (hoverLight) {
-  //     hoverLight.active = true; // 顯示高亮效果
-
-  //     this.scheduleOnce(() => {
-  //       hoverLight.active = false; // 延遲後隱藏高亮效果
-  //     }, this.Delay_Show + 1);
-  //   }
-
-  //   // 2 對應下注按鈕高亮（啟用可互動）
-  //   switch (betKey) {
-  //     case 'Bet_X2':
-  //       this.X2Bet.interactable = true;
-  //       break;
-  //     case 'Bet_X4':
-  //       this.X4Bet.interactable = true;
-  //       break;
-  //     case 'Bet_X6':
-  //       this.X6Bet.interactable = true;
-  //       break;
-  //     case 'Bet_X10':
-  //       this.X10Bet.interactable = true;
-  //       break;
-  //     case 'Bet_PRIZE_PICK':
-  //       this.PRIZEPICKBet.interactable = true;
-  //       break;
-  //     case 'Bet_GOLD_MANIA':
-  //       this.GOLDMANIABet.interactable = true;
-  //       break;
-  //     case 'Bet_GOLDEN_TREASURE':
-  //       this.GOLDENTREASUREBet.interactable = true;
-  //       break;
-  //   }
-  // }
-
   // ============== 清除下注區上的 ExtraPay 標記 ==============
   public clearAllExtraPayMarks() {
     for (const node of this.betAreaNodes) {

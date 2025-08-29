@@ -466,15 +466,15 @@ export class ChipManager extends Component {
   }
 
   // 清除下注區上的 ExtraPay 標記
-  public clearAllExtraPayMarks() {
-    if (this.betManager) {
-      this.betManager.clearAllExtraPayMarks(); // ✅ 改交給 BetManager 處理
-    }
-    // for (const node of this.betAreaNodes) {
-    //   const controller = node.getComponentInChildren(ExtraPayController);
-    //   if (controller) controller.hide(); // hide() 就是讓 .active = false
-    // }
-  }
+  // public clearAllExtraPayMarks() {
+  //   if (this.betManager) {
+  //     this.betManager.clearAllExtraPayMarks(); // ✅ 改交給 BetManager 處理
+  //   }
+  //   // for (const node of this.betAreaNodes) {
+  //   //   const controller = node.getComponentInChildren(ExtraPayController);
+  //   //   if (controller) controller.hide(); // hide() 就是讓 .active = false
+  //   // }
+  // }
 
   // ================== 下注區域點擊事件 ==================
   // 下注區域點擊事件（需在下注區域節點）
