@@ -1,7 +1,7 @@
 import { _decorator, Button, CCInteger, Component, director, Label, Node, tween, UIOpacity, Vec3 } from 'cc';
 import { HoverController } from './Animation/Hover/HoverController';
 import { ChipManager } from './Managers/ChipManager';
-import { Toast } from './Toast/Toast';
+import { Toast } from './Managers/Toasts/Toast';
 import { SignalRClient } from './Signal/SignalRClient';
 import { ExtraPayController } from './ExtraPayController';
 import { RLRotation } from './Animation/Main_RL/RLRotation';

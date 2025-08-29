@@ -4,10 +4,10 @@ import { AudioManager } from './Managers/Audio/AudioManager';
 import { ChipManager } from './Managers/ChipManager';
 import { SignalRClient } from './Signal/SignalRClient';
 import { LotteryResponse, SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types'; // 型別呼叫
-import { Toast } from './Toast/Toast';
+import { Toast } from './Managers/Toasts/Toast';
 import { LotteryCache, TurnLottery } from './TurnLottery';
 import { player } from './Login/playerState';
-import { ToastMessage } from './Toast/ToastMessage';
+import { ToastMessage } from './Managers/Toasts/ToastMessage';
 import { BetManager } from './Managers/BetManager';
 const { ccclass, property } = _decorator;
 

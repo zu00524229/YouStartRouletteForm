@@ -2,9 +2,9 @@ import { _decorator, Button, CCInteger, Component, EventTouch, instantiate, Labe
 import { AudioManager } from '../Managers/Audio/AudioManager';
 import { BetHighlighter } from '../Animation/BetHightlight';
 import { ExtraPayController } from '../ExtraPayController';
-import { Toast } from '../Toast/Toast';
+import { Toast } from '../Managers/Toasts/Toast';
 import { player } from '../Login/playerState';
-import { ToastMessage } from '../Toast/ToastMessage';
+import { ToastMessage } from '../Managers/Toasts/ToastMessage';
 import { BetManager } from './BetManager'; //  引用 BetManager
 
 const { ccclass, property } = _decorator;

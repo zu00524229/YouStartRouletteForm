@@ -1,7 +1,7 @@
 import { SignalRClient } from './../Signal/SignalRClient';
 import { _decorator, Component, director, EditBox, Label, Node } from 'cc';
 import { player, playerState } from './playerState';
-import { ToastMessage } from '../Toast/ToastMessage';
+import { ToastMessage } from '../Managers/Toasts/ToastMessage';
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
