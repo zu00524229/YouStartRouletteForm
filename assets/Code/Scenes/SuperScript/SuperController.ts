@@ -16,20 +16,6 @@ interface SuperData {
   balanceAfterWin: number;
 }
 
-// // ✅ 定義倍率與 index 對應表（Super 轉盤用）
-// type RewardSuperInfo = {
-//     indices: number[];
-//     multiplier: number;
-// };
-
-// // ✅ Super 輪盤格子資料表（每格代表的倍率）
-// const rewardSuperMapTable: Record<string, RewardSuperInfo> = {
-//     "100X":  { indices: [2, 4, 5, 8, 9, 12, 15, 16, 19, 22, 23], multiplier: 100 },
-//     "800X":  { indices: [1, 6, 11, 13, 18, 21], multiplier: 800 },
-//     "1700X": { indices: [3, 7, 14, 17, 20], multiplier: 1700 },
-//     "3000X": { indices: [0], multiplier: 3000 },
-// };
-
 @ccclass('SuperController')
 export class SuperController extends Component {
   @property(RLRotation) RLRota: RLRotation = null; // 連結 RLRotation

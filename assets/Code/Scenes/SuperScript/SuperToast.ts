@@ -61,10 +61,8 @@ export class SuperToast extends Component {
   // ======================= BIG WIN (PICK)獎金提示 =========================
   showEPICTips(mult: number, total: number) {
     this.SupWinTips.active = true;
-    this.Audio.AudioSources[3].play(); // 金錢音效
-    this.Audio.AudioSources[2].play(); // 高分音效
-    // console.log("AudioManager:", this.Audio);
-    // console.log("AudioSources[6]:", this.Audio?.AudioSources?.[6]);
+    this.Audio.AudioSources[2].play(); // 金錢音效
+    this.Audio.AudioSources[1].play(); // 高分音效
 
     // ==== 金額數字 ====
     const totalStr = total.toString();

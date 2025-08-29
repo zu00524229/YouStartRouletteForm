@@ -618,9 +618,6 @@
     "__prefab": null,
     "AudioSources": [
       {
-        "__id__": 16
-      },
-      {
         "__id__": 19
       },
       {
@@ -640,6 +637,11 @@
       },
       {
         "__id__": 37
+      }
+    ],
+    "BgmSources": [
+      {
+        "__id__": 16
       }
     ],
     "_id": "a3g/rPKe1Ou61AhAc3WOEJ"

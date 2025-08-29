@@ -206,7 +206,7 @@ export class PickController extends Component {
     if (card.isSelected) {
       // ✅ 被選中的卡片：直接顯示倍率＋播放動畫
       effect.active = true;
-      this.Audio.AudioSources[7].play(); // 翻牌音效
+      this.Audio.AudioSources[6].play(); // 翻牌音效
       spine?.setAnimation(0, 'Standby_Pick', false);
       spine?.addAnimation(0, 'Standby_Pick_Glow', false);
       spine?.addAnimation(0, 'Standby_Pick_Glow_Loop', true);

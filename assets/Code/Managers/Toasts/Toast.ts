@@ -68,8 +68,8 @@ export class Toast extends Component {
   showWinningTips(mult: number, total: number) {
     this.WinningTips.active = true;
     // AudioManager.instance.playBGM("一般得分音效");
-    this.Audio.AudioSources[4].play();
-    this.Audio.AudioSources[6].play(); // 金幣音效
+    this.Audio.AudioSources[3].play(); //一般得分音效
+    this.Audio.AudioSources[5].play(); // 金幣音效
 
     // ==== 金額數字 ====
     const totalStr = total.toString();
@@ -246,7 +246,7 @@ export class Toast extends Component {
 
   //=========================== 遊戲啟動顯示提示(開始下注) ===================
   showPleaseBetNow() {
-    this.Audio.AudioSources[3].play(); // 播放押注/停止下注 音效
+    this.Audio.AudioSources[2].play(); // 播放押注/停止下注 音效
     // console.log(`[🟢 showPleaseBetNow] ${Date.now()}`);
     this.PleaseBetNow.active = true;
     const uiOpacity = this.PleaseBetNow.getComponent(UIOpacity)!;
@@ -281,7 +281,7 @@ export class Toast extends Component {
   //====================== Start 輪盤啟動(禁止任何下注動作) ========================
   showBetLocked() {
     this.BetLocked.active = true;
-    this.Audio.AudioSources[3].play(); // 播放押注/停止下注 音效
+    this.Audio.AudioSources[2].play(); // 播放押注/停止下注 音效
     const uiOpacity = this.BetLocked.getComponent(UIOpacity)!;
     this.BetLocked.setScale(new Vec3(0.5, 0.5, 1));
     uiOpacity.opacity = 0;

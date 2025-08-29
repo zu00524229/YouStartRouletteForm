@@ -48,18 +48,18 @@ export class PointerAnim extends Component {
       if (i === 14) {
         seq = seq
           .to(half, { angle: this.swingAngle }, { easing: 'quadOut' })
-          .call(() => this.Audio.AudioSources[5].play())
+          .call(() => this.Audio.AudioSources[4].play())
           .to(half, { angle: 20 }, { easing: 'quadIn' });
       } else {
         seq = seq
           .to(half, { angle: this.swingAngle }, { easing: 'quadOut' })
-          .call(() => this.Audio.AudioSources[5].play())
+          .call(() => this.Audio.AudioSources[4].play())
           .to(half, { angle: 30 }, { easing: 'quadIn' });
       }
     });
 
     // 第 15 下：停在 swingAngle
-    seq = seq.to(WheelThreeConfig.reboundTime * 0.5, { angle: 8 }, { easing: 'quadOut' }).call(() => this.Audio.AudioSources[5].play());
+    seq = seq.to(WheelThreeConfig.reboundTime * 0.5, { angle: 8 }, { easing: 'quadOut' }).call(() => this.Audio.AudioSources[4].play());
 
     // 停留
     seq = seq.delay(WheelThreeConfig.delayPointerSwing); // 高點停留時間
@@ -110,12 +110,12 @@ export class PointerAnim extends Component {
       const half = dt / 2;
       const isLast = index === swingIntervals.length - 1;
 
-      seq = seq.to(half, { angle: this.swingAngle }, { easing: 'quadOut' }).call(() => this.Audio?.AudioSources[5]?.play()); // 播放音效
+      seq = seq.to(half, { angle: this.swingAngle }, { easing: 'quadOut' }).call(() => this.Audio?.AudioSources[4]?.play()); // 播放音效
       if (isLast) {
         // ✨ 最後一下：停留後再回正
         seq = seq
           .to(WheelConfig.delayPointerSwing + 0.3, { angle: 35 }, { easing: 'quadOut' }) // 高點往下 10 度
-          .call(() => this.Audio?.AudioSources[5]?.play())
+          .call(() => this.Audio?.AudioSources[4]?.play())
           .delay(WheelConfig.delayPointerSwing) // 高點停留
           .to(WheelConfig.reboundTime, { angle: 0 }, { easing: 'quadOut' });
       } else {
@@ -170,12 +170,12 @@ export class PointerAnim extends Component {
       const half = dt / 2;
       seq = seq
         .to(half, { angle: this.swingAngle }, { easing: 'quadOut' })
-        .call(() => this.Audio.AudioSources[5].play()) // 播放指針音效
+        .call(() => this.Audio.AudioSources[4].play()) // 播放指針音效
         .to(half, { angle: 30 }, { easing: 'quadIn' });
     });
 
     // 2) 第 10 下：到 swingAngle 停住// 這裡時間可微調 停留時間
-    seq = seq.to(1.0, { angle: this.swingAngle }, { easing: 'quadOut' }).call(() => this.Audio.AudioSources[5].play()); // 播放指針音效;
+    seq = seq.to(1.0, { angle: this.swingAngle }, { easing: 'quadOut' }).call(() => this.Audio.AudioSources[4].play()); // 播放指針音效;
 
     // 3) 第 11 下：用 reboundTime 回正
     seq = seq.to(reboundTime, { angle: 0 }, { easing: 'quadInOut' });

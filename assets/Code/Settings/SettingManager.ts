@@ -88,7 +88,7 @@ export class SettingManager extends Component {
 
   // ===== 開啟選單 ====
   onChickSetingButton() {
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     if (this._isSetting) {
       this.hideSettingPanel();
     } else {
@@ -99,7 +99,7 @@ export class SettingManager extends Component {
   private _isSetting: boolean = false;
   // 顯示設定面板動畫（向下滑出）
   showSettingPanel() {
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     this.settingPanel.active = true;
     this.settingPanel.setPosition(220.5, 550, 0); // 起始點（畫面外上方）
     const opacity = this.settingPanel.getComponent(UIOpacity);
@@ -118,7 +118,7 @@ export class SettingManager extends Component {
 
   // 隱藏設定面板動畫（往上滑回）
   hideSettingPanel() {
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     const opacity = this.settingPanel.getComponent(UIOpacity);
     tween(this.settingPanel)
       .to(0.4, {
@@ -138,7 +138,7 @@ export class SettingManager extends Component {
   openInfoPanel() {
     console.log('啟動openInfoPanel');
     // 顯示說明面板
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     this.infoPanelNode.active = true;
     this.settingPanel.active = false;
   }
@@ -146,7 +146,7 @@ export class SettingManager extends Component {
   closeInfoPanel() {
     console.log('啟動closeInfoPanel');
     // 隱藏說明面板
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     this.infoPanelNode.active = false;
     this.settingPanel.active = true; // 顯示並滑入設定面板
   }

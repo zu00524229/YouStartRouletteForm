@@ -172,7 +172,7 @@ export class index extends Component {
   //=================== 點擊 Auto 按鈕(自動下注) ===================
   onAutoBet() {
     // 播放音效
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
 
     // 如果 Auto 模式已開啟 → 停止
     if (this.chipManager._isAutoMode) {

@@ -132,7 +132,7 @@ export class ChipManager extends Component {
   // ========= ChipSelector 區域 (玩家選擇籌碼金額) ==========
   // 選擇籌碼金額
   selectChip(value: number) {
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     this.selectedChipValue = value; // 儲存當前籌碼金額
     this.chipPopupPanel.active = true; // 顯示籌碼選擇面板(彈出式)
 
@@ -171,7 +171,7 @@ export class ChipManager extends Component {
   // 顯示動畫
   showChipPopup() {
     console.log('已啟用');
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     this.chipPopupPanel.active = true;
     // 以 chipButton 為基準定位
     const worldBtnPos = this.chipButton.getWorldPosition();
@@ -309,7 +309,7 @@ export class ChipManager extends Component {
       .to(0.1, { scale: new Vec3(1.0, 1.0, 1) }) // 縮回正常大小
       .start();
 
-    this.Audio.AudioSources[2].play(); // 播放押注(索引2)音效
+    this.Audio.AudioSources[1].play(); // 播放押注(索引2)音效
   }
 
   // 更新下注區 Label 顯示的金額
@@ -496,7 +496,7 @@ export class ChipManager extends Component {
 
   // ================== 點擊 All Bet 按鈕觸發 ====================
   onAllBetClick() {
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     // 確認餘額是否足夠
     const totalNeeded = this.selectedChipValue * this.betAreaNodes.length;
     if (this.Balance_Num < totalNeeded) {
@@ -554,7 +554,7 @@ export class ChipManager extends Component {
   // ================ ToolButtons 區域 =================
   // 點擊 Double 按鈕(當前所有下注區的金額加倍下注)
   onDoubleClick() {
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     const doubleActions = [];
     const actionId = ++this.currentActionId; // 每次加倍下注都產生新的 actionId
 
@@ -612,7 +612,7 @@ export class ChipManager extends Component {
 
   // 點擊undo(撤銷)按鈕
   undoBet() {
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     if (this.actionHistory.length === 0) {
       ToastMessage.showToast('❌ 沒有可撤銷的動作');
       return;
@@ -643,7 +643,7 @@ export class ChipManager extends Component {
 
   // 點擊 clear 按鈕
   clearBets() {
-    this.Audio.AudioSources[1].play(); // 播放按鈕音效
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     // 1. 將所有下注金額退還給玩家餘額
     for (const areaName in this.betAmounts) {
       const amount = this.betAmounts[areaName] || 0;

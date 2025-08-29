@@ -80,8 +80,8 @@ export class KeyEffect extends Component {
     const chestPos = this.BoxTarget.getWorldPosition();
     const parent = this.rootNode.parent!;
     const localTarget = parent.inverseTransformPoint(new Vec3(), chestPos);
-    this.Audio.AudioSources[4].play(); // 播放鑰匙音效
-    this.Audio.AudioSources[5].play(); // 播放MEGA音效
+    this.Audio.AudioSources[3].play(); // 播放鑰匙音效
+    this.Audio.AudioSources[4].play(); // 播放MEGA音效
 
     // ✅ 淡出所有其他未選中的鑰匙（同一父節點下的其他兄弟節點）
     const siblings = this.rootNode.parent.children;
@@ -112,7 +112,7 @@ export class KeyEffect extends Component {
         this.rootNode.active = false; // 鑰匙到定位後關閉
 
         // TODO：觸發寶箱動畫
-        this.Audio.AudioSources[3].play(); // 播放寶箱開啟音效
+        this.Audio.AudioSources[2].play(); // 播放寶箱開啟音效
         this.BoxEffect?.playOpenEffect(); // 播放動畫
 
         this.BoxEffect?.playOpenEffect(() => {

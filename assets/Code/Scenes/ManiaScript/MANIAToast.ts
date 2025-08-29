@@ -60,7 +60,7 @@ export class MANIAToast extends Component {
   // ======================= BIG WIN (PICK)獎金提示 =========================
   showMegaTips(mult: number, total: number) {
     this.MEGAWinTips.active = true;
-    this.Audio.AudioSources[6].play(); // 金錢音效
+    this.Audio.AudioSources[5].play(); // 金錢音效
     // console.log("AudioManager:", this.Audio);
     // console.log("AudioSources[6]:", this.Audio?.AudioSources?.[6]);
 

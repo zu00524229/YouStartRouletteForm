@@ -59,10 +59,10 @@ export class PickToast extends Component {
   // ======================= BIG WIN (PICK)獎金提示 =========================
   showPickTips(mult: number, total: number) {
     this.BigWinTips.active = true;
-    this.Audio.AudioSources[6].play(); // 高分音效
-    this.Audio.AudioSources[2].play(); // 金幣音效
+    this.Audio.AudioSources[5].play(); // 高分音效
+    this.Audio.AudioSources[1].play(); // 金幣音效
     console.log('AudioManager:', this.Audio);
-    console.log('AudioSources[6]:', this.Audio?.AudioSources?.[6]);
+    console.log('AudioSources[5]:', this.Audio?.AudioSources?.[5]);
 
     // ==== 金額數字 ====
     const totalStr = total.toString();
