@@ -1,8 +1,8 @@
 import { _decorator, CCInteger, Component, director, Label, Node, tween, UIOpacity, UITransform } from 'cc';
 // import { RLRotation } from '../Main_RL/RLRotation';
-import { LotteryCache, LotteryResultEvent } from '../TurnLottery';
+import { LotteryCache, LotteryResultEvent } from '../../TurnLottery';
 import { SuperLight } from './SuperLight';
-import { RLRotation } from '../Animation/Main_RL/RLRotation';
+import { RLRotation } from '../../Animation/Main_RL/RLRotation';
 import { SuperToast } from './SuperToast';
 const { ccclass, property } = _decorator;
 
