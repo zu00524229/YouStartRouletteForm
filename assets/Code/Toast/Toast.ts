@@ -1,6 +1,6 @@
 import { _decorator, color, Component, Label, Node, Sprite, SpriteFrame, tween, UIOpacity, Vec3 } from 'cc';
 // 假設 ToolButtons.ts 在同一目錄下
-import { AudioManager } from './Managers/Audio/AudioManager';
+import { AudioManager } from '../Managers/Audio/AudioManager';
 import { Color } from 'cc';
 const { ccclass, property } = _decorator;
 
