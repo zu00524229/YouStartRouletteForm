@@ -3,7 +3,7 @@ import { HoverController } from './Animation/Hover/HoverController';
 import { ChipManager } from './Managers/ChipManager';
 import { Toast } from './Managers/Toasts/Toast';
 import { SignalRClient } from './Signal/SignalRClient';
-import { ExtraPayController } from './ExtraPayController';
+import { ExtraPayController } from './Managers/ExtraPayController';
 import { RLRotation } from './Animation/Main_RL/RLRotation';
 import { SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types';
 // import { PointerSpring } from './Main_RL/PointerSpring';

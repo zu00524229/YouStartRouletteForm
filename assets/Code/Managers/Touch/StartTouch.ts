@@ -4,7 +4,7 @@ const { ccclass, property } = _decorator;
 @ccclass('StartTouch')
 export class StartTouch extends Component {
   @property(Node) StartButtonNode: Node = null;
-  @property({ tooltip: '長按判定秒數 ( 毫秒 )' }) longPressThreshold: number = 2000;
+  @property({ tooltip: '長按判定秒數 ( 毫秒 )' }) longPressThreshold: number = 1500;
 
   private touchStartTime: number = 0;
   private autoTriggered: boolean = false; // 是否已觸發自動事件

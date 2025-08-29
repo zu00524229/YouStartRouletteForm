@@ -1,8 +1,8 @@
 import { _decorator, Component, Node, EventMouse, sp, UITransform, Camera, Vec3, Vec2, view, tween, UIOpacity, CCInteger } from 'cc';
 import { BoxEffect } from './BoxEffect';
-import { AudioManager } from '../Managers/Audio/AudioManager';
+import { AudioManager } from '../../Managers/Audio/AudioManager';
 import { MANIAController } from './MANIAController';
-import { LotteryCache } from '../TurnLottery';
+import { LotteryCache } from '../../TurnLottery';
 const { ccclass, property } = _decorator;
 
 @ccclass('KeyEffect')

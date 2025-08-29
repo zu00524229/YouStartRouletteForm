@@ -1,7 +1,7 @@
 import { _decorator, Button, CCInteger, Component, EventTouch, instantiate, Label, Node, Prefab, Sprite, SpriteFrame, tween, UIOpacity, UITransform, Vec3 } from 'cc';
 import { AudioManager } from '../Managers/Audio/AudioManager';
 import { BetHighlighter } from '../Animation/BetHightlight';
-import { ExtraPayController } from '../ExtraPayController';
+import { ExtraPayController } from '../Managers/ExtraPayController';
 import { Toast } from '../Managers/Toasts/Toast';
 import { player } from '../Login/playerState';
 import { ToastMessage } from '../Managers/Toasts/ToastMessage';

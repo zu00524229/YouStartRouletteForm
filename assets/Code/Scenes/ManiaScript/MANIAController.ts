@@ -1,6 +1,6 @@
 import { _decorator, Component, director, Label, Node, sp, Sprite, SpriteFrame, SpriteFrameEvent, tween, UIOpacity, UITransform, Vec3 } from 'cc';
 import { MANIAToast } from './MANIAToast';
-import { LotteryCache, LotteryResultEvent } from '../TurnLottery';
+import { LotteryCache, LotteryResultEvent } from '../../TurnLottery';
 // import { AudioManager } from '../Audio/AudioManager';
 const { ccclass, property } = _decorator;
 

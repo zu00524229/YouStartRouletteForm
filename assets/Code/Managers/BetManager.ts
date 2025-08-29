@@ -1,7 +1,7 @@
 // 專門處理下注 UI：下注區亮起 / 關燈、工具按鈕狀態、Auto 遮罩、ExtraPay 清除
 import { _decorator, Button, Component, Node } from 'cc';
-import { BetHighlighter } from '../BetHightlight';
-import { ExtraPayController } from '../ExtraPayController';
+import { BetHighlighter } from '../Animation/BetHightlight';
+import { ExtraPayController } from '../Managers/ExtraPayController';
 const { ccclass, property } = _decorator;
 
 @ccclass('BetManager')
