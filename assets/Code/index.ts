@@ -1,5 +1,5 @@
 import { _decorator, Component, director, EventTouch, Label, Node, Prefab } from 'cc';
-import { StartTouch } from './Touch/StartTouch';
+import { StartTouch } from './Managers/Touch/StartTouch';
 import { AudioManager } from './Managers/Audio/AudioManager';
 import { ChipManager } from './Managers/ChipManager';
 import { SignalRClient } from './Signal/SignalRClient';
