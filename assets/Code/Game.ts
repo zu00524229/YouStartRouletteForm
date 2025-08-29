@@ -271,14 +271,14 @@ export class index extends Component {
 
   // ========== 下注區域點擊事件 ==========
   BetClick(event: EventTouch) {
-    if (this.closePlaceBet()) {
+    if (this.canPlaceBet()) {
       this.chipManager.onBetClick(event);
     }
   }
 
   // 禁止下注
-  closePlaceBet() {
-    return !this.toast.BetLocked.active && !this.Lottery._isLottery;
+  canPlaceBet() {
+    return !this.toast.BetLocked.active && !this.chipManager.isLotteryRunning() && !this.chipManager._isAutoMode;
   }
 
   // === 遊戲 UI 更新 ===

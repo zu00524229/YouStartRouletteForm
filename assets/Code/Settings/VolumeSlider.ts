@@ -28,9 +28,9 @@ export class VolumeSlider extends Component {
       v = saved ? parseFloat(saved) : 1;
       mgr.setBGMVolume(v);
     } else {
-      const saved = localStorage.getItem('sfxVolume');
+      const saved = localStorage.getItem('volume');
       v = saved ? parseFloat(saved) : 1;
-      mgr.setVolume(v);
+      mgr.setVolume(v); // 音效
     }
 
     if (this.slider) this.slider.progress = v;

@@ -1,7 +1,7 @@
 import { _decorator, Button, CCInteger, Component, EventTouch, instantiate, Label, Node, Prefab, Sprite, SpriteFrame, tween, UIOpacity, UITransform, Vec3 } from 'cc';
 import { AudioManager } from '../Managers/Audio/AudioManager';
 import { BetHighlighter } from '../Animation/BetHightlight';
-import { ExtraPayController } from '../Managers/ExtraPayController';
+import { ExtraPayController } from './ExtraPayController';
 import { Toast } from '../Managers/Toasts/Toast';
 import { player } from '../Login/playerState';
 import { ToastMessage } from '../Managers/Toasts/ToastMessage';
@@ -466,15 +466,12 @@ export class ChipManager extends Component {
   }
 
   // 清除下注區上的 ExtraPay 標記
-  // public clearAllExtraPayMarks() {
-  //   if (this.betManager) {
-  //     this.betManager.clearAllExtraPayMarks(); // ✅ 改交給 BetManager 處理
-  //   }
-  //   // for (const node of this.betAreaNodes) {
-  //   //   const controller = node.getComponentInChildren(ExtraPayController);
-  //   //   if (controller) controller.hide(); // hide() 就是讓 .active = false
-  //   // }
-  // }
+  public clearAllExtraPayMarks() {
+    for (const node of this.betAreaNodes) {
+      const controller = node.getComponentInChildren(ExtraPayController);
+      if (controller) controller.hide(); // hide() 就是讓 .active = false
+    }
+  }
 
   // ================== 下注區域點擊事件 ==================
   // 下注區域點擊事件（需在下注區域節點）

@@ -1,7 +1,7 @@
 // 專門處理下注 UI：下注區亮起 / 關燈、工具按鈕狀態、Auto 遮罩、ExtraPay 清除
 import { _decorator, Button, Component, Node } from 'cc';
 import { BetHighlighter } from '../Animation/BetHightlight';
-import { ExtraPayController } from '../Managers/ExtraPayController';
+import { ExtraPayController } from './ExtraPayController';
 const { ccclass, property } = _decorator;
 
 @ccclass('BetManager')
@@ -60,42 +60,6 @@ export class BetManager extends Component {
     this.X10Bet = this.betAreaRoot.getChildByName('Bet_X10')?.getComponent(Button);
   }
 
-  // ======== 判斷按鈕 是否啟用 (下注區有籌碼(且沒在轉動) 就啟動按鈕) =========
-  // public setButtonsState(params: { hasAnyBet: boolean; hasLastBet: boolean; isLotteryRunning: boolean; isAutoMode: boolean }) {
-  //   const { hasAnyBet, hasLastBet, isLotteryRunning, isAutoMode } = params;
-  //   // ===== 控制(Start / X2 / Undo / Clear) 是否啟動 ====
-  //   const shouldEnableButtons = hasAnyBet && !isLotteryRunning && !isAutoMode;
-
-  //   // console.log('toolButtons keys:', Object.keys(this.toolButtons)); // 檢查撈到的節點名稱
-  //   if (this.toolButtons['x2_Button']) this.toolButtons['x2_Button'].interactable = shouldEnableButtons;
-  //   if (this.toolButtons['Undo_Button']) this.toolButtons['Undo_Button'].interactable = shouldEnableButtons;
-  //   if (this.toolButtons['Clear_Button']) this.toolButtons['Clear_Button'].interactable = shouldEnableButtons;
-  //   if (this.toolButtons['Allbet_Button']) this.toolButtons['Allbet_Button'].interactable = !isAutoMode && !isLotteryRunning;
-  //   // ===== 控制下注區是否可互動 =====
-  //   const shouldEnableBet = !isLotteryRunning && !isAutoMode;
-  //   this.betAreaNodes.forEach((node) => {
-  //     const btn = node.getComponent(Button);
-  //     if (btn) btn.interactable = shouldEnableBet;
-  //   });
-
-  //   // ===== Auto / Again 狀態切換 =====
-  //   if (this.AutoButton) {
-  //     if (isAutoMode) {
-  //       this.AutoButton.node.active = true;
-  //       this.AutoButton.interactable = true;
-  //     } else if (hasAnyBet) {
-  //       this.AutoButton.node.active = true;
-  //       this.AutoButton.interactable = true;
-  //     } else if (hasLastBet) {
-  //       this.AutoButton.node.active = true;
-  //       this.AutoButton.interactable = true; // 這裡可依需求改成 false
-  //     } else {
-  //       this.AutoButton.node.active = true;
-  //       this.AutoButton.interactable = false;
-  //     }
-  //   }
-  // }
-
   // ==== 按下 START 後按鈕關燈 (鎖定所有下注與操作按鈕) ======
   offLightButton(fromLongPress: boolean = false) {
     this.AllButton.interactable = false;
@@ -135,10 +99,10 @@ export class BetManager extends Component {
   }
 
   // ============== 清除下注區上的 ExtraPay 標記 ==============
-  public clearAllExtraPayMarks() {
-    for (const node of this.betAreaNodes) {
-      const controller = node.getComponentInChildren(ExtraPayController);
-      if (controller) controller.hide(); // hide() 就是讓 .active = false
-    }
-  }
+  // public clearAllExtraPayMarks() {
+  //   for (const node of this.betAreaNodes) {
+  //     const controller = node.getComponentInChildren(ExtraPayController);
+  //     if (controller) controller.hide(); // hide() 就是讓 .active = false
+  //   }
+  // }
 }

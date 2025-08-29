@@ -391,7 +391,7 @@ export class TurnLottery extends Component {
         this.toast.showPleaseBetNow();
         this._isLottery = false;
         director.emit('LotteryEnded'); // 更新 StartButton (重啟)
-        this.betManager.clearAllExtraPayMarks();
+        this.chipManager.clearAllExtraPayMarks();
         this.betManager.onCloseMask(); // 關閉遮罩(Mask)
         this.betManager.onLightBetArea(); // 開啟下注區域
         // this.chipManager.Win_Num = 0;
@@ -419,7 +419,7 @@ export class TurnLottery extends Component {
         this.toast.showPleaseBetNow();
         this._isLottery = false; // 重置抽獎狀態
         director.emit('LotteryEnded'); // 更新 StartButton (重啟)
-        this.betManager.clearAllExtraPayMarks();
+        this.chipManager.clearAllExtraPayMarks();
         this.betManager.onCloseMask(); // 關閉遮罩(Mask)
         this.betManager.onLightBetArea(); // 開啟下注區域
 
