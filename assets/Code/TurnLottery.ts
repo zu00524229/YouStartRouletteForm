@@ -1,5 +1,5 @@
 import { _decorator, Button, CCInteger, Component, director, Label, Node, tween, UIOpacity, Vec3 } from 'cc';
-import { HoverController } from './Hover/HoverController';
+import { HoverController } from './Animation/Hover/HoverController';
 import { ChipManager } from './Managers/ChipManager';
 import { Toast } from './Toast';
 import { SignalRClient } from './Signal/SignalRClient';
