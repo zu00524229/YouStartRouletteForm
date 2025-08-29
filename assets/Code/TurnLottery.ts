@@ -4,10 +4,10 @@ import { ChipManager } from './Managers/ChipManager';
 import { Toast } from './Toast';
 import { SignalRClient } from './Signal/SignalRClient';
 import { ExtraPayController } from './ExtraPayController';
-import { RLRotation } from './Main_RL/RLRotation';
+import { RLRotation } from './Animation/Main_RL/RLRotation';
 import { SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types';
 // import { PointerSpring } from './Main_RL/PointerSpring';
-import { TurnAnim } from './Main_RL/TurnAnim';
+import { TurnAnim } from './Animation/Main_RL/TurnAnim';
 import { BetManager } from './Managers/BetManager';
 const { ccclass, property } = _decorator;
 

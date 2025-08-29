@@ -1,5 +1,5 @@
 import { _decorator, Button, Component, Node, Sprite, SpriteFrame, tween, UIOpacity, Vec3 } from 'cc';
-import { AudioManager } from './Audio/AudioManager';
+import { AudioManager } from './Managers/Audio/AudioManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('SettingManager')

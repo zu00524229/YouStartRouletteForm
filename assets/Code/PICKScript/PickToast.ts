@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Sprite, SpriteFrame, tween, UIOpacity } from 'cc';
-import { AudioManager } from '../Audio/AudioManager';
+import { AudioManager } from '../Managers/Audio/AudioManager';
 // import { Toast } from '../Toast';
 const { ccclass, property } = _decorator;
 

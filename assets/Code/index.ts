@@ -1,6 +1,6 @@
 import { _decorator, Component, director, EventTouch, Label, Node, Prefab } from 'cc';
 import { StartTouch } from './Touch/StartTouch';
-import { AudioManager } from './Audio/AudioManager';
+import { AudioManager } from './Managers/Audio/AudioManager';
 import { ChipManager } from './Managers/ChipManager';
 import { SignalRClient } from './Signal/SignalRClient';
 import { LotteryResponse, SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types'; // 型別呼叫

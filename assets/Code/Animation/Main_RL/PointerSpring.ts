@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, tween } from 'cc';
-import { AudioManager } from '../Audio/AudioManager';
+import { AudioManager } from '../../Managers/Audio/AudioManager';
 import { WheelConfig, WheelSyncConfig, WheelThreeConfig } from './WheelConfig'; // 引入 轉盤指針動畫同步變數
 const { ccclass, property } = _decorator;
 

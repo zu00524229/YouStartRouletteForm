@@ -1,5 +1,5 @@
 import { _decorator, CCInteger, Collider2D, Component, Node, tween } from 'cc';
-import { SIGNALR_EVENTS, UnifiedLotteryEvent } from '../Type/Types';
+import { SIGNALR_EVENTS, UnifiedLotteryEvent } from '../../Type/Types';
 import { PointerAnim } from './PointerSpring';
 import { WheelConfig, WheelSyncConfig, WheelThreeConfig } from './WheelConfig'; // 引入 轉盤指針動畫同步變數
 

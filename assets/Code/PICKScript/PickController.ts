@@ -2,7 +2,7 @@ import { _decorator, Component, Node, Sprite, SpriteFrame, resources, tween, sp,
 import { CardRef } from './CardRef';
 import { LotteryResultEvent, LotteryCache } from '../TurnLottery'; // 或你的 TurnLottery 檔案相對路徑
 import { PickToast } from './PickToast';
-import { AudioManager } from '../Audio/AudioManager';
+import { AudioManager } from '../Managers/Audio/AudioManager';
 
 const { ccclass, property } = _decorator;
 
