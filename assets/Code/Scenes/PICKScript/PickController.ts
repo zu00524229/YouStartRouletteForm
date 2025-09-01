@@ -41,6 +41,7 @@ export class PickController extends Component {
   @property(Label) Bet_Label: Label = null; // 顯示下注額度
   @property(Label) Balance_Label: Label = null; // 顯示玩家餘額
   @property(Label) Win_Label: Label = null; // 導入贏得籌碼
+  @property(Label) RoundId_Label: Label = null; // 顯示局號
 
   private Balance_Num: number = 20000.0;
   private Bet_Num: number = 0;
@@ -68,6 +69,7 @@ export class PickController extends Component {
       this.Bet_Num = data.pickBetAmount || 0;
       this.Win_Num = data.winAmount || 0;
       this.Balance_Num = data.balanceAfterWin || 0;
+      this.RoundId_Label = data.roundId || 0;
 
       this.ID_Label.string = '帳號: Ethan';
       this.Balance_Label.string = this.Balance_Num.toFixed(2);

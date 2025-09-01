@@ -1,4 +1,4 @@
-import { _decorator, Component, director, EventTouch, Label, Node, Prefab } from 'cc';
+import { _decorator, Component, director, EventTouch, find, Label, Node, Prefab } from 'cc';
 import { StartTouch } from './Managers/Touch/StartTouch';
 import { AudioManager } from './Managers/Audio/AudioManager';
 import { ChipManager } from './Managers/ChipManager';
@@ -29,6 +29,7 @@ export class index extends Component {
   @property(Toast) toast: Toast = null; // 連結 Toast 腳本
 
   public static isLoggedIn: boolean = false; // 預設未登入
+  private roundIdLabel: Label | null = null;
 
   // === 初始化階段 ===
   protected onLoad(): void {
@@ -131,10 +132,17 @@ export class index extends Component {
     for (const betNode of this.chipManager.betAreaNodes) {
       betNode.on(Node.EventType.TOUCH_END, this.BetClick, this);
     }
+
+    // 撈局號 Label 節點
+    const roundIdNode = find('Canvas/UI/RoundId/roundId');
+    this.roundIdLabel = roundIdNode?.getComponent(Label) || null;
+    console.log('roundIdNode= ', roundIdNode);
+    console.log('roundIdLabel= ', this.roundIdLabel);
   }
 
   // ==== 回調Lottery 抽獎(PICK)結束後的值 ========
   private handleLotteryResult = (data: UnifiedLotteryEvent) => {
+    if (this.roundIdLabel) this.roundIdLabel.string = `#${data.roundId}`;
     this.Lottery.onGetLotteryRewardRstEventCallback(data);
   };
 
@@ -155,7 +163,7 @@ export class index extends Component {
   // === START 啟動輪盤 ===
   onStartButton() {
     if (this.toast.PleaseBetNow.active) {
-      return;
+      this.toast.PleaseBetNow.active = false; // 🚀 玩家搶按 → 直接關掉提示並繼續流程
     } // 遊戲開始提示玩家下注訊息顯示時，則不能使用START
 
     this.chipManager.lastBetAmounts = { ...this.chipManager.betAmounts }; // 儲存上局最後下注資訊 使用淺拷貝避免引用同一物件）

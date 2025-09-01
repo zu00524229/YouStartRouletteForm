@@ -98,6 +98,7 @@ export class SignalRClient {
       if (lastResult && lastBalance) {
         const unified: UnifiedLotteryEvent = {
           ...lastResult,
+          roundId: lastBalance.roundId, // 局號
           balanceBefore: lastBalance.balanceBefore,
           balanceAfter: lastBalance.balanceAfter,
           totalBet: lastBalance.totalBet,
