@@ -28,8 +28,13 @@ export class index extends Component {
   // 玩家目前選擇的籌碼金額(在chipManager.ts中管理)
   @property(Toast) toast: Toast = null; // 連結 Toast 腳本
 
+  // private betManager: BetManager | null = null;
   public static isLoggedIn: boolean = false; // 預設未登入
   private roundIdLabel: Label | null = null;
+
+  // public setBetManager(manager: BetManager) {
+  //   this.betManager = manager;
+  // }
 
   // === 初始化階段 ===
   protected onLoad(): void {
@@ -44,6 +49,8 @@ export class index extends Component {
     SignalRClient.connect((user, msg) => {
       console.log(`${user}: ${msg}`);
     });
+
+    this.ID_Label.string = `帳號: ${player.currentPlayer.username}`;
 
     // ============ StartTouch 組件綁定事件 ==============
     const startTouch = this.getComponentInChildren(StartTouch); // 取得 StartTouch 組件
@@ -130,7 +137,7 @@ export class index extends Component {
 
     // 為每個下注區 betNode 綁定 TOUCH_END 事件（點擊下注區時執行 BetClick）
     for (const betNode of this.chipManager.betAreaNodes) {
-      betNode.on(Node.EventType.TOUCH_END, this.betManager.BetClick, this);
+      betNode.on(Node.EventType.TOUCH_END, this.betManager.BetClick, this.betManager);
     }
 
     // 撈局號 Label 節點
@@ -150,11 +157,6 @@ export class index extends Component {
     SignalRClient.sendMessage('Player1', 'Hello from Cocos');
   }
 
-  // protected onDestroy(): void {
-  //   // director.off("LotteryResultEvent", this.Lottery.onGetLotteryRewardRstEventCallback, this);
-  //   director.off('LotteryResultEvent', this.handleLotteryResult, this);
-  //   director.off('LotteryEnded', this.onLotteryEnd, this);
-  // }
   onDisable() {
     director.off('LotteryResultEvent', this.handleLotteryResult, this);
     director.off('LotteryEnded', this.onLotteryEnd, this);
@@ -282,26 +284,14 @@ export class index extends Component {
     }
   }
 
-  // // ========== 下注區域點擊事件 ==========
-  // BetClick(event: EventTouch) {
-  //   if (this.canPlaceBet()) {
-  //     this.chipManager.onBetClick(event);
-  //   }
-  // }
-
-  // // 禁止下注
-  // canPlaceBet() {
-  //   return !this.toast.BetLocked.active && !this.chipManager.isLotteryRunning() && !this.chipManager._isAutoMode;
-  // }
-
   // === 遊戲 UI 更新 ===
   start() {
     console.log('🎮 遊戲開始！');
-    // const dots = this.node.getComponentsInChildren(Collider2D);
-    // dots.forEach((dot) => {
-    //   console.log('Dot parent =', dot.node.parent?.name, 'Dot name =', dot.node.name);
-    // });
-    // AudioManager.instance.playBGM("Lucky Wheel-背景音樂");
+    if (player.isLoggedIn) {
+      console.log(`✅ 有玩家資料，帳號=${player.currentPlayer.username}, 餘額=${player.currentPlayer.balance}`);
+    } else {
+      console.warn('⚠️ 尚未登入玩家');
+    }
     this.chipManager.updateStartButton(); // 判斷 Start 與 下排按鈕是否啟用
     this.toast.showPleaseBetNow(); // 遊戲開始顯示提示(玩家下注)
 
@@ -311,17 +301,6 @@ export class index extends Component {
 
     //=================== StatusBar 顯示區 ====================
     this.chipManager.updateGlobalLabels(); // 更新下方的 Bet / Balance / Win 顯示
-
-    // this.ID_Label.string = '帳號: Ethan';
-
-    console.log('🎯 start() 時的 player 狀態：', player);
-    if (player.currentPlayer) {
-      console.log('✅ 有玩家資料，顯示帳號：', player.currentPlayer.username);
-      this.ID_Label.string = `帳號: ${player.currentPlayer.username}`;
-    } else {
-      console.warn('⚠ 沒有玩家資料，ID_Label 不會更新');
-    }
-
     this.updateTime();
     this.schedule(this.updateTime, 1);
     // this.TimeLabel.string = '時間';

@@ -5,7 +5,6 @@ import { ExtraPayController } from './ExtraPayController';
 import { Toast } from '../Managers/Toasts/Toast';
 import { player } from '../Login/playerState';
 import { ToastMessage } from '../Managers/Toasts/ToastMessage';
-import { BetManager } from './BetManager'; //  引用 BetManager
 
 const { ccclass, property } = _decorator;
 
@@ -13,8 +12,6 @@ const { ccclass, property } = _decorator;
 export class ChipManager extends Component {
   @property(Toast) toast: Toast = null; // 連結 Toast 組件，用於顯示提示訊息
   @property(AudioManager) Audio: AudioManager = null; // 連結 AudioManager
-  // ===== 🆕 改用 BetManager 管理下注區與按鈕 =====
-  @property(BetManager) betManager: BetManager = null;
 
   // ========= 下注區域(設置Button(無功能) 是為了視覺) ======
   @property({ type: Button }) GOLDENTREASUREBet: Button = null;
@@ -413,9 +410,6 @@ export class ChipManager extends Component {
 
   // 高亮下注區域（用於中獎提示或視覺效果）
   public highlightBetArea(betKey: string) {
-    // if (this.betManager) {
-    //   this.betManager.highlightBetArea(betKey); // ✅ 改交給 BetManager 處理
-    // }
     // console.log("🎯 highlightBetArea:", betKey);
     // console.log("👉 對應 index:", index);
     const index = this.betAreaMap[betKey];

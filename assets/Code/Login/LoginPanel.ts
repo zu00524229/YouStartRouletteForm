@@ -81,7 +81,7 @@ export class LoginPanel extends Component {
         console.log('📩 後端回應：', res); // ✅ 回應也印出
 
         if (res.success) {
-          console.log('✅ 登入成功，餘額：', res.balance);
+          console.log(`✅ 登入成功：玩家=${res.username}, 餘額=${res.balance}`);
           this.errorLabel.string = '登入成功! 正在進入遊戲...';
 
           // 存玩家資料到全域

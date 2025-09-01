@@ -3,6 +3,7 @@ import { CardRef } from './CardRef';
 import { LotteryResultEvent, LotteryCache } from '../../TurnLottery'; // 或你的 TurnLottery 檔案相對路徑
 import { PickToast } from './PickToast';
 import { AudioManager } from '../../Managers/Audio/AudioManager';
+import { player } from '../../Login/playerState';
 
 const { ccclass, property } = _decorator;
 
@@ -69,9 +70,10 @@ export class PickController extends Component {
       this.Bet_Num = data.pickBetAmount || 0;
       this.Win_Num = data.winAmount || 0;
       this.Balance_Num = data.balanceAfterWin || 0;
-      this.RoundId_Label = data.roundId || 0;
+      this.RoundId_Label.string = `#${data.roundId || 0}`;
 
-      this.ID_Label.string = '帳號: Ethan';
+      // this.ID_Label.string = '帳號: Ethan';
+      this.ID_Label.string = `帳號: ${player.currentPlayer.username}`;
       this.Balance_Label.string = this.Balance_Num.toFixed(2);
       this.Bet_Label.string = this.Bet_Num.toFixed(2);
       // this.Win_Label.string = this.Win_Num.toFixed(2);

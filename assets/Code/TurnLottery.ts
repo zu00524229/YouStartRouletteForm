@@ -9,6 +9,7 @@ import { SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types';
 // import { PointerSpring } from './Main_RL/PointerSpring';
 import { TurnAnim } from './Animation/Main_RL/TurnAnim';
 import { BetManager } from './Managers/BetManager';
+import { player } from './Login/playerState';
 const { ccclass, property } = _decorator;
 
 // ✅ 定義倍率與 index 對應表（Super 轉盤用）
@@ -242,6 +243,7 @@ export class TurnLottery extends Component {
         rewardIndex: finalRewardIndex, // 只有在大獎才覆蓋掉原本的rewardIndex
         pickBetAmount: pickBetAmount,
         winAmount: winAmount,
+        username: player.currentPlayer,
         balanceAfterWin: data.balanceAfter, //  用後端回傳的 balanceAfter
       };
       // LotteryCache.lastResult = data;     // 儲存資料準備轉場用

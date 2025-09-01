@@ -65,14 +65,14 @@ export class BetManager extends Component {
   }
 
   // ========== 下注區域點擊事件 ==========
-  BetClick(event: EventTouch) {
+  public BetClick(event: EventTouch) {
     if (this.canPlaceBet()) {
       this.chipManager.onBetClick(event);
     }
   }
 
   // 禁止下注
-  canPlaceBet() {
+  public canPlaceBet() {
     return !this.toast.BetLocked.active && !this.chipManager.isLotteryRunning() && !this.chipManager._isAutoMode;
   }
 
@@ -113,12 +113,4 @@ export class BetManager extends Component {
     const mask = this.AutoButton.node.getChildByName('Mask');
     if (mask) mask.active = false;
   }
-
-  // ============== 清除下注區上的 ExtraPay 標記 ==============
-  // public clearAllExtraPayMarks() {
-  //   for (const node of this.betAreaNodes) {
-  //     const controller = node.getComponentInChildren(ExtraPayController);
-  //     if (controller) controller.hide(); // hide() 就是讓 .active = false
-  //   }
-  // }
 }
