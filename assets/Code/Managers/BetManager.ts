@@ -1,13 +1,17 @@
 // 專門處理下注 UI：下注區亮起 / 關燈、工具按鈕狀態、Auto 遮罩、ExtraPay 清除
-import { _decorator, Button, Component, Node } from 'cc';
+import { _decorator, Button, Component, EventTouch, Node } from 'cc';
 import { BetHighlighter } from '../Animation/BetHightlight';
 import { ExtraPayController } from './ExtraPayController';
+import { ChipManager } from './ChipManager';
+import { Toast } from './Toasts/Toast';
 const { ccclass, property } = _decorator;
 
 @ccclass('BetManager')
 export class BetManager extends Component {
   @property(Node) betAreaRoot: Node = null; // 拖 BetArea 進來就好
   @property(Node) toolButtonsRoot: Node = null; // 拖 ToolButtons 進來
+  @property(ChipManager) chipManager: ChipManager = null; // 拖 有掛載 ChipManager 腳本的節點
+  @property(Toast) toast: Toast = null; // 拖 有掛載 Toast 腳本的節點
 
   @property({ type: Button }) AutoButton: Button = null;
 
@@ -58,6 +62,18 @@ export class BetManager extends Component {
     this.X4Bet = this.betAreaRoot.getChildByName('Bet_X4')?.getComponent(Button);
     this.X6Bet = this.betAreaRoot.getChildByName('Bet_X6')?.getComponent(Button);
     this.X10Bet = this.betAreaRoot.getChildByName('Bet_X10')?.getComponent(Button);
+  }
+
+  // ========== 下注區域點擊事件 ==========
+  BetClick(event: EventTouch) {
+    if (this.canPlaceBet()) {
+      this.chipManager.onBetClick(event);
+    }
+  }
+
+  // 禁止下注
+  canPlaceBet() {
+    return !this.toast.BetLocked.active && !this.chipManager.isLotteryRunning() && !this.chipManager._isAutoMode;
   }
 
   // ==== 按下 START 後按鈕關燈 (鎖定所有下注與操作按鈕) ======

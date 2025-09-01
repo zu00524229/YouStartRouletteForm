@@ -101,6 +101,7 @@ export class SettingManager extends Component {
   showSettingPanel() {
     this.Audio.AudioSources[0].play(); // 播放按鈕音效
     this.settingPanel.active = true;
+    // this.settingMask.node.active = true;
     this.settingPanel.setPosition(220.5, 550, 0); // 起始點（畫面外上方）
     const opacity = this.settingPanel.getComponent(UIOpacity);
     // this.settingPanel.opacity = 0;  // 初始透明

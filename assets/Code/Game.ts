@@ -130,7 +130,7 @@ export class index extends Component {
 
     // 為每個下注區 betNode 綁定 TOUCH_END 事件（點擊下注區時執行 BetClick）
     for (const betNode of this.chipManager.betAreaNodes) {
-      betNode.on(Node.EventType.TOUCH_END, this.BetClick, this);
+      betNode.on(Node.EventType.TOUCH_END, this.betManager.BetClick, this);
     }
 
     // 撈局號 Label 節點
@@ -216,6 +216,7 @@ export class index extends Component {
 
   //
   rebetAndStart(): void {
+    console.log('🔄 進入 rebetAndStart()，Auto 模式檢查中');
     const lastBets = this.chipManager.lastBetAmounts || {};
     console.log('💰 Auto下注內容：', this.chipManager.lastBetAmounts);
 
@@ -232,7 +233,11 @@ export class index extends Component {
       console.warn('🛑 餘額不足，停止自動下注');
       this.chipManager._isAutoMode = false;
       this.Lottery._isAutoRunning = false;
-      // this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame;
+
+      // 還原
+      this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame; // 更新 Auto 按鈕圖片
+      this.chipManager.AutoBouttonSprite.spriteFrame = this.chipManager.AutoStartFrame; // 更新 Auto 按鈕圖片 (藍)
+
       this.chipManager.updateStartButton();
       this.chipManager.AllButton.interactable = true;
       ToastMessage.showToast('餘額不足，自動已停止');
@@ -277,17 +282,17 @@ export class index extends Component {
     }
   }
 
-  // ========== 下注區域點擊事件 ==========
-  BetClick(event: EventTouch) {
-    if (this.canPlaceBet()) {
-      this.chipManager.onBetClick(event);
-    }
-  }
+  // // ========== 下注區域點擊事件 ==========
+  // BetClick(event: EventTouch) {
+  //   if (this.canPlaceBet()) {
+  //     this.chipManager.onBetClick(event);
+  //   }
+  // }
 
-  // 禁止下注
-  canPlaceBet() {
-    return !this.toast.BetLocked.active && !this.chipManager.isLotteryRunning() && !this.chipManager._isAutoMode;
-  }
+  // // 禁止下注
+  // canPlaceBet() {
+  //   return !this.toast.BetLocked.active && !this.chipManager.isLotteryRunning() && !this.chipManager._isAutoMode;
+  // }
 
   // === 遊戲 UI 更新 ===
   start() {
