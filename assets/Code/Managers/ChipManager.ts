@@ -5,7 +5,7 @@ import { ExtraPayController } from './ExtraPayController';
 import { Toast } from '../Managers/Toasts/Toast';
 import { player } from '../Login/playerState';
 import { ToastMessage } from '../Managers/Toasts/ToastMessage';
-
+import { ChipVisualHelper } from './ChipVisualHelper';
 const { ccclass, property } = _decorator;
 
 @ccclass('ChipManager')
@@ -64,7 +64,6 @@ export class ChipManager extends Component {
   selectedChipValue: number = 100; // 玩家當前籌碼金額 預設100
   totalNeeded = this.selectedChipValue * this.betAreaNodes.length; // 總共需要的下注金額(每個下注區域都下注選擇的籌碼金額) 用來判斷餘額夠不夠
 
-  betAmounts: { [areaName: string]: number } = {}; // 儲存每個下注區域的累積下注金額(哈希表)
   betAreaMap: { [areaName: string]: number } = {
     Bet_PRIZE_PICK: 0,
     Bet_GOLD_MANIA: 1,
@@ -74,17 +73,10 @@ export class ChipManager extends Component {
     Bet_X6: 5,
     Bet_X10: 6,
   };
+
+  //? 可搬到 BetManager
+  betAmounts: { [areaName: string]: number } = {}; // 儲存每個下注區域的累積下注金額(哈希表)
   lastBetAmounts: { [areaName: string]: number } = {}; // 用於儲存上局最後下注資訊
-  private currentActionId = 0;
-
-  private chipPopupOpactiy: UIOpacity = null; // 籌碼選單面板的透明度組件
-  private isPopupVisible: boolean = false; // 籌碼選單是否可見
-
-  public isLotteryRunning = () => false; // 預設為 false（避免報錯）
-  canBet: boolean = false;
-  _isAutoMode: boolean = false; // 是否為自動下注模式
-  Delay_Show = 2;
-
   // 儲存下注歷史紀錄(堆疊法)
   actionHistory: {
     type: 'bet' | 'double' | 'again';
@@ -95,6 +87,16 @@ export class ChipManager extends Component {
       chips: number[];
     }[];
   }[] = [];
+
+  private currentActionId = 0;
+
+  private chipPopupOpactiy: UIOpacity = null; // 籌碼選單面板的透明度組件
+  private isPopupVisible: boolean = false; // 籌碼選單是否可見
+
+  public isLotteryRunning = () => false; // 預設為 false（避免報錯）
+  canBet: boolean = false;
+  _isAutoMode: boolean = false; // 是否為自動下注模式
+  Delay_Show = 2;
 
   onLoad() {
     this.chipPopupOpactiy = this.chipPopupPanel.getComponent(UIOpacity);
@@ -125,6 +127,8 @@ export class ChipManager extends Component {
     // 預設選擇第一個籌碼,並更新按鈕樣式與主圖式
     this.selectChip(this.chipValues[0]);
   }
+
+  //? ===============================================================================
 
   // ========= ChipSelector 區域 (玩家選擇籌碼金額) ==========
   // 選擇籌碼金額
@@ -278,7 +282,7 @@ export class ChipManager extends Component {
     Bet_GOLDEN_TREASURE: { x: 0, y: 0 },
   };
 
-  // 新增籌碼圖像並加入下注區（重疊）
+  //? 1) 新增籌碼圖像並加入下注區（重疊）
   createChipInArea(betNode: Node, chipValue: number, actionId: number) {
     // 根據籌碼金額取得對應的籌碼預製體 prefab
     const chipIndex = this.chipValues.indexOf(chipValue); // 例：chipValue 為 50，找到 chipPrefabs 對應 index
@@ -323,19 +327,7 @@ export class ChipManager extends Component {
     }
   }
 
-  // 更新下方的 Bet / Balance / Win 顯示
-  updateGlobalLabels() {
-    // 更新下注金額與餘額文字顯示
-    if (this.Bet_Label) {
-      this.Bet_Label.string = (this.Bet_Num ?? 0).toFixed(2);
-    }
-    if (this.Balance_Label) this.Balance_Label.string = (this.Balance_Num ?? 0).toFixed(2); // 保留兩位小數
-    if (this.Win_Label) {
-      this.Win_Label.string = (this.Win_Num ?? 0).toFixed(2);
-    }
-  }
-
-  // 取最接近且不超過某個值的籌碼金額
+  //? 可搬到 BetManager // 取最接近且不超過某個值的籌碼金額
   getClosestChip(targetAmount: number): number {
     // 複製並由大到小排序籌碼金額陣列（確保從最大值開始比較）
     const sorted = [...this.chipValues].sort((a, b) => b - a);
@@ -379,7 +371,7 @@ export class ChipManager extends Component {
     this.updateGlobalLabels();
   }
 
-  // 下注主要邏輯
+  //? 2) 下注主要邏輯
   performBet(betNode: Node, chipValue: number, actionId: number, type: 'bet' | 'again') {
     const areaName = betNode.name;
     this.Balance_Num -= chipValue; // 扣除餘額
@@ -483,6 +475,18 @@ export class ChipManager extends Component {
     }
 
     this.performBet(betNode, chipValue, actionId, 'bet');
+  }
+
+  // 更新下方的 Bet / Balance / Win 顯示
+  updateGlobalLabels() {
+    // 更新下注金額與餘額文字顯示
+    if (this.Bet_Label) {
+      this.Bet_Label.string = (this.Bet_Num ?? 0).toFixed(2);
+    }
+    if (this.Balance_Label) this.Balance_Label.string = (this.Balance_Num ?? 0).toFixed(2); // 保留兩位小數
+    if (this.Win_Label) {
+      this.Win_Label.string = (this.Win_Num ?? 0).toFixed(2);
+    }
   }
 
   // ================== 點擊 All Bet 按鈕觸發 ====================

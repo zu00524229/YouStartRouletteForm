@@ -241,7 +241,7 @@ export class index extends Component {
       this.chipManager.AutoBouttonSprite.spriteFrame = this.chipManager.AutoStartFrame; // 更新 Auto 按鈕圖片 (藍)
 
       this.chipManager.updateStartButton();
-      this.chipManager.AllButton.interactable = true;
+      // this.chipManager.AllButton.interactable = true;
       ToastMessage.showToast('餘額不足，自動已停止');
       return; // 不夠錢就不下注，直接退出
     }

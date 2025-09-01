@@ -34,7 +34,6 @@ export class BetManager extends Component {
   public Delay_Show: number = 2;
   // === 資料結構 ===
   public betAreaNodes: Node[] = [];
-  private toolButtons: { [name: string]: Button } = {};
   public betAreaMap: { [areaName: string]: number } = {
     Bet_PRIZE_PICK: 0,
     Bet_GOLD_MANIA: 1,
@@ -99,6 +98,12 @@ export class BetManager extends Component {
 
   // ==== 抽獎結束後按鈕開燈 (解鎖所有下注與操作按鈕) ======
   onLightBetArea() {
+    // 如果是 Auto 模式，保持關燈
+    if (this.chipManager._isAutoMode) {
+      console.log('🚫 Auto 模式中，禁止開燈 AllButton');
+      return;
+    }
+
     this.GOLDENTREASUREBet.interactable = true;
     this.GOLDMANIABet.interactable = true;
     this.PRIZEPICKBet.interactable = true;
@@ -106,6 +111,8 @@ export class BetManager extends Component {
     this.X4Bet.interactable = true;
     this.X6Bet.interactable = true;
     this.X10Bet.interactable = true;
+    // // 工具按鈕
+    // this.AllButton.interactable = true;
   }
 
   // 關閉遮罩(Mask)
