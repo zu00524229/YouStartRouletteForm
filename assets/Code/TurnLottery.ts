@@ -1,6 +1,6 @@
 import { _decorator, Button, CCInteger, Component, director, Label, Node, tween, UIOpacity, Vec3 } from 'cc';
 import { HoverController } from './Animation/Hover/HoverController';
-import { ChipManager } from './Managers/ChipManager';
+import { ChipManager } from './Managers/Bet/ChipManager';
 import { Toast } from './Managers/Toasts/Toast';
 import { SignalRClient } from './Signal/SignalRClient';
 import { ExtraPayController } from './Managers/ExtraPayController';
@@ -8,7 +8,7 @@ import { RLRotation } from './Animation/Main_RL/RLRotation';
 import { SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types';
 // import { PointerSpring } from './Main_RL/PointerSpring';
 import { TurnAnim } from './Animation/Main_RL/TurnAnim';
-import { BetManager } from './Managers/BetManager';
+import { BetManager } from './Managers/Bet/BetManager';
 import { player } from './Login/playerState';
 const { ccclass, property } = _decorator;
 

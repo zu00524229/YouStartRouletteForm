@@ -1,14 +1,14 @@
 import { _decorator, Component, director, EventTouch, find, Label, Node, Prefab } from 'cc';
 import { StartTouch } from './Managers/Touch/StartTouch';
 import { AudioManager } from './Managers/Audio/AudioManager';
-import { ChipManager } from './Managers/ChipManager';
+import { ChipManager } from './Managers/Bet/ChipManager';
 import { SignalRClient } from './Signal/SignalRClient';
 import { LotteryResponse, SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types'; // 型別呼叫
 import { Toast } from './Managers/Toasts/Toast';
 import { LotteryCache, TurnLottery } from './TurnLottery';
 import { player } from './Login/playerState';
 import { ToastMessage } from './Managers/Toasts/ToastMessage';
-import { BetManager } from './Managers/BetManager';
+import { BetManager } from './Managers/Bet/BetManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('index')

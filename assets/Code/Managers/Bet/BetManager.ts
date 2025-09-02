@@ -1,7 +1,7 @@
 // 專門處理下注 UI：下注區亮起 / 關燈、工具按鈕狀態、Auto 遮罩、ExtraPay 清除
 import { _decorator, Button, Component, EventTouch, Node } from 'cc';
 import { ChipManager } from './ChipManager';
-import { Toast } from './Toasts/Toast';
+import { Toast } from '../Toasts/Toast';
 const { ccclass, property } = _decorator;
 
 @ccclass('BetManager')
