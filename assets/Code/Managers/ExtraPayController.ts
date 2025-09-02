@@ -14,7 +14,7 @@ export class ExtraPayController extends Component {
 
   public show(multiplier: number = 2) {
     console.log('>>> 呼叫 ExtraPayController.show()');
-    console.log('ExtraPaySprite node =', this.ExtraPaySprite);
+    // console.log('ExtraPaySprite node =', this.ExtraPaySprite);
     if (!this.ExtraPaySprite) return;
     console.log(`🎯 ExtraPay 顯示: ${this.node.name}, 倍率=${multiplier}`);
     this.ExtraPaySprite.active = true;

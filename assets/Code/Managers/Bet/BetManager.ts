@@ -59,19 +59,44 @@ export class BetManager extends Component {
     this.X4Bet = this.betAreaRoot.getChildByName('Bet_X4')?.getComponent(Button);
     this.X6Bet = this.betAreaRoot.getChildByName('Bet_X6')?.getComponent(Button);
     this.X10Bet = this.betAreaRoot.getChildByName('Bet_X10')?.getComponent(Button);
+
+    // 自動蒐集下注區節點 (根據 betAreaMap 的順序)
+    this.betAreaNodes = Object.keys(this.betAreaMap).map((name) => {
+      return this.betAreaRoot.getChildByName(name);
+    });
+    console.log(
+      '🎯 初始化下注區:',
+      this.betAreaNodes.map((n) => n?.name)
+    );
   }
 
-  // ========== 下注區域點擊事件 ==========
-  public BetClick(event: EventTouch) {
-    if (this.canPlaceBet()) {
-      this.chipManager.onBetClick(event);
-    }
+  // ======== 提供 BetController 、 ChipManager 下注區節點用 ========
+  public getBetAreaNodes(areaName: string): Node | null {
+    const index = this.betAreaMap[areaName];
+    return this.betAreaNodes[index] || null;
   }
 
-  // 禁止下注
-  public canPlaceBet() {
-    return !this.toast.BetLocked.active && !this.chipManager.isLotteryRunning() && !this.chipManager._isAutoMode;
+  // 也一次拿所有
+  public getAllBetAreas(): Node[] {
+    console.log(
+      '📦 BetManager.getAllBetAreas:',
+      this.betAreaNodes.map((n) => n?.name)
+    );
+
+    return this.betAreaNodes;
   }
+
+  // // ========== 下注區域點擊事件 ==========
+  // public BetClick(event: EventTouch) {
+  //   if (this.canPlaceBet()) {
+  //     this.chipManager.onBetClick(event);
+  //   }
+  // }
+
+  // // 禁止下注
+  // public canPlaceBet() {
+  //   return !this.toast.BetLocked.active && !this.chipManager.isLotteryRunning() && !this.chipManager._isAutoMode;
+  // }
 
   // ==== 按下 START 後按鈕關燈 (鎖定所有下注與操作按鈕) ======
   offLightButton(fromLongPress: boolean = false) {

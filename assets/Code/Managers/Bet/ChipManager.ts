@@ -41,7 +41,7 @@ export class ChipManager extends Component {
   @property({ type: Button }) UndoButton: Button = null;
   @property({ type: Button }) ClearButton: Button = null;
 
-  @property([Node]) betAreaNodes: Node[] = []; // 下注區域節點
+  // @property([Node]) betAreaNodes: Node[] = []; // 下注區域節點
   @property({ type: [CCInteger] }) chipValues: number[] = [100, 200, 500, 1000, 10000]; // 對應籌碼金額
   @property([Prefab]) chipPrefabs: Prefab[] = []; // 依序對應 50、100 籌碼(預製體)
 
@@ -61,7 +61,6 @@ export class ChipManager extends Component {
   Win_Num: number = 0; // 初始化0
 
   selectedChipValue: number = 100; // 玩家當前籌碼金額 預設100
-  totalNeeded = this.selectedChipValue * this.betAreaNodes.length; // 總共需要的下注金額(每個下注區域都下注選擇的籌碼金額) 用來判斷餘額夠不夠
 
   betAreaMap: { [areaName: string]: number } = {
     Bet_PRIZE_PICK: 0,
@@ -96,7 +95,23 @@ export class ChipManager extends Component {
   canBet: boolean = false;
   _isAutoMode: boolean = false; // 是否為自動下注模式
   Delay_Show = 2;
+  private betAreaNodes: Node[] = [];
 
+  // ✅ 提供 Game.ts 注入下注區節點
+  public setBetAreas(nodes: Node[]) {
+    this.betAreaNodes = nodes;
+    console.log(
+      '✅ 已注入下注區節點:',
+      nodes.map((n) => n.name)
+    );
+  }
+
+  // ✅ ChipManager 自己用
+  public getBetAreas(): Node[] {
+    return this.betAreaNodes;
+  }
+
+  totalNeeded = this.selectedChipValue * this.getBetAreas().length; // 總共需要的下注金額(每個下注區域都下注選擇的籌碼金額) 用來判斷餘額夠不夠
   onLoad() {
     this.chipPopupOpactiy = this.chipPopupPanel.getComponent(UIOpacity);
     if (!this.chipPopupOpactiy) {
@@ -352,7 +367,7 @@ export class ChipManager extends Component {
       }
     }
     // 清除每個下注區的籌碼圖像與金額文字
-    for (const betNode of this.betAreaNodes) {
+    for (const betNode of this.getBetAreas()) {
       //  清除籌碼圖像
       const chips = betNode.children.filter((child) => child.name === 'Chip');
       for (const chip of chips) {
@@ -404,7 +419,7 @@ export class ChipManager extends Component {
     // console.log("🎯 highlightBetArea:", betKey);
     // console.log("👉 對應 index:", index);
     const index = this.betAreaMap[betKey];
-    const node = this.betAreaNodes[index];
+    const node = this.getBetAreas()[index];
     if (!node) return;
 
     const highlighter = node.getComponent(BetHighlighter); // 撈子節點getComponentInChildren  撈父節點getComponent
@@ -452,29 +467,29 @@ export class ChipManager extends Component {
 
   // 清除下注區上的 ExtraPay 標記
   public clearAllExtraPayMarks() {
-    for (const node of this.betAreaNodes) {
+    for (const node of this.getBetAreas()) {
       const controller = node.getComponentInChildren(ExtraPayController);
       if (controller) controller.hide(); // hide() 就是讓 .active = false
     }
   }
 
   // ================== 下注區域點擊事件 ==================
-  // 下注區域點擊事件（需在下注區域節點）
-  onBetClick(event: EventTouch) {
-    // console.log('👉 onBetClick 被觸發', event.currentTarget?.name);
-    const betNode = event.currentTarget as Node; // 取得被點擊的下注區域節點
-    const chipValue = this.selectedChipValue; // 取得目前選擇的籌碼金額
-    const actionId = ++this.currentActionId;
+  // // 下注區域點擊事件（需在下注區域節點）
+  // onBetClick(event: EventTouch) {
+  //   // console.log('👉 onBetClick 被觸發', event.currentTarget?.name);
+  //   const betNode = event.currentTarget as Node; // 取得被點擊的下注區域節點
+  //   const chipValue = this.selectedChipValue; // 取得目前選擇的籌碼金額
+  //   const actionId = ++this.currentActionId;
 
-    // 餘額不足就不能下注
-    if (this.Balance_Num < chipValue) {
-      console.log('❌ 餘額不足，無法下注！');
-      ToastMessage.showToast('餘額不足，無法下注！'); // 呼叫方法(提示訊息框)
-      return;
-    }
+  //   // 餘額不足就不能下注
+  //   if (this.Balance_Num < chipValue) {
+  //     console.log('❌ 餘額不足，無法下注！');
+  //     ToastMessage.showToast('餘額不足，無法下注！'); // 呼叫方法(提示訊息框)
+  //     return;
+  //   }
 
-    this.performBet(betNode, chipValue, actionId, 'bet');
-  }
+  //   this.performBet(betNode, chipValue, actionId, 'bet');
+  // }
 
   // 更新下方的 Bet / Balance / Win 顯示
   updateGlobalLabels() {
@@ -492,7 +507,7 @@ export class ChipManager extends Component {
   onAllBetClick() {
     this.Audio.AudioSources[0].play(); // 播放按鈕音效
     // 確認餘額是否足夠
-    const totalNeeded = this.selectedChipValue * this.betAreaNodes.length;
+    const totalNeeded = this.selectedChipValue * this.getBetAreas().length;
     if (this.Balance_Num < totalNeeded) {
       ToastMessage.showToast('餘額不足，無法全部下注');
       return;
@@ -510,7 +525,7 @@ export class ChipManager extends Component {
     };
 
     // 遍歷所有下注區域
-    for (const betNode of this.betAreaNodes) {
+    for (const betNode of this.getBetAreas()) {
       const areaName = betNode.name;
 
       // 扣除餘額與累加下注金額
@@ -553,7 +568,7 @@ export class ChipManager extends Component {
     const actionId = ++this.currentActionId; // 每次加倍下注都產生新的 actionId
 
     // 遍歷所有下注區域節點
-    for (const betNode of this.betAreaNodes) {
+    for (const betNode of this.getBetAreas()) {
       const areaName = betNode.name; // 取得下注區名稱
       const currentAmount = this.betAmounts[areaName] || 0; // 取得該區已下注金額，預設為 0
 
@@ -617,7 +632,7 @@ export class ChipManager extends Component {
     console.log('🔙 Undo Action:', lastAction);
 
     for (const { areaName, amount, chips } of lastAction.actions.reverse()) {
-      const betNode = this.betAreaNodes.find((node) => node.name === areaName);
+      const betNode = this.getBetAreas().find((node) => node.name === areaName);
       if (!betNode) continue;
 
       this.Balance_Num += amount;
@@ -649,7 +664,7 @@ export class ChipManager extends Component {
     this.betAmounts = {};
 
     // 3. 移除所有下注區中的籌碼節點
-    for (const betNode of this.betAreaNodes) {
+    for (const betNode of this.getBetAreas()) {
       const chips = betNode.children.filter((child) => child.name === 'Chip');
       for (const chip of chips) {
         chip.destroy(); // 移除籌碼節點
@@ -684,7 +699,7 @@ export class ChipManager extends Component {
     // 遍歷每個上次下注的區域與金額
     for (const areaName in this.lastBetAmounts) {
       const totalAmount = this.lastBetAmounts[areaName];
-      const areaNode = this.betAreaNodes.find((node) => node.name === areaName); // 找下注節點
+      const areaNode = this.getBetAreas().find((node) => node.name === areaName); // 找下注節點
       if (!areaNode) continue;
 
       let remaining = totalAmount;

@@ -1,3 +1,4 @@
+import { BetController } from './Managers/Bet/BetController';
 import { _decorator, Component, director, EventTouch, find, Label, Node, Prefab } from 'cc';
 import { StartTouch } from './Managers/Touch/StartTouch';
 import { AudioManager } from './Managers/Audio/AudioManager';
@@ -24,6 +25,7 @@ export class index extends Component {
   @property(ChipManager) chipManager: ChipManager = null; // 連結 ChipManager
   @property(AudioManager) Audio: AudioManager = null; // 連結 AudioManager
   @property(BetManager) betManager: BetManager = null; // 連結 BetManager
+  @property(BetController) betController: BetController = null; // 連結 BetManager
 
   // 玩家目前選擇的籌碼金額(在chipManager.ts中管理)
   @property(Toast) toast: Toast = null; // 連結 Toast 腳本
@@ -134,11 +136,6 @@ export class index extends Component {
     // 當事件 GetLottryRewardRstEvent 被觸發時，重啟 UI 狀態
     director.on('LotteryEnded', this.onLotteryEnd, this);
     this.chipManager.isLotteryRunning = () => this.Lottery._isLottery; // 委派注入(TrunLottery 的變數值)
-
-    // 為每個下注區 betNode 綁定 TOUCH_END 事件（點擊下注區時執行 BetClick）
-    for (const betNode of this.chipManager.betAreaNodes) {
-      betNode.on(Node.EventType.TOUCH_END, this.betManager.BetClick, this.betManager);
-    }
 
     // 撈局號 Label 節點
     const roundIdNode = find('Canvas/UI/RoundId/roundId');
@@ -252,7 +249,7 @@ export class index extends Component {
       const amount = lastBets[areaName];
       if (amount > 0) {
         const areaIndex = this.chipManager.betAreaMap[areaName];
-        const betNode = this.chipManager.betAreaNodes[areaIndex];
+        const betNode = this.chipManager.getBetAreas()[areaIndex];
 
         if (betNode) {
           let remaining = amount;
@@ -287,6 +284,17 @@ export class index extends Component {
   // === 遊戲 UI 更新 ===
   start() {
     console.log('🎮 遊戲開始！');
+
+    this.chipManager.setBetAreas(this.betManager.getAllBetAreas()); // ✅ 把 BetManager 的下注區節點，注入給 ChipManager
+
+    for (const betNode of this.betManager.getAllBetAreas()) {
+      console.log('🎯 綁定下注區事件:', betNode.name);
+      // betNode.on(Node.EventType.TOUCH_END, this.betController.BetClick, this.betController);
+      betNode.on(Node.EventType.TOUCH_END, (event: EventTouch) => {
+        this.betController.BetClick(event);
+      });
+    }
+
     if (player.isLoggedIn) {
       console.log(`✅ 有玩家資料，帳號=${player.currentPlayer.username}, 餘額=${player.currentPlayer.balance}`);
     } else {
