@@ -25,7 +25,7 @@ export class BetController extends Component {
 
   // ========== 下注區域點擊事件 ==========
   public BetClick(event: EventTouch) {
-    console.log('👉 BetClick 被觸發:', event.currentTarget?.name);
+    // console.log('👉 BetClick 被觸發:', event.currentTarget?.name);
 
     if (this.canPlaceBet()) {
       this.onBetClick(event);
@@ -42,7 +42,7 @@ export class BetController extends Component {
   onBetClick(event: EventTouch) {
     // console.log('👉 onBetClick 被觸發', event.currentTarget?.name);
     const betNode = event.currentTarget as Node; // 取得被點擊的下注區域節點
-    console.log('🎲 嘗試下注:', betNode.name);
+    // console.log('🎲 嘗試下注:', betNode.name);
 
     const chipValue = this.selectedChipValue; // 取得目前選擇的籌碼金額
     const actionId = ++this.currentActionId;

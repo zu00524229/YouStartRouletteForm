@@ -248,8 +248,8 @@ export class index extends Component {
     for (const areaName in lastBets) {
       const amount = lastBets[areaName];
       if (amount > 0) {
-        const areaIndex = this.chipManager.betAreaMap[areaName];
-        const betNode = this.chipManager.getBetAreas()[areaIndex];
+        // const areaIndex = this.chipManager.betAreaMap[areaName];
+        const betNode = this.chipManager.getBetAreas().find((n) => n.name === areaName);
 
         if (betNode) {
           let remaining = amount;

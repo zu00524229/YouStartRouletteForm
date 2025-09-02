@@ -62,15 +62,15 @@ export class ChipManager extends Component {
 
   selectedChipValue: number = 100; // 玩家當前籌碼金額 預設100
 
-  betAreaMap: { [areaName: string]: number } = {
-    Bet_PRIZE_PICK: 0,
-    Bet_GOLD_MANIA: 1,
-    Bet_GOLDEN_TREASURE: 2,
-    Bet_X2: 3,
-    Bet_X4: 4,
-    Bet_X6: 5,
-    Bet_X10: 6,
-  };
+  // betAreaMap: { [areaName: string]: number } = {
+  //   Bet_PRIZE_PICK: 0,
+  //   Bet_GOLD_MANIA: 1,
+  //   Bet_GOLDEN_TREASURE: 2,
+  //   Bet_X2: 3,
+  //   Bet_X4: 4,
+  //   Bet_X6: 5,
+  //   Bet_X10: 6,
+  // };
 
   //? 可搬到 BetManager
   betAmounts: { [areaName: string]: number } = {}; // 儲存每個下注區域的累積下注金額(哈希表)
@@ -95,6 +95,7 @@ export class ChipManager extends Component {
   canBet: boolean = false;
   _isAutoMode: boolean = false; // 是否為自動下注模式
   Delay_Show = 2;
+
   private betAreaNodes: Node[] = [];
 
   // ✅ 提供 Game.ts 注入下注區節點
@@ -418,8 +419,8 @@ export class ChipManager extends Component {
   public highlightBetArea(betKey: string) {
     // console.log("🎯 highlightBetArea:", betKey);
     // console.log("👉 對應 index:", index);
-    const index = this.betAreaMap[betKey];
-    const node = this.getBetAreas()[index];
+    // const index = this.betManager.getBetAreasNodes(betKey);
+    const node = this.getBetAreas().find((n) => n.name === betKey); // 直接從已注入的 betAreaNodes 找 node
     if (!node) return;
 
     const highlighter = node.getComponent(BetHighlighter); // 撈子節點getComponentInChildren  撈父節點getComponent
