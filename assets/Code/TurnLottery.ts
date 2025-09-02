@@ -116,7 +116,7 @@ export class TurnLottery extends Component {
 
   onLoad() {
     this.targetEffect.active = false; // 初始隱藏中獎特效
-    console.log('🎯 targetEffect=', this.targetEffect);
+    // console.log('🎯 targetEffect=', this.targetEffect);
     this.RLRota.node.active = false; // 初始隱藏水波特效
     this._isSceneTransitioning = false;
   }

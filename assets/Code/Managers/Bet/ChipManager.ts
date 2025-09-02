@@ -25,12 +25,6 @@ export class ChipManager extends Component {
   @property(SpriteFrame) AutoStartFrame: SpriteFrame = null; // 按鈕預設圖  (藍)
   @property(SpriteFrame) StopStopFrame: SpriteFrame = null; // 按鈕stop圖 (粉)
 
-  // @property({ type: Button }) AllButton: Button = null; // 全部下注按鈕
-  // @property({ type: Button }) X2Button: Button = null; // 雙倍按鈕
-  // @property({ type: Button }) AutoButton: Button = null; // 自動按鈕(待刪除)
-  // @property({ type: Button }) UndoButton: Button = null;
-  // @property({ type: Button }) ClearButton: Button = null;
-
   // @property([Node]) betAreaNodes: Node[] = []; // 下注區域節點
   @property({ type: [CCInteger] }) chipValues: number[] = [100, 200, 500, 1000, 10000]; // 對應籌碼金額
   @property([Prefab]) chipPrefabs: Prefab[] = []; // 依序對應 50、100 籌碼(預製體)
@@ -78,10 +72,10 @@ export class ChipManager extends Component {
   // ✅ 提供 Game.ts 注入下注區節點
   public setBetAreas(nodes: Node[]) {
     this.betAreaNodes = nodes;
-    console.log(
-      '✅ 已注入下注區節點:',
-      nodes.map((n) => n.name)
-    );
+    // console.log(
+    //   '✅ 已注入下注區節點:',
+    //   nodes.map((n) => n.name)
+    // );
   }
 
   // ✅ ChipManager 自己用
@@ -91,124 +85,121 @@ export class ChipManager extends Component {
 
   totalNeeded = this.selectedChipValue * this.getBetAreas().length; // 總共需要的下注金額(每個下注區域都下注選擇的籌碼金額) 用來判斷餘額夠不夠
   onLoad() {
-    this.chipPopupOpactiy = this.chipPopupPanel.getComponent(UIOpacity);
-    if (!this.chipPopupOpactiy) {
-      this.chipPopupOpactiy = this.chipPopupPanel.addComponent(UIOpacity);
-    }
-
-    // 預設隱藏籌碼選單
-    this.chipPopupPanel.active = true; // 強制先顯示一次才能讓位置初始化生效
-    this.chipPopupPanel.setPosition(new Vec3(0, -500, 0)); // 預設隱藏位置(下方隱藏)
-    // 設定透明度為 0
-    const opacity = this.chipPopupPanel.getComponent(UIOpacity);
-    if (opacity) {
-      opacity.opacity = 0;
-    }
-    this.chipPopupPanel.active = false;
-    this.isPopupVisible = false;
-
-    // 每個籌碼按鈕點擊事件(初始化籌碼按鈕事件)
-    this.chipButtons.forEach((btn, index) => {
-      btn.on(Node.EventType.TOUCH_END, () => {
-        // 根據索引取得對應籌碼金額
-        const selectedValue = this.chipValues[index];
-        this.selectChip(selectedValue); // 呼叫方法設為當前選擇的籌碼
-      });
-    });
-
-    // 預設選擇第一個籌碼,並更新按鈕樣式與主圖式
-    this.selectChip(this.chipValues[0]);
+    // this.chipPopupOpactiy = this.chipPopupPanel.getComponent(UIOpacity);
+    // if (!this.chipPopupOpactiy) {
+    //   this.chipPopupOpactiy = this.chipPopupPanel.addComponent(UIOpacity);
+    // }
+    // // 預設隱藏籌碼選單
+    // this.chipPopupPanel.active = true; // 強制先顯示一次才能讓位置初始化生效
+    // this.chipPopupPanel.setPosition(new Vec3(0, -500, 0)); // 預設隱藏位置(下方隱藏)
+    // // 設定透明度為 0
+    // const opacity = this.chipPopupPanel.getComponent(UIOpacity);
+    // if (opacity) {
+    //   opacity.opacity = 0;
+    // }
+    // this.chipPopupPanel.active = false;
+    // this.isPopupVisible = false;
+    // // 每個籌碼按鈕點擊事件(初始化籌碼按鈕事件)
+    // this.chipButtons.forEach((btn, index) => {
+    //   btn.on(Node.EventType.TOUCH_END, () => {
+    //     // 根據索引取得對應籌碼金額
+    //     const selectedValue = this.chipValues[index];
+    //     this.selectChip(selectedValue); // 呼叫方法設為當前選擇的籌碼
+    //   });
+    // });
+    // // 預設選擇第一個籌碼,並更新按鈕樣式與主圖式
+    // this.selectChip(this.chipValues[0]);
   }
 
   //? ===============================================================================
 
   // ========= ChipSelector 區域 (玩家選擇籌碼金額) ==========
   // 選擇籌碼金額
-  selectChip(value: number) {
-    this.Audio.AudioSources[0].play(); // 播放按鈕音效
-    this.selectedChipValue = value; // 儲存當前籌碼金額
-    this.chipPopupPanel.active = true; // 顯示籌碼選擇面板(彈出式)
+  // selectChip(value: number) {
+  //   this.Audio.AudioSources[0].play(); // 播放按鈕音效
+  //   this.selectedChipValue = value; // 儲存當前籌碼金額
+  //   this.chipPopupPanel.active = true; // 顯示籌碼選擇面板(彈出式)
 
-    // 更新按鈕圖示
-    const index = this.chipValues.indexOf(value);
+  //   // 更新按鈕圖示
+  //   const index = this.chipValues.indexOf(value);
 
-    // 更新主 ChipButton 的圖片
-    if (index >= 0 && this.chipPrefab[index]) {
-      this.chipButton.removeAllChildren(); // 清除之前的籌碼圖示
+  //   // 更新主 ChipButton 的圖片
+  //   if (index >= 0 && this.chipPrefab[index]) {
+  //     this.chipButton.removeAllChildren(); // 清除之前的籌碼圖示
 
-      const chipNode = instantiate(this.chipPrefab[index]);
-      chipNode.setScale(new Vec3(1.1, 1.1, 1)); //  顯示區要大一點
-      chipNode.setPosition(0, 0, 0); // 居中
+  //     const chipNode = instantiate(this.chipPrefab[index]);
+  //     chipNode.setScale(new Vec3(1.1, 1.1, 1)); //  顯示區要大一點
+  //     chipNode.setPosition(0, 0, 0); // 居中
 
-      // 複製預製體並掛上去
-      this.chipButton.addChild(chipNode);
-      this.chipButtonPrefab = this.chipPrefab[index];
+  //     // 複製預製體並掛上去
+  //     this.chipButton.addChild(chipNode);
+  //     this.chipButtonPrefab = this.chipPrefab[index];
 
-      // 紀錄目前選擇的籌碼預製體（可省略，如果 chipButton 是唯一顯示區）
-      this.chipButtonPrefab = this.chipPrefab[index];
-    }
+  //     // 紀錄目前選擇的籌碼預製體（可省略，如果 chipButton 是唯一顯示區）
+  //     this.chipButtonPrefab = this.chipPrefab[index];
+  //   }
 
-    this.hideChipPopup(); // 隱藏籌碼選單（選完自動收起）
-  }
+  //   this.hideChipPopup(); // 隱藏籌碼選單（選完自動收起）
+  // }
 
-  // ========= 籌碼選單(動畫滑出/淡出) ===========
-  // 點擊籌碼選單按鈕
-  onClickChipButton() {
-    if (this.isPopupVisible) {
-      this.hideChipPopup();
-    } else {
-      this.showChipPopup();
-    }
-  }
+  // // ========= 籌碼選單(動畫滑出/淡出) ===========
+  // // 點擊籌碼選單按鈕
+  // onClickChipButton() {
+  //   if (this.isPopupVisible) {
+  //     this.hideChipPopup();
+  //   } else {
+  //     this.showChipPopup();
+  //   }
+  // }
 
-  // 顯示動畫
-  showChipPopup() {
-    console.log('已啟用');
-    this.Audio.AudioSources[0].play(); // 播放按鈕音效
-    this.chipPopupPanel.active = true;
-    // 以 chipButton 為基準定位
-    const worldBtnPos = this.chipButton.getWorldPosition();
+  // // 顯示動畫
+  // showChipPopup() {
+  //   console.log('已啟用');
+  //   this.Audio.AudioSources[0].play(); // 播放按鈕音效
+  //   this.chipPopupPanel.active = true;
+  //   // 以 chipButton 為基準定位
+  //   const worldBtnPos = this.chipButton.getWorldPosition();
 
-    // 將世界座標轉換為 chipPopupPanel 的父節點座標
-    const localBtnPos = this.chipPopupPanel.parent!.getComponent(UITransform).convertToNodeSpaceAR(worldBtnPos);
-    // 再根據這個位置設定起點與終點
-    const popupStart = new Vec3(localBtnPos.x, localBtnPos.y - 50, 0); // 從按鈕下方開始
-    const popupEnd = new Vec3(localBtnPos.x, localBtnPos.y + 50, 0); // 動畫滑到按鈕上方
+  //   // 將世界座標轉換為 chipPopupPanel 的父節點座標
+  //   const localBtnPos = this.chipPopupPanel.parent!.getComponent(UITransform).convertToNodeSpaceAR(worldBtnPos);
+  //   // 再根據這個位置設定起點與終點
+  //   const popupStart = new Vec3(localBtnPos.x, localBtnPos.y - 50, 0); // 從按鈕下方開始
+  //   const popupEnd = new Vec3(localBtnPos.x, localBtnPos.y + 50, 0); // 動畫滑到按鈕上方
 
-    this.chipPopupPanel.setPosition(popupStart);
+  //   this.chipPopupPanel.setPosition(popupStart);
 
-    this.chipPopupOpactiy.opacity = 0;
+  //   this.chipPopupOpactiy.opacity = 0;
 
-    tween(this.chipPopupPanel).to(0.3, { position: popupEnd }, { easing: 'backOut' }).start();
+  //   tween(this.chipPopupPanel).to(0.3, { position: popupEnd }, { easing: 'backOut' }).start();
 
-    tween(this.chipPopupOpactiy).to(0.3, { opacity: 255 }, { easing: 'fade' }).start();
+  //   tween(this.chipPopupOpactiy).to(0.3, { opacity: 255 }, { easing: 'fade' }).start();
 
-    this.isPopupVisible = true;
-  }
+  //   this.isPopupVisible = true;
+  // }
 
-  // 隱藏動畫
-  hideChipPopup() {
-    const currentPos = this.chipPopupPanel.getPosition();
-    const targetPos = new Vec3(currentPos.x, currentPos.y - 100, 0); // 收回時往下滑
+  // // 隱藏動畫
+  // hideChipPopup() {
+  //   const currentPos = this.chipPopupPanel.getPosition();
+  //   const targetPos = new Vec3(currentPos.x, currentPos.y - 100, 0); // 收回時往下滑
 
-    tween(this.chipPopupPanel)
-      .to(0.5, { position: targetPos }, { easing: 'backIn' })
-      .call(() => {
-        this.chipPopupPanel.active = false;
-      })
-      .start();
+  //   tween(this.chipPopupPanel)
+  //     .to(0.5, { position: targetPos }, { easing: 'backIn' })
+  //     .call(() => {
+  //       this.chipPopupPanel.active = false;
+  //     })
+  //     .start();
 
-    tween(this.chipPopupOpactiy)
-      .to(0.5, {
-        opacity: 0,
-      })
-      .call(() => {
-        this.chipPopupPanel.active = false;
-      })
-      .start();
+  //   tween(this.chipPopupOpactiy)
+  //     .to(0.5, {
+  //       opacity: 0,
+  //     })
+  //     .call(() => {
+  //       this.chipPopupPanel.active = false;
+  //     })
+  //     .start();
 
-    this.isPopupVisible = false;
-  }
+  //   this.isPopupVisible = false;
+  // }
 
   // ================ 下注區域相關方法 =================
   // 計算下注區偏移用的 offsetMap

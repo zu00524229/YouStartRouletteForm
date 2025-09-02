@@ -142,8 +142,6 @@ export class index extends Component {
     // 撈局號 Label 節點
     const roundIdNode = find('Canvas/UI/RoundId/roundId');
     this.roundIdLabel = roundIdNode?.getComponent(Label) || null;
-    console.log('roundIdNode= ', roundIdNode);
-    console.log('roundIdLabel= ', this.roundIdLabel);
   }
 
   // ==== 回調Lottery 抽獎(PICK)結束後的值 ========

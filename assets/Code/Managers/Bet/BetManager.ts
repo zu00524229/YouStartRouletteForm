@@ -64,10 +64,10 @@ export class BetManager extends Component {
     this.betAreaNodes = Object.keys(this.betAreaMap).map((name) => {
       return this.betAreaRoot.getChildByName(name);
     });
-    console.log(
-      // '🎯 初始化下注區:',
-      this.betAreaNodes.map((n) => n?.name)
-    );
+    // console.log(
+    //   // '🎯 初始化下注區:',
+    //   this.betAreaNodes.map((n) => n?.name)
+    // );
   }
 
   // ======== 提供 BetController 、 ChipManager 下注區節點用 ========
