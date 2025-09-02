@@ -9,6 +9,7 @@ import { SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types';
 // import { PointerSpring } from './Main_RL/PointerSpring';
 import { TurnAnim } from './Animation/Main_RL/TurnAnim';
 import { BetManager } from './Managers/Bet/BetManager';
+import { BetController } from './Managers/Bet/BetController';
 import { player } from './Login/playerState';
 const { ccclass, property } = _decorator;
 
@@ -40,6 +41,7 @@ export class TurnLottery extends Component {
   @property(RLRotation) RLRota: RLRotation = null; // 連結 RLRotation
   @property(TurnAnim) Turn: TurnAnim = null; // 連結 TurnAnim
   @property(BetManager) betManager: BetManager = null; // 連結 BetManager
+  @property(BetController) betController: BetController = null;
 
   // @property(SignalRClient) SingalR: SignalRClient = null; // 連結 SignalRclient 腳本
 
@@ -383,7 +385,7 @@ export class TurnLottery extends Component {
         this.chipManager.updateGlobalLabels(); // 更新畫面
 
         // 3.清除籌碼與重設UI
-        this.chipManager.clearAllBets(); // 清除籌碼與結算
+        this.betController.clearAllBets(); // 清除籌碼與結算
         this.chipManager.updateStartButton(); // 若有下注且輪盤停止，開啟操作按鈕
         this.chipManager.AllButton.interactable = true;
         this.chipManager.AutoButton.node.active = true;
@@ -411,7 +413,7 @@ export class TurnLottery extends Component {
     } else {
       // 🔴 沒中獎也要處理：清除籌碼與 UI 重置
       this.scheduleOnce(() => {
-        this.chipManager.clearAllBets(); // 清除下注與籌碼
+        this.betController.clearAllBets(); // 清除下注與籌碼
         this.chipManager.updateGlobalLabels(); // 更新畫面數值
         this.chipManager.updateStartButton(); // 啟用按鈕（若上局有下注）
         this.chipManager.AllButton.interactable = true;
@@ -504,8 +506,9 @@ export class TurnLottery extends Component {
 
     // 顯示下注區的 x2
     // const areaNode = this.chipManager.getBetAreaNode(betArea);
-    const index = this.chipManager.betAreaMap[betArea];
-    const areaNode = this.chipManager.betAreaNodes[index];
+    // const index = this.chipManager.betAreaMap[betArea];
+    // const areaNode = this.chipManager.betAreaNodes[index];
+    const areaNode = this.betManager.getBetAreaNodes(betArea);
     const extraCtrl = areaNode?.getComponentInChildren(ExtraPayController);
     extraCtrl?.show();
 

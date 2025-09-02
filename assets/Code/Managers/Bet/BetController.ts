@@ -2,7 +2,7 @@ import { _decorator, Component, EventTouch, Node } from 'cc';
 import { ChipManager } from './ChipManager';
 import { BetManager } from './BetManager';
 import { ToastMessage } from '../../Managers/Toasts/ToastMessage';
-import { player } from '../../Login/playerState';
+import { AudioManager } from '../../Managers/Audio/AudioManager';
 import { Toast } from '../Toasts/Toast';
 
 const { ccclass, property } = _decorator;
@@ -12,8 +12,10 @@ export class BetController extends Component {
   @property(ChipManager) chipManager: ChipManager = null; // 拖有 ChipManager 的節點
   @property(BetManager) betManager: BetManager = null; // 拖有 BetManager 的節點
   @property(Toast) toast: Toast = null; // 拖 有掛載 Toast 腳本的節點
+  @property(AudioManager) Audio: AudioManager = null; // 連結 AudioManager
 
-  Balance_Num: number = player.currentPlayer.balance; // 初始餘額(未來會連後端)
+  // Bet_Num: number = 0; // 玩家總下注金額(預設0)
+  // Balance_Num: number = player.currentPlayer.balance; // 初始餘額(未來會連後端)
 
   private currentActionId = 0;
   selectedChipValue: number = 100; // 玩家當前籌碼金額 預設100
@@ -48,7 +50,7 @@ export class BetController extends Component {
     const actionId = ++this.currentActionId;
 
     // 餘額不足就不能下注
-    if (this.Balance_Num < chipValue) {
+    if (this.chipManager.Balance_Num < chipValue) {
       console.log('❌ 餘額不足，無法下注！');
       ToastMessage.showToast('餘額不足，無法下注！'); // 呼叫方法(提示訊息框)
       return;
@@ -57,89 +59,125 @@ export class BetController extends Component {
     this.chipManager.performBet(betNode, chipValue, actionId, 'bet');
   }
 
-  // // 清除籌碼(結算)
-  // clearAllBets(): void {
-  //   // 歸零 betAmounts 中每個下注區的金額
-  //   for (const key in this.betAmounts) {
-  //     if (this.betAmounts.hasOwnProperty(key)) {
-  //       this.betAmounts[key] = 0;
-  //     }
-  //   }
-  //   // 清除每個下注區的籌碼圖像與金額文字
-  //   for (const betNode of this.betAreaNodes) {
-  //     //  清除籌碼圖像
-  //     const chips = betNode.children.filter((child) => child.name === 'Chip');
-  //     for (const chip of chips) {
-  //       chip.destroy(); // 移除籌碼節點（推薦 destroy 而不是 removeFromParent）
-  //     }
+  // ================== 點擊 All Bet 按鈕觸發 ====================
+  onAllBetClick() {
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
 
-  //     // 清除下注金額文字
-  //     this.updateBetAmountLabel(betNode, 0);
-  //   }
+    // 用 ChipManager 的資料源
+    const selected = this.chipManager.selectedChipValue;
+    const areas = this.chipManager.getBetAreas();
+    // 確認餘額是否足夠
+    const totalNeeded = selected * areas.length;
+    if (this.chipManager.Balance_Num < totalNeeded) {
+      ToastMessage.showToast('餘額不足，無法全部下注');
+      return;
+    }
 
-  //   // 重設總下注金額
-  //   this.Bet_Num = 0;
+    const actionId = ++this.currentActionId;
+    const actionRecord = {
+      type: 'bet' as const,
+      actionId,
+      actions: [] as {
+        areaName: string;
+        amount: number;
+        chips: number[];
+      }[],
+    };
 
-  //   // 更新下方的總下注 / 餘額 / 贏得金額顯示
-  //   this.updateGlobalLabels();
-  // }
+    // 遍歷所有下注區域
+    for (const betNode of this.chipManager.getBetAreas()) {
+      const areaName = betNode.name;
 
-  // // ================== 點擊 All Bet 按鈕觸發 ====================
-  //   onAllBetClick() {
-  //     this.Audio.AudioSources[0].play(); // 播放按鈕音效
-  //     // 確認餘額是否足夠
-  //     const totalNeeded = this.selectedChipValue * this.betAreaNodes.length;
-  //     if (this.Balance_Num < totalNeeded) {
-  //       ToastMessage.showToast('餘額不足，無法全部下注');
-  //       return;
-  //     }
+      // 扣除餘額與累加下注金額
+      this.chipManager.Balance_Num -= this.selectedChipValue;
+      this.chipManager.Bet_Num += this.selectedChipValue;
 
-  //     const actionId = ++this.currentActionId;
-  //     const actionRecord = {
-  //       type: 'bet' as const,
-  //       actionId: actionId,
-  //       actions: [] as {
-  //         areaName: string;
-  //         amount: number;
-  //         chips: number[];
-  //       }[],
-  //     };
+      // 更新下注區金額
+      const currentAmount = this.chipManager.betAmounts[areaName] ?? 0;
+      const newAmount = currentAmount + this.selectedChipValue;
+      this.chipManager.betAmounts[areaName] = newAmount;
 
-  //     // 遍歷所有下注區域
-  //     for (const betNode of this.betAreaNodes) {
-  //       const areaName = betNode.name;
+      // 建立籌碼圖像
+      this.chipManager.createChipInArea(betNode, this.selectedChipValue, actionId);
 
-  //       // 扣除餘額與累加下注金額
-  //       this.Balance_Num -= this.selectedChipValue;
-  //       this.Bet_Num += this.selectedChipValue;
+      // 更新下注區金額 Label
+      this.chipManager.updateBetAmountLabel(betNode, newAmount);
 
-  //       // 更新下注區金額
-  //       const currentAmount = this.betAmounts[areaName] ?? 0;
-  //       const newAmount = currentAmount + this.selectedChipValue;
-  //       this.betAmounts[areaName] = newAmount;
+      // 加入動作紀錄
+      actionRecord.actions.push({
+        areaName: areaName,
+        amount: this.selectedChipValue,
+        chips: [this.selectedChipValue],
+      });
+    }
 
-  //       // 建立籌碼圖像
-  //       this.createChipInArea(betNode, this.selectedChipValue, actionId);
+    // 加入歷史堆疊
+    this.chipManager.actionHistory.push(actionRecord);
 
-  //       // 更新下注區金額 Label
-  //       this.updateBetAmountLabel(betNode, newAmount);
+    // 更新畫面下方資訊
+    this.chipManager.updateGlobalLabels();
 
-  //       // 加入動作紀錄
-  //       actionRecord.actions.push({
-  //         areaName: areaName,
-  //         amount: this.selectedChipValue,
-  //         chips: [this.selectedChipValue],
-  //       });
-  //     }
+    this.chipManager.updateStartButton(); // 全部下注後也要更新按鈕
+  }
 
-  //     // 加入歷史堆疊
-  //     this.actionHistory.push(actionRecord);
+  // =========================================== 清除籌碼(結算)  ======================================================
+  clearAllBets(): void {
+    // 用在轉盤結束後,清除下注區籌碼,進入新的一局
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
+    // 歸零 betAmounts 中每個下注區的金額
+    for (const key in this.chipManager.betAmounts) {
+      if (this.chipManager.betAmounts.hasOwnProperty(key)) {
+        this.chipManager.betAmounts[key] = 0;
+      }
+    }
+    // 清除每個下注區的籌碼圖像與金額文字
+    for (const betNode of this.chipManager.getBetAreas()) {
+      //  清除籌碼圖像
+      const chips = betNode.children.filter((child) => child.name === 'Chip');
+      for (const chip of chips) {
+        chip.destroy(); // 移除籌碼節點（推薦 destroy 而不是 removeFromParent）
+      }
 
-  //     // 更新畫面下方資訊
-  //     this.updateGlobalLabels();
+      // 清除下注金額文字
+      this.chipManager.updateBetAmountLabel(betNode, 0);
+    }
 
-  //     this.updateStartButton(); // 全部下注後也要更新按鈕
-  //   }
+    // 重設總下注金額
+    this.chipManager.Bet_Num = 0;
+
+    // 更新下方的總下注 / 餘額 / 贏得金額顯示
+    this.chipManager.updateGlobalLabels();
+  }
+
+  // 點擊 clear 按鈕
+  clearBets() {
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
+    // 1. 將所有下注金額退還給玩家餘額
+    for (const areaName in this.chipManager.betAmounts) {
+      const amount = this.chipManager.betAmounts[areaName] || 0;
+      this.chipManager.Balance_Num += amount; // 歸還下注金額
+    }
+
+    // 2. 清空下注總額與區域下注紀錄
+    this.chipManager.Bet_Num = 0;
+    this.chipManager.betAmounts = {};
+
+    // 3. 移除所有下注區中的籌碼節點
+    for (const betNode of this.chipManager.getBetAreas()) {
+      const chips = betNode.children.filter((child) => child.name === 'Chip');
+      for (const chip of chips) {
+        chip.destroy(); // 移除籌碼節點
+      }
+
+      // 4. 清除下注區金額文字
+      this.chipManager.updateBetAmountLabel(betNode, 0);
+    }
+
+    // 5. 更新下方總下注金額與餘額顯示
+    this.chipManager.updateGlobalLabels();
+
+    this.chipManager.updateStartButton(); // 清除後可能沒下注，Start 要變灰
+  }
 
   //   // ================ ToolButtons 區域 =================
   //   // 點擊 Double 按鈕(當前所有下注區的金額加倍下注)
