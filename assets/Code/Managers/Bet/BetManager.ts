@@ -86,18 +86,6 @@ export class BetManager extends Component {
     return this.betAreaNodes;
   }
 
-  // // ========== 下注區域點擊事件 ==========
-  // public BetClick(event: EventTouch) {
-  //   if (this.canPlaceBet()) {
-  //     this.chipManager.onBetClick(event);
-  //   }
-  // }
-
-  // // 禁止下注
-  // public canPlaceBet() {
-  //   return !this.toast.BetLocked.active && !this.chipManager.isLotteryRunning() && !this.chipManager._isAutoMode;
-  // }
-
   // ==== 按下 START 後按鈕關燈 (鎖定所有下注與操作按鈕) ======
   offLightButton(fromLongPress: boolean = false) {
     this.AllButton.interactable = false;

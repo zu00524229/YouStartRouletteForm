@@ -11,16 +11,6 @@ const { ccclass, property } = _decorator;
 export class ChipManager extends Component {
   @property(Toast) toast: Toast = null; // 連結 Toast 組件，用於顯示提示訊息
   @property(AudioManager) Audio: AudioManager = null; // 連結 AudioManager
-
-  // ========= 下注區域(設置Button(無功能) 是為了視覺) ======
-  @property({ type: Button }) GOLDENTREASUREBet: Button = null;
-  @property({ type: Button }) GOLDMANIABet: Button = null;
-  @property({ type: Button }) PRIZEPICKBet: Button = null;
-  @property({ type: Button }) X2Bet: Button = null; // X2下注區
-  @property({ type: Button }) X4Bet: Button = null;
-  @property({ type: Button }) X6Bet: Button = null;
-  @property({ type: Button }) X10Bet: Button = null;
-  // @property(SpriteFrame) winSpriteFrame: SpriteFrame = null; // 轉盤獎賞 指定下注區亮起(WIN)
   //////////////////////////////////////////////////////////////////////////////
   @property({ type: Button }) Proportion: Button = null;
   @property(Node) ProporMask: Node = null;
@@ -253,14 +243,13 @@ export class ChipManager extends Component {
     // ===== 控制下注區區塊是否可互動 =====
     const shouldEnableBet = !this.isLotteryRunning() && !this._isAutoMode;
 
+    // 遍歷所有下注區節點，把 Button 狀態打開/關閉
+    for (const node of this.getBetAreas()) {
+      const btn = node.getComponent(Button);
+      if (btn) btn.interactable = shouldEnableBet;
+    }
+
     this.AllButton.interactable = shouldEnableBet;
-    this.GOLDENTREASUREBet.interactable = shouldEnableBet;
-    this.GOLDMANIABet.interactable = shouldEnableBet;
-    this.PRIZEPICKBet.interactable = shouldEnableBet;
-    this.X2Bet.interactable = shouldEnableBet;
-    this.X4Bet.interactable = shouldEnableBet;
-    this.X6Bet.interactable = shouldEnableBet;
-    this.X10Bet.interactable = shouldEnableBet;
 
     if (this._isAutoMode) {
       // Auto 模式開啟
@@ -440,30 +429,9 @@ export class ChipManager extends Component {
       }, this.Delay_Show + 1);
     }
 
-    // 2 對應下注按鈕高亮（啟用可互動）
-    switch (betKey) {
-      case 'Bet_X2':
-        this.X2Bet.interactable = true;
-        break;
-      case 'Bet_X4':
-        this.X4Bet.interactable = true;
-        break;
-      case 'Bet_X6':
-        this.X6Bet.interactable = true;
-        break;
-      case 'Bet_X10':
-        this.X10Bet.interactable = true;
-        break;
-      case 'Bet_PRIZE_PICK':
-        this.PRIZEPICKBet.interactable = true;
-        break;
-      case 'Bet_GOLD_MANIA':
-        this.GOLDMANIABet.interactable = true;
-        break;
-      case 'Bet_GOLDEN_TREASURE':
-        this.GOLDENTREASUREBet.interactable = true;
-        break;
-    }
+    // ✅ 直接讓 Button 可互動
+    const btn = node.getComponent(Button);
+    if (btn) btn.interactable = true;
   }
 
   // 清除下注區上的 ExtraPay 標記
@@ -473,24 +441,6 @@ export class ChipManager extends Component {
       if (controller) controller.hide(); // hide() 就是讓 .active = false
     }
   }
-
-  // ================== 下注區域點擊事件 ==================
-  // // 下注區域點擊事件（需在下注區域節點）
-  // onBetClick(event: EventTouch) {
-  //   // console.log('👉 onBetClick 被觸發', event.currentTarget?.name);
-  //   const betNode = event.currentTarget as Node; // 取得被點擊的下注區域節點
-  //   const chipValue = this.selectedChipValue; // 取得目前選擇的籌碼金額
-  //   const actionId = ++this.currentActionId;
-
-  //   // 餘額不足就不能下注
-  //   if (this.Balance_Num < chipValue) {
-  //     console.log('❌ 餘額不足，無法下注！');
-  //     ToastMessage.showToast('餘額不足，無法下注！'); // 呼叫方法(提示訊息框)
-  //     return;
-  //   }
-
-  //   this.performBet(betNode, chipValue, actionId, 'bet');
-  // }
 
   // 更新下方的 Bet / Balance / Win 顯示
   updateGlobalLabels() {
