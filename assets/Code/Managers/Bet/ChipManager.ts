@@ -533,36 +533,36 @@ export class ChipManager extends Component {
   //   this.updateGlobalLabels();
   // }
 
-  // 點擊undo(撤銷)按鈕
-  undoBet() {
-    this.Audio.AudioSources[0].play(); // 播放按鈕音效
-    if (this.actionHistory.length === 0) {
-      ToastMessage.showToast('❌ 沒有可撤銷的動作');
-      return;
-    }
+  // // 點擊undo(撤銷)按鈕
+  // undoBet() {
+  //   this.Audio.AudioSources[0].play(); // 播放按鈕音效
+  //   if (this.actionHistory.length === 0) {
+  //     ToastMessage.showToast('❌ 沒有可撤銷的動作');
+  //     return;
+  //   }
 
-    const lastAction = this.actionHistory.pop();
-    const actionId = lastAction.actionId;
-    console.log('🔙 Undo Action:', lastAction);
+  //   const lastAction = this.actionHistory.pop();
+  //   const actionId = lastAction.actionId;
+  //   console.log('🔙 Undo Action:', lastAction);
 
-    for (const { areaName, amount, chips } of lastAction.actions.reverse()) {
-      const betNode = this.getBetAreas().find((node) => node.name === areaName);
-      if (!betNode) continue;
+  //   for (const { areaName, amount, chips } of lastAction.actions.reverse()) {
+  //     const betNode = this.getBetAreas().find((node) => node.name === areaName);
+  //     if (!betNode) continue;
 
-      this.Balance_Num += amount;
-      this.Bet_Num -= amount;
-      this.betAmounts[areaName] -= amount;
-      if (this.betAmounts[areaName] <= 0) delete this.betAmounts[areaName];
+  //     this.Balance_Num += amount;
+  //     this.Bet_Num -= amount;
+  //     this.betAmounts[areaName] -= amount;
+  //     if (this.betAmounts[areaName] <= 0) delete this.betAmounts[areaName];
 
-      const chipsToRemove = [...betNode.children].filter((c) => c.name === 'Chip' && c['actionId'] === actionId);
-      chipsToRemove.forEach((c) => c.destroy());
+  //     const chipsToRemove = [...betNode.children].filter((c) => c.name === 'Chip' && c['actionId'] === actionId);
+  //     chipsToRemove.forEach((c) => c.destroy());
 
-      this.updateBetAmountLabel(betNode, this.betAmounts[areaName] || 0);
-    }
+  //     this.updateBetAmountLabel(betNode, this.betAmounts[areaName] || 0);
+  //   }
 
-    this.updateGlobalLabels();
-    this.updateStartButton(); // 更新 Start 按鈕是否可用
-  }
+  //   this.updateGlobalLabels();
+  //   this.updateStartButton(); // 更新 Start 按鈕是否可用
+  // }
 
   // 點擊 clear 按鈕
   // clearBets() {

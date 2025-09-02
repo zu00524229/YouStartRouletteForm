@@ -208,68 +208,68 @@ export class BetController extends Component {
     this.chipManager.updateGlobalLabels();
   }
 
-  //   // 點擊undo(撤銷)按鈕
-  //   undoBet() {
-  //     this.Audio.AudioSources[0].play(); // 播放按鈕音效
-  //     if (this.actionHistory.length === 0) {
-  //       ToastMessage.showToast('❌ 沒有可撤銷的動作');
-  //       return;
-  //     }
+  // 點擊undo(撤銷)按鈕
+  undoBet() {
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
+    if (this.chipManager.actionHistory.length === 0) {
+      ToastMessage.showToast('❌ 沒有可撤銷的動作');
+      return;
+    }
 
-  //     const lastAction = this.actionHistory.pop();
-  //     const actionId = lastAction.actionId;
-  //     console.log('🔙 Undo Action:', lastAction);
+    const lastAction = this.chipManager.actionHistory.pop();
+    const actionId = lastAction.actionId;
+    console.log('🔙 Undo Action:', lastAction);
 
-  //     for (const { areaName, amount, chips } of lastAction.actions.reverse()) {
-  //       const betNode = this.betAreaNodes.find((node) => node.name === areaName);
-  //       if (!betNode) continue;
+    for (const { areaName, amount, chips } of lastAction.actions.reverse()) {
+      const betNode = this.chipManager.getBetAreas().find((node) => node.name === areaName);
+      if (!betNode) continue;
 
-  //       this.Balance_Num += amount;
-  //       this.Bet_Num -= amount;
-  //       this.betAmounts[areaName] -= amount;
-  //       if (this.betAmounts[areaName] <= 0) delete this.betAmounts[areaName];
+      this.chipManager.Balance_Num += amount;
+      this.chipManager.Bet_Num -= amount;
+      this.chipManager.betAmounts[areaName] -= amount;
+      if (this.chipManager.betAmounts[areaName] <= 0) delete this.chipManager.betAmounts[areaName];
 
-  //       const chipsToRemove = [...betNode.children].filter((c) => c.name === 'Chip' && c['actionId'] === actionId);
-  //       chipsToRemove.forEach((c) => c.destroy());
+      const chipsToRemove = [...betNode.children].filter((c) => c.name === 'Chip' && c['actionId'] === actionId);
+      chipsToRemove.forEach((c) => c.destroy());
 
-  //       this.updateBetAmountLabel(betNode, this.betAmounts[areaName] || 0);
-  //     }
+      this.chipManager.updateBetAmountLabel(betNode, this.chipManager.betAmounts[areaName] || 0);
+    }
 
-  //     this.updateGlobalLabels();
-  //     this.updateStartButton(); // 更新 Start 按鈕是否可用
-  //   }
+    this.chipManager.updateGlobalLabels();
+    this.chipManager.updateStartButton(); // 更新 Start 按鈕是否可用
+  }
 
-  //   // 點擊 clear 按鈕
-  //   clearBets() {
-  //     this.Audio.AudioSources[0].play(); // 播放按鈕音效
-  //     // 1. 將所有下注金額退還給玩家餘額
-  //     for (const areaName in this.betAmounts) {
-  //       const amount = this.betAmounts[areaName] || 0;
-  //       this.Balance_Num += amount; // 歸還下注金額
-  //     }
+  // 點擊 clear 按鈕
+  clearBets() {
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
+    // 1. 將所有下注金額退還給玩家餘額
+    for (const areaName in this.chipManager.betAmounts) {
+      const amount = this.chipManager.betAmounts[areaName] || 0;
+      this.chipManager.Balance_Num += amount; // 歸還下注金額
+    }
 
-  //     // 2. 清空下注總額與區域下注紀錄
-  //     this.Bet_Num = 0;
-  //     this.betAmounts = {};
+    // 2. 清空下注總額與區域下注紀錄
+    this.chipManager.Bet_Num = 0;
+    this.chipManager.betAmounts = {};
 
-  //     // 3. 移除所有下注區中的籌碼節點
-  //     for (const betNode of this.betAreaNodes) {
-  //       const chips = betNode.children.filter((child) => child.name === 'Chip');
-  //       for (const chip of chips) {
-  //         chip.destroy(); // 移除籌碼節點
-  //       }
+    // 3. 移除所有下注區中的籌碼節點
+    for (const betNode of this.chipManager.getBetAreas()) {
+      const chips = betNode.children.filter((child) => child.name === 'Chip');
+      for (const chip of chips) {
+        chip.destroy(); // 移除籌碼節點
+      }
 
-  //       // 4. 清除下注區金額文字
-  //       this.updateBetAmountLabel(betNode, 0);
-  //     }
+      // 4. 清除下注區金額文字
+      this.chipManager.updateBetAmountLabel(betNode, 0);
+    }
 
-  //     // 5. 更新下方總下注金額與餘額顯示
-  //     this.updateGlobalLabels();
+    // 5. 更新下方總下注金額與餘額顯示
+    this.chipManager.updateGlobalLabels();
 
-  //     this.updateStartButton(); // 清除後可能沒下注，Start 要變灰
-  //   }
+    this.chipManager.updateStartButton(); // 清除後可能沒下注，Start 要變灰
+  }
 
-  //   // ================ Agaon 與 Auto 按鈕 =================
+  //   // ================ Agaon 與 Auto 按鈕 (尚未使用) 用來重複下注上局下注區籌碼與金額 =================
   //   // 點擊 Again 按鈕(重複上次下注)
   //   onAgainBet() {
   //     // 檢查是否有上次下注的紀錄
@@ -323,34 +323,4 @@ export class BetController extends Component {
   //       actionId,
   //       actions,
   //     });
-
-  // 點擊 clear 按鈕
-  clearBets() {
-    this.Audio.AudioSources[0].play(); // 播放按鈕音效
-    // 1. 將所有下注金額退還給玩家餘額
-    for (const areaName in this.chipManager.betAmounts) {
-      const amount = this.chipManager.betAmounts[areaName] || 0;
-      this.chipManager.Balance_Num += amount; // 歸還下注金額
-    }
-
-    // 2. 清空下注總額與區域下注紀錄
-    this.chipManager.Bet_Num = 0;
-    this.chipManager.betAmounts = {};
-
-    // 3. 移除所有下注區中的籌碼節點
-    for (const betNode of this.chipManager.getBetAreas()) {
-      const chips = betNode.children.filter((child) => child.name === 'Chip');
-      for (const chip of chips) {
-        chip.destroy(); // 移除籌碼節點
-      }
-
-      // 4. 清除下注區金額文字
-      this.chipManager.updateBetAmountLabel(betNode, 0);
-    }
-
-    // 5. 更新下方總下注金額與餘額顯示
-    this.chipManager.updateGlobalLabels();
-
-    this.chipManager.updateStartButton(); // 清除後可能沒下注，Start 要變灰
-  }
 }
