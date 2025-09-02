@@ -491,7 +491,7 @@ export class TurnLottery extends Component {
     }
 
     const betArea = TurnLottery.getRewardByBetArea(extraPay.rewardName);
-    console.log('extraPay.rewardName =', extraPay.rewardName, '轉換後 betArea =', betArea);
+    // console.log('extraPay.rewardName =', extraPay.rewardName, '轉換後 betArea =', betArea);
     if (!betArea) {
       console.warn('⚠ 無法從 rewardName 取得下注區');
       callback();

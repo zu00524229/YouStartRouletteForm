@@ -54,7 +54,7 @@ export class TurnAnim extends Component {
     // 最終目標角度
     let targetAngle = -this.rotatelottertSecs * 360 + rewardIndex * (360 / this.rewardTypeCount);
 
-    console.log('🎯 準備轉盤角度', targetAngle);
+    // console.log('🎯 準備轉盤角度', targetAngle);
 
     // 🎯 提前停在終點前 preStopAngle
     let preStopAngle = targetAngle + WheelThreeConfig.preStopAngle;
@@ -138,7 +138,7 @@ export class TurnAnim extends Component {
 
     // 計算最終目標角度
     let targetAngle = -this.rotatelottertSecs * 360 + rewardIndex * (360 / this.rewardTypeCount);
-    console.log('🎯 準備轉盤角度', targetAngle);
+    // console.log('🎯 準備轉盤角度', targetAngle);
 
     // 設定超轉角度（轉過頭一點）
     let overshootAngle = targetAngle - WheelSyncConfig.overshootAngle;

@@ -168,7 +168,11 @@ export class index extends Component {
     this.chipManager.lastBetAmounts = { ...this.chipManager.betAmounts }; // 儲存上局最後下注資訊 使用淺拷貝避免引用同一物件）
     console.log('上局下注資料:', this.chipManager.lastBetAmounts);
 
-    this.toolButton.AllButton.interactable = true;
+    if (this.chipManager._isAutoMode) {
+      this.toolButton.AllButton.interactable = false;
+    } else {
+      this.toolButton.AllButton.interactable = true;
+    }
 
     this.Lottery.onGoLotterEventCallback(); // 轉盤轉動(隨機抽獎)
     window.addEventListener('error', function (e) {
