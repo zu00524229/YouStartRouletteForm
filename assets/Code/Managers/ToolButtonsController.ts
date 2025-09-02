@@ -11,6 +11,7 @@ export class ToolButtonsController extends Component {
   @property({ type: Button }) ClearButton: Button = null;
 
   private chipManager: ChipManager = null;
+  public isLotteryRunning = () => false; // 預設為 false（避免報錯）
 
   onLoad() {
     // 找到同一場景裡的 ChipManager 節點
@@ -26,7 +27,7 @@ export class ToolButtonsController extends Component {
 
   // ======== 判斷按鈕 是否啟用 (下注區有籌碼(且沒在轉動) 就啟動按鈕) =========
   updateStartButton() {
-    const isLotteryRunning = this.chipManager.isLotteryRunning(); // 輪盤是否轉動
+    const isLotteryRunning = this.isLotteryRunning(); // 輪盤是否轉動
     const isAutoMode = this.chipManager._isAutoMode;
     // ===== 控制 Again / Auto 狀態按鈕 =====
     const hasLastBet = Object.keys(this.chipManager.lastBetAmounts).length > 0;
@@ -42,7 +43,7 @@ export class ToolButtonsController extends Component {
 
     // this.AllButton.interactable = !isAutoMode && !isLotteryRunning;
     // ===== 控制下注區區塊是否可互動 =====
-    const shouldEnableBet = !this.chipManager.isLotteryRunning() && !this.chipManager._isAutoMode;
+    const shouldEnableBet = !this.isLotteryRunning() && !this.chipManager._isAutoMode;
 
     // 遍歷所有下注區節點，把 Button 狀態打開/關閉
     for (const node of this.chipManager.getBetAreas()) {

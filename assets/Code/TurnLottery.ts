@@ -45,12 +45,6 @@ export class TurnLottery extends Component {
   @property(BetManager) betManager: BetManager = null; // 連結 BetManager
   @property(BetController) betController: BetController = null;
 
-  // @property(SignalRClient) SingalR: SignalRClient = null; // 連結 SignalRclient 腳本
-
-  // 轉圈動畫已搬到TurnAnim.ts
-
-  // @property(Node) rlNode: Node = null;    // 水波動畫節點
-
   @property(Node) targetEffect: Node = null; // 中獎特效節點(輪盤上光圈)
   // @property(Node) bonusGameNode: Node = null;  // 大獎特效節點
 
@@ -293,7 +287,7 @@ export class TurnLottery extends Component {
 
   // ======== 轉盤動畫結束後的處理 ========
   onWheelAnimationFinished(data: UnifiedLotteryEvent) {
-    console.log('🎯 動畫結束 rewardName:', data.rewardName, 'multiplier:', data.multiplier, 'payout:', data.payout);
+    // console.log('🎯 動畫結束 rewardName:', data.rewardName, 'multiplier:', data.multiplier, 'payout:', data.payout);
 
     let winAmount = data.payout || 0; // 後端傳來的 payout
 

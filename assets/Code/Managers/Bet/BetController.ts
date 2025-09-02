@@ -38,7 +38,7 @@ export class BetController extends Component {
 
   // 禁止下注
   public canPlaceBet() {
-    return !this.toast.BetLocked.active && !this.chipManager.isLotteryRunning() && !this.chipManager._isAutoMode;
+    return !this.toast.BetLocked.active && !this.toolButton.isLotteryRunning() && !this.chipManager._isAutoMode;
   }
 
   // ================== 下注區域點擊事件 ==================

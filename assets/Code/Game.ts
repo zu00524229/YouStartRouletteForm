@@ -54,7 +54,7 @@ export class index extends Component {
       console.log(`${user}: ${msg}`);
     });
 
-    this.ID_Label.string = `帳號: ${player.currentPlayer.username}`;
+    this.ID_Label.string = `帳號： ${player.currentPlayer.username}`;
 
     // ============ StartTouch 組件綁定事件 ==============
     const startTouch = this.getComponentInChildren(StartTouch); // 取得 StartTouch 組件
@@ -137,7 +137,7 @@ export class index extends Component {
 
     // 當事件 GetLottryRewardRstEvent 被觸發時，重啟 UI 狀態
     director.on('LotteryEnded', this.onLotteryEnd, this);
-    this.chipManager.isLotteryRunning = () => this.Lottery._isLottery; // 委派注入(TrunLottery 的變數值)
+    this.toolButton.isLotteryRunning = () => this.Lottery._isLottery; // 委派注入(TrunLottery 的變數值)
 
     // 撈局號 Label 節點
     const roundIdNode = find('Canvas/UI/RoundId/roundId');

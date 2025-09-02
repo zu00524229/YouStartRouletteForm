@@ -9,7 +9,6 @@ export class BetSelectorAnima extends Component {
   @property(ChipManager) chipManager: ChipManager = null; // 連結 ChipManager
 
   @property({ type: [CCInteger] }) chipValues: number[] = [100, 200, 500, 1000, 10000]; // 對應籌碼金額
-  @property([Prefab]) chipPrefabs: Prefab[] = []; // 依序對應 50、100 籌碼(預製體)
 
   @property([Node]) chipButtons: Node[] = []; // 選單(選擇下注籌碼) Bet_50, Bet_100, Bet_500 等按鈕
   @property(Node) chipButton: Node = null; // 籌碼選擇按鈕
