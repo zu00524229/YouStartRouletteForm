@@ -1,5 +1,5 @@
-import { BetController } from './Managers/Bet/BetController';
 import { _decorator, Component, director, EventTouch, find, Label, Node, Prefab } from 'cc';
+import { BetController } from './Managers/Bet/BetController';
 import { StartTouch } from './Managers/Touch/StartTouch';
 import { AudioManager } from './Managers/Audio/AudioManager';
 import { ChipManager } from './Managers/Bet/ChipManager';
@@ -10,6 +10,7 @@ import { LotteryCache, TurnLottery } from './TurnLottery';
 import { player } from './Login/playerState';
 import { ToastMessage } from './Managers/Toasts/ToastMessage';
 import { BetManager } from './Managers/Bet/BetManager';
+import { ToolButtonsController } from './Managers/ToolButtonsController';
 const { ccclass, property } = _decorator;
 
 @ccclass('index')
@@ -21,6 +22,7 @@ export class index extends Component {
 
   @property(Prefab) Pointer_Prefab: Prefab = null; // 導入指針預製體
 
+  @property(ToolButtonsController) toolButton: ToolButtonsController = null; // 脫有 ToolButtonController 的節點
   @property(TurnLottery) Lottery: TurnLottery = null; // 連結 TurnLottery
   @property(ChipManager) chipManager: ChipManager = null; // 連結 ChipManager
   @property(AudioManager) Audio: AudioManager = null; // 連結 AudioManager
@@ -168,7 +170,7 @@ export class index extends Component {
     this.chipManager.lastBetAmounts = { ...this.chipManager.betAmounts }; // 儲存上局最後下注資訊 使用淺拷貝避免引用同一物件）
     console.log('上局下注資料:', this.chipManager.lastBetAmounts);
 
-    this.chipManager.AllButton.interactable = true;
+    this.toolButton.AllButton.interactable = true;
 
     this.Lottery.onGoLotterEventCallback(); // 轉盤轉動(隨機抽獎)
     window.addEventListener('error', function (e) {
@@ -188,7 +190,7 @@ export class index extends Component {
       this.chipManager.AutoBouttonSprite.spriteFrame = this.chipManager.AutoStartFrame; // 更新 Auto 按鈕圖片 (藍)
       console.log('🛑 Auto 模式已手動關閉');
       // this.toast.showToast("Auto 模式已關閉");
-      this.chipManager.updateStartButton();
+      this.toolButton.updateStartButton();
       return;
     }
 
@@ -237,7 +239,7 @@ export class index extends Component {
       this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame; // 更新 Auto 按鈕圖片
       this.chipManager.AutoBouttonSprite.spriteFrame = this.chipManager.AutoStartFrame; // 更新 Auto 按鈕圖片 (藍)
 
-      this.chipManager.updateStartButton();
+      this.toolButton.updateStartButton();
       // this.chipManager.AllButton.interactable = true;
       ToastMessage.showToast('餘額不足，自動已停止');
       return; // 不夠錢就不下注，直接退出
@@ -288,7 +290,7 @@ export class index extends Component {
     this.chipManager.setBetAreas(this.betManager.getAllBetAreas()); // ✅ 把 BetManager 的下注區節點，注入給 ChipManager
 
     for (const betNode of this.betManager.getAllBetAreas()) {
-      console.log('🎯 綁定下注區事件:', betNode.name);
+      // console.log('🎯 綁定下注區事件:', betNode.name);
       // betNode.on(Node.EventType.TOUCH_END, this.betController.BetClick, this.betController);
       betNode.on(Node.EventType.TOUCH_END, (event: EventTouch) => {
         this.betController.BetClick(event);
@@ -300,7 +302,7 @@ export class index extends Component {
     } else {
       console.warn('⚠️ 尚未登入玩家');
     }
-    this.chipManager.updateStartButton(); // 判斷 Start 與 下排按鈕是否啟用
+    this.toolButton.updateStartButton(); // 判斷 Start 與 下排按鈕是否啟用
     this.toast.showPleaseBetNow(); // 遊戲開始顯示提示(玩家下注)
 
     this.scheduleOnce(() => {

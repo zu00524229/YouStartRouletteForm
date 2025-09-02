@@ -65,7 +65,7 @@ export class BetManager extends Component {
       return this.betAreaRoot.getChildByName(name);
     });
     console.log(
-      '🎯 初始化下注區:',
+      // '🎯 初始化下注區:',
       this.betAreaNodes.map((n) => n?.name)
     );
   }
@@ -78,10 +78,10 @@ export class BetManager extends Component {
 
   // 也一次拿所有
   public getAllBetAreas(): Node[] {
-    console.log(
-      '📦 BetManager.getAllBetAreas:',
-      this.betAreaNodes.map((n) => n?.name)
-    );
+    // console.log(
+    //   '📦 BetManager.getAllBetAreas:',
+    //   this.betAreaNodes.map((n) => n?.name)
+    // );
 
     return this.betAreaNodes;
   }

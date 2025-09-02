@@ -4,11 +4,13 @@ import { BetManager } from './BetManager';
 import { ToastMessage } from '../../Managers/Toasts/ToastMessage';
 import { AudioManager } from '../../Managers/Audio/AudioManager';
 import { Toast } from '../Toasts/Toast';
+import { ToolButtonsController } from '../ToolButtonsController';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('BetController')
 export class BetController extends Component {
+  @property(ToolButtonsController) toolButton: ToolButtonsController = null; // 脫有 ToolButtonController 的節點
   @property(ChipManager) chipManager: ChipManager = null; // 拖有 ChipManager 的節點
   @property(BetManager) betManager: BetManager = null; // 拖有 BetManager 的節點
   @property(Toast) toast: Toast = null; // 拖 有掛載 Toast 腳本的節點
@@ -17,9 +19,9 @@ export class BetController extends Component {
   // Bet_Num: number = 0; // 玩家總下注金額(預設0)
   // Balance_Num: number = player.currentPlayer.balance; // 初始餘額(未來會連後端)
 
-  private currentActionId = 0;
+  private currentActionId = 0; // 下注唯一Id
   selectedChipValue: number = 100; // 玩家當前籌碼金額 預設100
-  totalNeeded: number = 0;
+  totalNeeded: number = 0; // 預設總共需要的下注金額
 
   onLoad() {
     this.totalNeeded = this.selectedChipValue * this.betManager.getAllBetAreas().length; // 總共需要的下注金額(每個下注區域都下注選擇的籌碼金額) 用來判斷餘額夠不夠
@@ -117,7 +119,7 @@ export class BetController extends Component {
     // 更新畫面下方資訊
     this.chipManager.updateGlobalLabels();
 
-    this.chipManager.updateStartButton(); // 全部下注後也要更新按鈕
+    this.toolButton.updateStartButton(); // 全部下注後也要更新按鈕
   }
 
   // =========================================== 清除籌碼(結算)  ======================================================
@@ -236,7 +238,7 @@ export class BetController extends Component {
     }
 
     this.chipManager.updateGlobalLabels();
-    this.chipManager.updateStartButton(); // 更新 Start 按鈕是否可用
+    this.toolButton.updateStartButton(); // 更新 Start 按鈕是否可用
   }
 
   // 點擊 clear 按鈕
@@ -266,7 +268,7 @@ export class BetController extends Component {
     // 5. 更新下方總下注金額與餘額顯示
     this.chipManager.updateGlobalLabels();
 
-    this.chipManager.updateStartButton(); // 清除後可能沒下注，Start 要變灰
+    this.toolButton.updateStartButton(); // 清除後可能沒下注，Start 要變灰
   }
 
   //   // ================ Agaon 與 Auto 按鈕 (尚未使用) 用來重複下注上局下注區籌碼與金額 =================

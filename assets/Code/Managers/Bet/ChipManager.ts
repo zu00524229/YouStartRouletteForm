@@ -25,11 +25,11 @@ export class ChipManager extends Component {
   @property(SpriteFrame) AutoStartFrame: SpriteFrame = null; // 按鈕預設圖  (藍)
   @property(SpriteFrame) StopStopFrame: SpriteFrame = null; // 按鈕stop圖 (粉)
 
-  @property({ type: Button }) AllButton: Button = null; // 全部下注按鈕
-  @property({ type: Button }) X2Button: Button = null; // 雙倍按鈕
-  @property({ type: Button }) AutoButton: Button = null; // 自動按鈕(待刪除)
-  @property({ type: Button }) UndoButton: Button = null;
-  @property({ type: Button }) ClearButton: Button = null;
+  // @property({ type: Button }) AllButton: Button = null; // 全部下注按鈕
+  // @property({ type: Button }) X2Button: Button = null; // 雙倍按鈕
+  // @property({ type: Button }) AutoButton: Button = null; // 自動按鈕(待刪除)
+  // @property({ type: Button }) UndoButton: Button = null;
+  // @property({ type: Button }) ClearButton: Button = null;
 
   // @property([Node]) betAreaNodes: Node[] = []; // 下注區域節點
   @property({ type: [CCInteger] }) chipValues: number[] = [100, 200, 500, 1000, 10000]; // 對應籌碼金額
@@ -52,7 +52,6 @@ export class ChipManager extends Component {
 
   selectedChipValue: number = 100; // 玩家當前籌碼金額 預設100
 
-  //? 可搬到 BetManager
   betAmounts: { [areaName: string]: number } = {}; // 儲存每個下注區域的累積下注金額(哈希表)
   lastBetAmounts: { [areaName: string]: number } = {}; // 用於儲存上局最後下注資訊
   // 儲存下注歷史紀錄(堆疊法)
@@ -65,8 +64,6 @@ export class ChipManager extends Component {
       chips: number[];
     }[];
   }[] = [];
-
-  private currentActionId = 0;
 
   private chipPopupOpactiy: UIOpacity = null; // 籌碼選單面板的透明度組件
   private isPopupVisible: boolean = false; // 籌碼選單是否可見
@@ -213,57 +210,6 @@ export class ChipManager extends Component {
     this.isPopupVisible = false;
   }
 
-  // ======== 判斷按鈕 是否啟用 (下注區有籌碼(且沒在轉動) 就啟動按鈕) =========
-  updateStartButton() {
-    const isLotteryRunning = this.isLotteryRunning(); // 輪盤是否轉動
-    const isAutoMode = this._isAutoMode;
-    // ===== 控制 Again / Auto 狀態按鈕 =====
-    const hasLastBet = Object.keys(this.lastBetAmounts).length > 0;
-    const hasAnyBet = Object.keys(this.betAmounts).some((key) => this.betAmounts[key] > 0); // 有任何下注區有籌碼
-
-    // ===== 控制(Start / X2 / Undo / Clear) 是否啟動 ====
-    const shouldEnableButtons = hasAnyBet && !isLotteryRunning && !isAutoMode;
-    this.AutoButton.interactable = shouldEnableButtons;
-    // this.StartButton.interactable = shouldEnableButtons;
-    this.X2Button.interactable = shouldEnableButtons;
-    this.UndoButton.interactable = shouldEnableButtons;
-    this.ClearButton.interactable = shouldEnableButtons;
-
-    // this.AllButton.interactable = !isAutoMode && !isLotteryRunning;
-    // ===== 控制下注區區塊是否可互動 =====
-    const shouldEnableBet = !this.isLotteryRunning() && !this._isAutoMode;
-
-    // 遍歷所有下注區節點，把 Button 狀態打開/關閉
-    for (const node of this.getBetAreas()) {
-      const btn = node.getComponent(Button);
-      if (btn) btn.interactable = shouldEnableBet;
-    }
-
-    this.AllButton.interactable = shouldEnableBet;
-
-    if (this._isAutoMode) {
-      // Auto 模式開啟
-      this.AutoButton.node.active = true;
-      this.AutoButton.interactable = true;
-      // this.AgainButton.node.active = false;
-    } else if (hasAnyBet) {
-      // 有下注 → 顯示 Auto，Again 隱藏
-      this.AutoButton.node.active = true;
-      this.AutoButton.interactable = true;
-      // this.AgainButton.node.active = false;
-    } else if (hasLastBet) {
-      // 有上局下注紀錄
-      // this.AgainButton.node.active = true;
-      // this.AgainButton.interactable = true;
-      this.AutoButton.node.active = true;
-    } else {
-      // 無可操作項目
-      // this.AgainButton.node.active = true;
-      // this.AgainButton.interactable = false;
-      this.AutoButton.node.active = true;
-    }
-  }
-
   // ================ 下注區域相關方法 =================
   // 計算下注區偏移用的 offsetMap
   private readonly offsetMap: Record<string, { x: number; y: number }> = {
@@ -364,7 +310,9 @@ export class ChipManager extends Component {
     }); // 紀錄下注動作
 
     // console.log("🔨 正在下注，滑鼠尚未放開");
-    this.updateStartButton(); // 每次下注後都更新 Start 按鈕狀態
+    // this.updateStartButton(); // 每次下注後都更新 Start 按鈕狀態  (改用事件通知 防止循環依賴)
+    this.node.emit('bet-updated');
+    console.log('收到 bet-updated 按鈕開關方法');
   }
 
   // 高亮下注區域（用於中獎提示或視覺效果）
@@ -417,184 +365,7 @@ export class ChipManager extends Component {
     }
   }
 
-  // ================== 點擊 All Bet 按鈕觸發 ====================
-  // onAllBetClick() {
-  //   this.Audio.AudioSources[0].play(); // 播放按鈕音效
-  //   // 確認餘額是否足夠
-  //   const totalNeeded = this.selectedChipValue * this.getBetAreas().length;
-  //   if (this.Balance_Num < totalNeeded) {
-  //     ToastMessage.showToast('餘額不足，無法全部下注');
-  //     return;
-  //   }
-
-  //   const actionId = ++this.currentActionId;
-  //   const actionRecord = {
-  //     type: 'bet' as const,
-  //     actionId: actionId,
-  //     actions: [] as {
-  //       areaName: string;
-  //       amount: number;
-  //       chips: number[];
-  //     }[],
-  //   };
-
-  //   // 遍歷所有下注區域
-  //   for (const betNode of this.getBetAreas()) {
-  //     const areaName = betNode.name;
-
-  //     // 扣除餘額與累加下注金額
-  //     this.Balance_Num -= this.selectedChipValue;
-  //     this.Bet_Num += this.selectedChipValue;
-
-  //     // 更新下注區金額
-  //     const currentAmount = this.betAmounts[areaName] ?? 0;
-  //     const newAmount = currentAmount + this.selectedChipValue;
-  //     this.betAmounts[areaName] = newAmount;
-
-  //     // 建立籌碼圖像
-  //     this.createChipInArea(betNode, this.selectedChipValue, actionId);
-
-  //     // 更新下注區金額 Label
-  //     this.updateBetAmountLabel(betNode, newAmount);
-
-  //     // 加入動作紀錄
-  //     actionRecord.actions.push({
-  //       areaName: areaName,
-  //       amount: this.selectedChipValue,
-  //       chips: [this.selectedChipValue],
-  //     });
-  //   }
-
-  //   // 加入歷史堆疊
-  //   this.actionHistory.push(actionRecord);
-
-  //   // 更新畫面下方資訊
-  //   this.updateGlobalLabels();
-
-  //   this.updateStartButton(); // 全部下注後也要更新按鈕
-  // }
-
-  // ================ ToolButtons 區域 =================
-  // 點擊 Double 按鈕(當前所有下注區的金額加倍下注)
-  // onDoubleClick() {
-  //   this.Audio.AudioSources[0].play(); // 播放按鈕音效
-  //   const doubleActions = [];
-  //   const actionId = ++this.currentActionId; // 每次加倍下注都產生新的 actionId
-
-  //   // 遍歷所有下注區域節點
-  //   for (const betNode of this.getBetAreas()) {
-  //     const areaName = betNode.name; // 取得下注區名稱
-  //     const currentAmount = this.betAmounts[areaName] || 0; // 取得該區已下注金額，預設為 0
-
-  //     if (currentAmount === 0) continue; // 若該區尚未下注，跳過這一圈
-  //     const doubleAmount = currentAmount; // 要額外再下注相同金額（加倍）
-
-  //     // 餘額不足，無法加倍，跳過該區域
-  //     if (this.Balance_Num < doubleAmount) {
-  //       ToastMessage.showToast(`❌ 餘額不足，無法在加倍下注！`);
-  //       continue;
-  //     }
-
-  //     //  餘額足夠，執行加倍下注邏輯
-  //     this.Balance_Num -= doubleAmount; // 扣除餘額
-  //     this.Bet_Num += doubleAmount; // 增加總下注金額
-  //     this.betAmounts[areaName] += doubleAmount; // 更新此區的下注金額
-
-  //     // 依照加倍金額產生籌碼並顯示在畫面上
-  //     let remaining = doubleAmount;
-  //     const chipsToCreate: number[] = []; // 暫存每顆籌碼的面額
-
-  //     while (remaining > 0) {
-  //       const chipValue = this.getClosestChip(remaining); // 根據剩餘金額取出最接近的籌碼面額
-  //       this.createChipInArea(betNode, chipValue, actionId); // 在該下注區生成籌碼
-  //       chipsToCreate.push(chipValue); // 紀錄這次生成籌碼
-  //       remaining -= chipValue; // 扣除已使用的籌碼金額
-  //     }
-
-  //     doubleActions.push({
-  //       areaName,
-  //       amount: doubleAmount,
-  //       chips: chipsToCreate,
-  //     });
-
-  //     // 更新下注區域上的金額 Label 顯示
-  //     this.updateBetAmountLabel(betNode, this.betAmounts[areaName]);
-  //   }
-
-  //   if (doubleActions.length > 0) {
-  //     this.actionHistory.push({
-  //       type: 'double',
-  //       actions: doubleActions,
-  //       actionId,
-  //     });
-  //   }
-
-  //   // 最後統一更新畫面上的 Balance / Bet / Win 顯示
-  //   this.updateGlobalLabels();
-  // }
-
-  // // 點擊undo(撤銷)按鈕
-  // undoBet() {
-  //   this.Audio.AudioSources[0].play(); // 播放按鈕音效
-  //   if (this.actionHistory.length === 0) {
-  //     ToastMessage.showToast('❌ 沒有可撤銷的動作');
-  //     return;
-  //   }
-
-  //   const lastAction = this.actionHistory.pop();
-  //   const actionId = lastAction.actionId;
-  //   console.log('🔙 Undo Action:', lastAction);
-
-  //   for (const { areaName, amount, chips } of lastAction.actions.reverse()) {
-  //     const betNode = this.getBetAreas().find((node) => node.name === areaName);
-  //     if (!betNode) continue;
-
-  //     this.Balance_Num += amount;
-  //     this.Bet_Num -= amount;
-  //     this.betAmounts[areaName] -= amount;
-  //     if (this.betAmounts[areaName] <= 0) delete this.betAmounts[areaName];
-
-  //     const chipsToRemove = [...betNode.children].filter((c) => c.name === 'Chip' && c['actionId'] === actionId);
-  //     chipsToRemove.forEach((c) => c.destroy());
-
-  //     this.updateBetAmountLabel(betNode, this.betAmounts[areaName] || 0);
-  //   }
-
-  //   this.updateGlobalLabels();
-  //   this.updateStartButton(); // 更新 Start 按鈕是否可用
-  // }
-
-  // 點擊 clear 按鈕
-  // clearBets() {
-  //   this.Audio.AudioSources[0].play(); // 播放按鈕音效
-  //   // 1. 將所有下注金額退還給玩家餘額
-  //   for (const areaName in this.betAmounts) {
-  //     const amount = this.betAmounts[areaName] || 0;
-  //     this.Balance_Num += amount; // 歸還下注金額
-  //   }
-
-  //   // 2. 清空下注總額與區域下注紀錄
-  //   this.Bet_Num = 0;
-  //   this.betAmounts = {};
-
-  //   // 3. 移除所有下注區中的籌碼節點
-  //   for (const betNode of this.getBetAreas()) {
-  //     const chips = betNode.children.filter((child) => child.name === 'Chip');
-  //     for (const chip of chips) {
-  //       chip.destroy(); // 移除籌碼節點
-  //     }
-
-  //     // 4. 清除下注區金額文字
-  //     this.updateBetAmountLabel(betNode, 0);
-  //   }
-
-  //   // 5. 更新下方總下注金額與餘額顯示
-  //   this.updateGlobalLabels();
-
-  //   this.updateStartButton(); // 清除後可能沒下注，Start 要變灰
-  // }
-
-  // ================ Agaon 與 Auto 按鈕 =================
+  //   // ================ Agaon 與 Auto 按鈕 (尚未使用) 用來重複下注上局下注區籌碼與金額 =================
   // 點擊 Again 按鈕(重複上次下注)
   onAgainBet() {
     // 檢查是否有上次下注的紀錄

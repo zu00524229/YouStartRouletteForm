@@ -11,6 +11,7 @@ import { TurnAnim } from './Animation/Main_RL/TurnAnim';
 import { BetManager } from './Managers/Bet/BetManager';
 import { BetController } from './Managers/Bet/BetController';
 import { player } from './Login/playerState';
+import { ToolButtonsController } from './Managers/ToolButtonsController';
 const { ccclass, property } = _decorator;
 
 // ✅ 定義倍率與 index 對應表（Super 轉盤用）
@@ -36,6 +37,7 @@ export class LotteryCache {
 
 @ccclass('TurnLottery')
 export class TurnLottery extends Component {
+  @property(ToolButtonsController) toolButton: ToolButtonsController = null; // 脫有 ToolButtonController 的節點
   @property(ChipManager) chipManager: ChipManager = null; // 連結 ChipManager
   @property(Toast) toast: Toast = null; // 連結 Toast 腳本
   @property(RLRotation) RLRota: RLRotation = null; // 連結 RLRotation
@@ -386,9 +388,9 @@ export class TurnLottery extends Component {
 
         // 3.清除籌碼與重設UI
         this.betController.clearAllBets(); // 清除籌碼與結算
-        this.chipManager.updateStartButton(); // 若有下注且輪盤停止，開啟操作按鈕
-        this.chipManager.AllButton.interactable = true;
-        this.chipManager.AutoButton.node.active = true;
+        this.toolButton.updateStartButton(); // 若有下注且輪盤停止，開啟操作按鈕
+        this.toolButton.AllButton.interactable = true;
+        this.toolButton.AutoButton.node.active = true;
         // this.chipManager.StopButton.node.active = false;
 
         // 顯示提示(玩家下注)新的回合
@@ -415,9 +417,9 @@ export class TurnLottery extends Component {
       this.scheduleOnce(() => {
         this.betController.clearAllBets(); // 清除下注與籌碼
         this.chipManager.updateGlobalLabels(); // 更新畫面數值
-        this.chipManager.updateStartButton(); // 啟用按鈕（若上局有下注）
-        this.chipManager.AllButton.interactable = true;
-        this.chipManager.AutoButton.node.active = true;
+        this.toolButton.updateStartButton(); // 啟用按鈕（若上局有下注）
+        this.toolButton.AllButton.interactable = true;
+        this.toolButton.AutoButton.node.active = true;
         // this.chipManager.StopButton.node.active = false;
 
         this.toast.showPleaseBetNow();
