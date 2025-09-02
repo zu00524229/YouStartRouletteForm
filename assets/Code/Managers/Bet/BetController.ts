@@ -149,94 +149,64 @@ export class BetController extends Component {
     this.chipManager.updateGlobalLabels();
   }
 
-  // 點擊 clear 按鈕
-  clearBets() {
+  // ================ ToolButtons 區域 =================
+  // 點擊 Double 按鈕(當前所有下注區的金額加倍下注)
+  onDoubleClick() {
     this.Audio.AudioSources[0].play(); // 播放按鈕音效
-    // 1. 將所有下注金額退還給玩家餘額
-    for (const areaName in this.chipManager.betAmounts) {
-      const amount = this.chipManager.betAmounts[areaName] || 0;
-      this.chipManager.Balance_Num += amount; // 歸還下注金額
-    }
+    const doubleActions = [];
+    const actionId = ++this.currentActionId; // 每次加倍下注都產生新的 actionId
 
-    // 2. 清空下注總額與區域下注紀錄
-    this.chipManager.Bet_Num = 0;
-    this.chipManager.betAmounts = {};
-
-    // 3. 移除所有下注區中的籌碼節點
+    // 遍歷所有下注區域節點
     for (const betNode of this.chipManager.getBetAreas()) {
-      const chips = betNode.children.filter((child) => child.name === 'Chip');
-      for (const chip of chips) {
-        chip.destroy(); // 移除籌碼節點
+      const areaName = betNode.name; // 取得下注區名稱
+      const currentAmount = this.chipManager.betAmounts[areaName] || 0; // 取得該區已下注金額，預設為 0
+
+      if (currentAmount === 0) continue; // 若該區尚未下注，跳過這一圈
+      const doubleAmount = currentAmount; // 要額外再下注相同金額（加倍）
+
+      // 餘額不足，無法加倍，跳過該區域
+      if (this.chipManager.Balance_Num < doubleAmount) {
+        ToastMessage.showToast(`❌ 餘額不足，無法在加倍下注！`);
+        continue;
       }
 
-      // 4. 清除下注區金額文字
-      this.chipManager.updateBetAmountLabel(betNode, 0);
+      //  餘額足夠，執行加倍下注邏輯
+      this.chipManager.Balance_Num -= doubleAmount; // 扣除餘額
+      this.chipManager.Bet_Num += doubleAmount; // 增加總下注金額
+      this.chipManager.betAmounts[areaName] += doubleAmount; // 更新此區的下注金額
+
+      // 依照加倍金額產生籌碼並顯示在畫面上
+      let remaining = doubleAmount;
+      const chipsToCreate: number[] = []; // 暫存每顆籌碼的面額
+
+      while (remaining > 0) {
+        const chipValue = this.chipManager.getClosestChip(remaining); // 根據剩餘金額取出最接近的籌碼面額
+        this.chipManager.createChipInArea(betNode, chipValue, actionId); // 在該下注區生成籌碼
+        chipsToCreate.push(chipValue); // 紀錄這次生成籌碼
+        remaining -= chipValue; // 扣除已使用的籌碼金額
+      }
+
+      doubleActions.push({
+        areaName,
+        amount: doubleAmount,
+        chips: chipsToCreate,
+      });
+
+      // 更新下注區域上的金額 Label 顯示
+      this.chipManager.updateBetAmountLabel(betNode, this.chipManager.betAmounts[areaName]);
     }
 
-    // 5. 更新下方總下注金額與餘額顯示
+    if (doubleActions.length > 0) {
+      this.chipManager.actionHistory.push({
+        type: 'double',
+        actions: doubleActions,
+        actionId,
+      });
+    }
+
+    // 最後統一更新畫面上的 Balance / Bet / Win 顯示
     this.chipManager.updateGlobalLabels();
-
-    this.chipManager.updateStartButton(); // 清除後可能沒下注，Start 要變灰
   }
-
-  //   // ================ ToolButtons 區域 =================
-  //   // 點擊 Double 按鈕(當前所有下注區的金額加倍下注)
-  //   onDoubleClick() {
-  //     this.Audio.AudioSources[0].play(); // 播放按鈕音效
-  //     const doubleActions = [];
-  //     const actionId = ++this.currentActionId; // 每次加倍下注都產生新的 actionId
-
-  //     // 遍歷所有下注區域節點
-  //     for (const betNode of this.betAreaNodes) {
-  //       const areaName = betNode.name; // 取得下注區名稱
-  //       const currentAmount = this.betAmounts[areaName] || 0; // 取得該區已下注金額，預設為 0
-
-  //       if (currentAmount === 0) continue; // 若該區尚未下注，跳過這一圈
-  //       const doubleAmount = currentAmount; // 要額外再下注相同金額（加倍）
-
-  //       // 餘額不足，無法加倍，跳過該區域
-  //       if (this.Balance_Num < doubleAmount) {
-  //         ToastMessage.showToast(`❌ 餘額不足，無法在加倍下注！`);
-  //         continue;
-  //       }
-
-  //       //  餘額足夠，執行加倍下注邏輯
-  //       this.Balance_Num -= doubleAmount; // 扣除餘額
-  //       this.Bet_Num += doubleAmount; // 增加總下注金額
-  //       this.betAmounts[areaName] += doubleAmount; // 更新此區的下注金額
-
-  //       // 依照加倍金額產生籌碼並顯示在畫面上
-  //       let remaining = doubleAmount;
-  //       const chipsToCreate: number[] = []; // 暫存每顆籌碼的面額
-
-  //       while (remaining > 0) {
-  //         const chipValue = this.getClosestChip(remaining); // 根據剩餘金額取出最接近的籌碼面額
-  //         this.createChipInArea(betNode, chipValue, actionId); // 在該下注區生成籌碼
-  //         chipsToCreate.push(chipValue); // 紀錄這次生成籌碼
-  //         remaining -= chipValue; // 扣除已使用的籌碼金額
-  //       }
-
-  //       doubleActions.push({
-  //         areaName,
-  //         amount: doubleAmount,
-  //         chips: chipsToCreate,
-  //       });
-
-  //       // 更新下注區域上的金額 Label 顯示
-  //       this.updateBetAmountLabel(betNode, this.betAmounts[areaName]);
-  //     }
-
-  //     if (doubleActions.length > 0) {
-  //       this.actionHistory.push({
-  //         type: 'double',
-  //         actions: doubleActions,
-  //         actionId,
-  //       });
-  //     }
-
-  //     // 最後統一更新畫面上的 Balance / Bet / Win 顯示
-  //     this.updateGlobalLabels();
-  //   }
 
   //   // 點擊undo(撤銷)按鈕
   //   undoBet() {
@@ -353,4 +323,34 @@ export class BetController extends Component {
   //       actionId,
   //       actions,
   //     });
+
+  // 點擊 clear 按鈕
+  clearBets() {
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
+    // 1. 將所有下注金額退還給玩家餘額
+    for (const areaName in this.chipManager.betAmounts) {
+      const amount = this.chipManager.betAmounts[areaName] || 0;
+      this.chipManager.Balance_Num += amount; // 歸還下注金額
+    }
+
+    // 2. 清空下注總額與區域下注紀錄
+    this.chipManager.Bet_Num = 0;
+    this.chipManager.betAmounts = {};
+
+    // 3. 移除所有下注區中的籌碼節點
+    for (const betNode of this.chipManager.getBetAreas()) {
+      const chips = betNode.children.filter((child) => child.name === 'Chip');
+      for (const chip of chips) {
+        chip.destroy(); // 移除籌碼節點
+      }
+
+      // 4. 清除下注區金額文字
+      this.chipManager.updateBetAmountLabel(betNode, 0);
+    }
+
+    // 5. 更新下方總下注金額與餘額顯示
+    this.chipManager.updateGlobalLabels();
+
+    this.chipManager.updateStartButton(); // 清除後可能沒下注，Start 要變灰
+  }
 }

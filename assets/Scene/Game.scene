@@ -31502,10 +31502,10 @@
   {
     "__type__": "cc.ClickEvent",
     "target": {
-      "__id__": 615
+      "__id__": 844
     },
     "component": "",
-    "_componentId": "07e1dyo8odLDra5UGTzOU0Q",
+    "_componentId": "464d0qgfpxJI70Y6MNReZlq",
     "handler": "onDoubleClick",
     "customEventData": ""
   },
