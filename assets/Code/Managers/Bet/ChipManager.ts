@@ -1,4 +1,4 @@
-import { _decorator, Button, CCInteger, Component, EventTouch, instantiate, Label, Node, Prefab, Sprite, SpriteFrame, tween, UIOpacity, UITransform, Vec3 } from 'cc';
+import { _decorator, Button, CCInteger, Component, find, instantiate, Label, Node, Prefab, Sprite, SpriteFrame, tween, Vec3 } from 'cc';
 import { AudioManager } from '../../Managers/Audio/AudioManager';
 import { BetHighlighter } from '../../Animation/BetHightlight';
 import { ExtraPayController } from '../ExtraPayController';
@@ -35,6 +35,7 @@ export class ChipManager extends Component {
 
   betAmounts: { [areaName: string]: number } = {}; // 儲存每個下注區域的累積下注金額(哈希表)
   lastBetAmounts: { [areaName: string]: number } = {}; // 用於儲存上局最後下注資訊
+
   // 儲存下注歷史紀錄(堆疊法)
   actionHistory: {
     type: 'bet' | 'double' | 'again';
@@ -66,7 +67,6 @@ export class ChipManager extends Component {
     return this.betAreaNodes;
   }
 
-  // totalNeeded = this.selectedChipValue * this.getBetAreas().length; // 總共需要的下注金額(每個下注區域都下注選擇的籌碼金額) 用來判斷餘額夠不夠
   onLoad() {}
 
   //? ===============================================================================
@@ -128,7 +128,7 @@ export class ChipManager extends Component {
     }
   }
 
-  //? 可搬到 BetManager // 取最接近且不超過某個值的籌碼金額
+  //? 取最接近且不超過某個值的籌碼金額
   getClosestChip(targetAmount: number): number {
     // 複製並由大到小排序籌碼金額陣列（確保從最大值開始比較）
     const sorted = [...this.chipValues].sort((a, b) => b - a);
@@ -174,6 +174,11 @@ export class ChipManager extends Component {
     // this.updateStartButton(); // 每次下注後都更新 Start 按鈕狀態  (改用事件通知 防止循環依賴)
     this.node.emit('bet-updated');
     console.log('收到 bet-updated 按鈕開關方法');
+
+    // 延遲 1.0 秒 → 合併籌碼
+    this.scheduleOnce(() => {
+      this.mergeChips(betNode);
+    }, 1.0);
   }
 
   // 高亮下注區域（用於中獎提示或視覺效果）
@@ -222,6 +227,59 @@ export class ChipManager extends Component {
     if (this.Balance_Label) this.Balance_Label.string = (this.Balance_Num ?? 0).toFixed(2); // 保留兩位小數
     if (this.Win_Label) {
       this.Win_Label.string = (this.Win_Num ?? 0).toFixed(2);
+    }
+  }
+
+  // ================== 最後合併成 1 顆籌碼,並顯示金額 ================================
+  private getChipPrefabByAmount(amount: number): Prefab {
+    if (amount < 200) return this.chipPrefabs[0];
+    if (amount < 500) return this.chipPrefabs[1];
+    if (amount < 1000) return this.chipPrefabs[2];
+    if (amount < 10000) return this.chipPrefabs[3];
+    return this.chipPrefabs[4];
+  }
+
+  // 把該區域籌碼合併
+  private mergeChips(betNode: Node) {
+    const totalAmount = this.betAmounts[betNode.name] || 0;
+    if (totalAmount <= 0) return;
+
+    // 先刪掉該區所有籌碼(圖)
+    const chips = betNode.children.filter((c) => c.name === 'Chip');
+    chips.forEach((c) => c.destroy());
+
+    // 選一顆對應級距的籌碼
+    const prefab = this.getChipPrefabByAmount(totalAmount);
+    const mergedChip = instantiate(prefab);
+    mergedChip.name = 'Chip';
+    betNode.addChild(mergedChip);
+    mergedChip.setPosition(0, 0, 0);
+    mergedChip.setScale(new Vec3(1.0, 1.0, 1));
+
+    // 隱藏掉舊的圖片數字 (Number)
+    // const numberNode = mergedChip.getChildByName('Number');
+    const numberNode = find('ChangeColor/Number', mergedChip);
+    if (numberNode) {
+      console.log(`✅ 找到 Number 節點 (Prefab=${prefab.name})`);
+      numberNode.active = false;
+    } else {
+      console.warn(`⚠️ 沒找到 Number 節點 (Prefab=${prefab.name})`);
+    }
+
+    // 嘗試更新 Label 數字
+    // const amountLabel = mergedChip.getChildByName('AmountLabel')?.getComponent(Label);
+    const amountNode = find('ChangeColor/AmountLabel', mergedChip);
+    if (amountNode) {
+      const amountLabel = amountNode.getComponent(Label);
+      if (amountLabel) {
+        console.log(`✅ 找到 AmountLabel 節點 (Prefab=${prefab.name})`);
+        amountLabel.string = String(totalAmount);
+        amountLabel.node.active = true;
+        // 動態縮放
+        amountLabel.fontSize = totalAmount >= 10000 ? 24 : 30;
+      }
+    } else {
+      console.warn(`⚠️ 沒找到 AmountLabel 節點 (Prefab=${prefab.name})`);
     }
   }
 
