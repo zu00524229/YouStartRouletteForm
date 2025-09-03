@@ -27,7 +27,7 @@ export class BetController extends Component {
     this.totalNeeded = this.selectedChipValue * this.betManager.getAllBetAreas().length; // 總共需要的下注金額(每個下注區域都下注選擇的籌碼金額) 用來判斷餘額夠不夠
   }
 
-  // ========== 下注區域點擊事件 ==========
+  // ========== 下注區域點擊事件(onBetClick用) ==========
   public BetClick(event: EventTouch) {
     // console.log('👉 BetClick 被觸發:', event.currentTarget?.name);
 
@@ -193,8 +193,6 @@ export class BetController extends Component {
         }
         remaining -= chipValue;
       }
-      // // ⚠️ Double 完該區後 → 立即整理籌碼，避免數字重疊
-      // this.chipManager.mergeChips(betNode);
     }
 
     // ✅ 最後 push 一次

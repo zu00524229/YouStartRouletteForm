@@ -123,10 +123,10 @@ export class PointerAnim extends Component {
         seq = seq.to(half, { angle: 30 }, { easing: 'quadIn' });
       }
     });
-    console.log('overshootTime', overshootTime);
-    console.log('mainSpinTime', mainSpinTime);
-    console.log('lastSwingTime', lastSwingTime);
-    console.log('sum', mainSpinTime + lastSwingTime);
+    // console.log('overshootTime', overshootTime);
+    // console.log('mainSpinTime', mainSpinTime);
+    // console.log('lastSwingTime', lastSwingTime);
+    // console.log('sum', mainSpinTime + lastSwingTime);
 
     seq.call(() => console.log('✅ 指針動畫完成')).start();
   }

@@ -107,8 +107,8 @@ export class ChipManager extends Component {
     // === 動畫效果：出現時放大後縮回原狀 ===
     newChip.setScale(new Vec3(1.0, 1.0, 1)); // 初始縮小
     tween(newChip)
-      .to(0.1, { scale: new Vec3(1.2, 1.2, 1) }) // 瞬間放大
-      .to(0.1, { scale: new Vec3(1.0, 1.0, 1) }) // 縮回正常大小
+      .to(0.1, { scale: new Vec3(1.4, 1.4, 1) }) // 瞬間放大
+      .to(0.1, { scale: new Vec3(1.2, 1.2, 1) }) // 縮回正常大小
       .start();
 
     this.Audio.AudioSources[1].play(); // 播放押注(索引2)音效
@@ -159,18 +159,6 @@ export class ChipManager extends Component {
     this.createChipInArea(betNode, chipValue, actionId); // 在下注區生成籌碼
     this.updateBetAmountLabel(betNode, this.betAmounts[areaName]); // 更新下注區上的金額標籤
     this.updateGlobalLabels(); // 更新總下注金額與餘額顯示
-
-    // this.actionHistory.push({
-    //   type: 'bet',
-    //   actions: [
-    //     {
-    //       areaName,
-    //       amount: chipValue,
-    //       chips: [chipValue],
-    //     },
-    //   ],
-    //   actionId, //  記錄來源 id
-    // }); // 紀錄下注動作
 
     // console.log("🔨 正在下注，滑鼠尚未放開");
     // this.updateStartButton(); // 每次下注後都更新 Start 按鈕狀態  (改用事件通知 防止循環依賴)
@@ -260,7 +248,7 @@ export class ChipManager extends Component {
     return this.chipPrefabs[4];
   }
 
-  // 把該區域籌碼合併
+  // =============== 把該區域籌碼合併 ===============================
   public mergeChips(betNode: Node) {
     const totalAmount = this.betAmounts[betNode.name] || 0;
 
@@ -278,7 +266,7 @@ export class ChipManager extends Component {
     mergedChip.name = 'Chip';
     betNode.addChild(mergedChip);
     mergedChip.setPosition(0, 0, 0);
-    mergedChip.setScale(new Vec3(1.0, 1.0, 1));
+    mergedChip.setScale(new Vec3(1.2, 1.2, 1));
 
     // 隱藏掉舊的圖片數字 (Number)
     // const numberNode = mergedChip.getChildByName('Number');
