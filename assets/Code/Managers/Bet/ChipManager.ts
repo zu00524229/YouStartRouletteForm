@@ -264,20 +264,13 @@ export class ChipManager extends Component {
   public mergeChips(betNode: Node) {
     const totalAmount = this.betAmounts[betNode.name] || 0;
 
-    // 先刪掉該區所有籌碼
-    for (const child of [...betNode.children]) {
-      if (child.name === 'Chip') {
-        child.destroy();
-      }
-    }
+    // 直接清空該區所有 Chip
+    betNode.children.filter((c) => c.name === 'Chip').forEach((c) => c.removeFromParent()); // ⚠️ 這樣立即移除，不等下一幀
 
     if (totalAmount <= 0) {
       this.updateBetAmountLabel(betNode, 0); // Label 也清空
       return;
     }
-    // 先刪掉該區所有籌碼(圖)
-    const chips = betNode.children.filter((c) => c.name === 'Chip');
-    chips.forEach((c) => c.destroy());
 
     // 選一顆對應級距的籌碼
     const prefab = this.getChipPrefabByAmount(totalAmount);
@@ -291,8 +284,8 @@ export class ChipManager extends Component {
     // const numberNode = mergedChip.getChildByName('Number');
     const numberNode = find('ChangeColor/Number', mergedChip);
     // if (numberNode) {
-    //   console.log(`✅ 找到 Number 節點 (Prefab=${prefab.name})`);
-    //   numberNode.active = false;
+    // console.log(`✅ 找到 Number 節點 (Prefab=${prefab.name})`);
+    numberNode.active = false;
     // } else {
     //   console.warn(`⚠️ 沒找到 Number 節點 (Prefab=${prefab.name})`);
     // }

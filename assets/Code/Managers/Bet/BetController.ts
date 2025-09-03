@@ -123,52 +123,6 @@ export class BetController extends Component {
 
     // All Bet 後更新 Start 按鈕狀態
     this.toolButton.updateStartButton();
-
-    //// ================================= 舊版獨立計算 ============================
-    // const actionRecord = {
-    //   type: 'bet' as const,
-    //   actionId,
-    //   actions: [] as {
-    //     areaName: string;
-    //     amount: number;
-    //     chips: number[];
-    //   }[],
-    // };
-
-    // // 遍歷所有下注區域
-    // for (const betNode of this.chipManager.getBetAreas()) {
-    //   const areaName = betNode.name;
-
-    //   // 扣除餘額與累加下注金額
-    //   this.chipManager.Balance_Num -= this.selectedChipValue;
-    //   this.chipManager.Bet_Num += this.selectedChipValue;
-
-    //   // 更新下注區金額
-    //   const currentAmount = this.chipManager.betAmounts[areaName] ?? 0;
-    //   const newAmount = currentAmount + this.selectedChipValue;
-    //   this.chipManager.betAmounts[areaName] = newAmount;
-
-    //   // 建立籌碼圖像
-    //   this.chipManager.createChipInArea(betNode, this.selectedChipValue, actionId);
-
-    //   // 更新下注區金額 Label
-    //   this.chipManager.updateBetAmountLabel(betNode, newAmount);
-
-    //   // 加入動作紀錄
-    //   actionRecord.actions.push({
-    //     areaName: areaName,
-    //     amount: this.selectedChipValue,
-    //     chips: [this.selectedChipValue],
-    //   });
-    // }
-
-    // // 加入歷史堆疊
-    // this.chipManager.actionHistory.push(actionRecord);
-
-    // // 更新畫面下方資訊
-    // this.chipManager.updateGlobalLabels();
-
-    // this.toolButton.updateStartButton(); // 全部下注後也要更新按鈕
   }
 
   // =========================================== 清除籌碼(結算)  ======================================================
@@ -204,8 +158,15 @@ export class BetController extends Component {
   // 點擊 Double 按鈕(當前所有下注區的金額加倍下注)
   onDoubleClick() {
     this.Audio.AudioSources[0].play(); // 播放按鈕音效
-    const doubleActions = [];
     const actionId = ++this.currentActionId; // 每次加倍下注都產生新的 actionId
+    // const doubleActions = [];
+
+    // 建立 Double 的集合動作紀錄
+    const actionRecord = {
+      type: 'double' as const,
+      actionId,
+      actions: [] as { areaName: string; amount: number; chips: number[] }[],
+    };
 
     // 遍歷所有下注區域節點
     for (const betNode of this.chipManager.getBetAreas()) {
@@ -226,47 +187,21 @@ export class BetController extends Component {
       // ================== 統一交給 ChipManager.performBet 方法計算 ========================
       while (remaining > 0) {
         const chipValue = this.chipManager.getClosestChip(remaining); // 根據剩餘金額取出最接近的籌碼面額
-        this.chipManager.performBet(betNode, chipValue, actionId, 'bet');
-        remaining -= chipValue; // 扣除已使用的籌碼金額
+        const result = this.chipManager.performBet(betNode, chipValue, actionId, 'bet');
+        if (result) {
+          actionRecord.actions.push(result); // 收集下注結果
+        }
+        remaining -= chipValue;
       }
-
-      this.toolButton.updateStartButton(); // 更新 Start 按鈕
-
-      //// ===================== 舊版邏輯 ==============================
-      //   const chipsToCreate: number[] = []; // 暫存每顆籌碼的面額
-      //   //  餘額足夠，執行加倍下注邏輯
-      //   this.chipManager.Balance_Num -= doubleAmount; // 扣除餘額
-      //   this.chipManager.Bet_Num += doubleAmount; // 增加總下注金額
-      //   this.chipManager.betAmounts[areaName] += doubleAmount; // 更新此區的下注金額
-
-      //   while (remaining > 0) {
-      //     const chipValue = this.chipManager.getClosestChip(remaining); // 根據剩餘金額取出最接近的籌碼面額
-      //     this.chipManager.createChipInArea(betNode, chipValue, actionId); // 在該下注區生成籌碼
-      //     chipsToCreate.push(chipValue); // 紀錄這次生成籌碼
-      //     remaining -= chipValue; // 扣除已使用的籌碼金額
-      //   }
-
-      //   doubleActions.push({
-      //     areaName,
-      //     amount: doubleAmount,
-      //     chips: chipsToCreate,
-      //   });
-
-      //   // 更新下注區域上的金額 Label 顯示
-      //   this.chipManager.updateBetAmountLabel(betNode, this.chipManager.betAmounts[areaName]);
-      // }
-
-      // if (doubleActions.length > 0) {
-      //   this.chipManager.actionHistory.push({
-      //     type: 'double',
-      //     actions: doubleActions,
-      //     actionId,
-      //   });
-      // }
-
-      // // 最後統一更新畫面上的 Balance / Bet / Win 顯示
-      // this.chipManager.updateGlobalLabels();
+      // // ⚠️ Double 完該區後 → 立即整理籌碼，避免數字重疊
+      // this.chipManager.mergeChips(betNode);
     }
+
+    // ✅ 最後 push 一次
+    if (actionRecord.actions.length > 0) {
+      this.chipManager.actionHistory.push(actionRecord);
+    }
+    this.toolButton.updateStartButton(); // 更新 Start 按鈕
   }
 
   // 點擊undo(撤銷)按鈕
