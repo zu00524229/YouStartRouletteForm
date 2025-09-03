@@ -31,7 +31,7 @@ export class ChipManager extends Component {
   Bet_Num: number = 0; // 玩家總下注金額(預設0)
   Win_Num: number = 0; // 初始化0
 
-  selectedChipValue: number = 100; // 玩家當前籌碼金額 預設100
+  // selectedChipValue: number = 100; // 玩家當前籌碼金額 預設100
 
   betAmounts: { [areaName: string]: number } = {}; // 儲存每個下注區域的累積下注金額(哈希表)
   lastBetAmounts: { [areaName: string]: number } = {}; // 用於儲存上局最後下注資訊
@@ -145,6 +145,7 @@ export class ChipManager extends Component {
     return sorted[sorted.length - 1]; // 如果全都比 target 大，就取最小值
   }
 
+  private mergeTimers: { [key: string]: (() => void) | null } = {}; // 每個下注區各自紀錄一個計時器 callback
   //? 2) 下注主要邏輯
   performBet(betNode: Node, chipValue: number, actionId: number, type: 'bet' | 'again') {
     const areaName = betNode.name;
@@ -175,10 +176,23 @@ export class ChipManager extends Component {
     this.node.emit('bet-updated');
     console.log('收到 bet-updated 按鈕開關方法');
 
-    // 延遲 1.0 秒 → 合併籌碼
-    this.scheduleOnce(() => {
+    // 1) 如果該區已有計時器 > 先清掉
+    if (this.mergeTimers[areaName]) {
+      this.unschedule(this.mergeTimers[areaName]);
+      this.mergeTimers[areaName] = null;
+    }
+
+    // 2) 建立一個新 callback function
+    const callback = () => {
       this.mergeChips(betNode);
-    }, 1.0);
+      this.mergeTimers[areaName] = null;
+    };
+
+    // 3) 啟動 1 秒後執行
+    this.scheduleOnce(callback, 1.0);
+
+    // 4) 紀錄 callback 方便 unschedule
+    this.mergeTimers[areaName] = callback;
   }
 
   // 高亮下注區域（用於中獎提示或視覺效果）

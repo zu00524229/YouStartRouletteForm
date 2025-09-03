@@ -33750,6 +33750,9 @@
     "chipManager": {
       "__id__": 619
     },
+    "betController": {
+      "__id__": 793
+    },
     "chipValues": [
       100,
       200,

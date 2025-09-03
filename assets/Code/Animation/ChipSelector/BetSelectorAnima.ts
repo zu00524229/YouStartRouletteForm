@@ -1,12 +1,15 @@
 import { _decorator, CCInteger, Component, instantiate, Node, Prefab, tween, UIOpacity, UITransform, Vec3 } from 'cc';
 import { AudioManager } from '../../Managers/Audio/AudioManager';
 import { ChipManager } from '../../Managers/Bet/ChipManager';
+import { BetController } from '../../Managers/Bet/BetController';
 const { ccclass, property } = _decorator;
 
 @ccclass('BetSelectorAnima')
 export class BetSelectorAnima extends Component {
   @property(AudioManager) Audio: AudioManager = null; // 連結 AudioManager
   @property(ChipManager) chipManager: ChipManager = null; // 連結 ChipManager
+  @property(BetController) betController: BetController = null; // 連結 BetManager
+  /////////////////////////////////////////////////////////////////////////////////////////////
 
   @property({ type: [CCInteger] }) chipValues: number[] = [100, 200, 500, 1000, 10000]; // 對應籌碼金額
 
@@ -47,7 +50,7 @@ export class BetSelectorAnima extends Component {
   // 選擇籌碼金額
   selectChip(value: number) {
     this.Audio.AudioSources[0].play(); // 播放按鈕音效
-    this.chipManager.selectedChipValue = value; // 儲存當前籌碼金額
+    this.betController.selectedChipValue = value; // 儲存當前籌碼金額
     this.chipPopupPanel.active = true; // 顯示籌碼選擇面板(彈出式)
 
     // 更新按鈕圖示

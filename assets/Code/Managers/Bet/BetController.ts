@@ -66,8 +66,8 @@ export class BetController extends Component {
     this.Audio.AudioSources[0].play(); // 播放按鈕音效
 
     // 用 ChipManager 的資料源
-    const selected = this.chipManager.selectedChipValue;
     const areas = this.chipManager.getBetAreas();
+    const selected = this.selectedChipValue;
     // 確認餘額是否足夠
     const totalNeeded = selected * areas.length;
     if (this.chipManager.Balance_Num < totalNeeded) {
@@ -76,50 +76,61 @@ export class BetController extends Component {
     }
 
     const actionId = ++this.currentActionId;
-    const actionRecord = {
-      type: 'bet' as const,
-      actionId,
-      actions: [] as {
-        areaName: string;
-        amount: number;
-        chips: number[];
-      }[],
-    };
 
+    // 新版直接交給 ChipManager.performBet 方法
     // 遍歷所有下注區域
-    for (const betNode of this.chipManager.getBetAreas()) {
-      const areaName = betNode.name;
-
-      // 扣除餘額與累加下注金額
-      this.chipManager.Balance_Num -= this.selectedChipValue;
-      this.chipManager.Bet_Num += this.selectedChipValue;
-
-      // 更新下注區金額
-      const currentAmount = this.chipManager.betAmounts[areaName] ?? 0;
-      const newAmount = currentAmount + this.selectedChipValue;
-      this.chipManager.betAmounts[areaName] = newAmount;
-
-      // 建立籌碼圖像
-      this.chipManager.createChipInArea(betNode, this.selectedChipValue, actionId);
-
-      // 更新下注區金額 Label
-      this.chipManager.updateBetAmountLabel(betNode, newAmount);
-
-      // 加入動作紀錄
-      actionRecord.actions.push({
-        areaName: areaName,
-        amount: this.selectedChipValue,
-        chips: [this.selectedChipValue],
-      });
+    for (const betNode of areas) {
+      this.chipManager.performBet(betNode, selected, actionId, 'bet');
     }
 
-    // 加入歷史堆疊
-    this.chipManager.actionHistory.push(actionRecord);
+    // All Bet 後更新 Start 按鈕狀態
+    this.toolButton.updateStartButton();
 
-    // 更新畫面下方資訊
-    this.chipManager.updateGlobalLabels();
+    //// ================================= 舊版獨立計算 ============================
+    // const actionRecord = {
+    //   type: 'bet' as const,
+    //   actionId,
+    //   actions: [] as {
+    //     areaName: string;
+    //     amount: number;
+    //     chips: number[];
+    //   }[],
+    // };
 
-    this.toolButton.updateStartButton(); // 全部下注後也要更新按鈕
+    // // 遍歷所有下注區域
+    // for (const betNode of this.chipManager.getBetAreas()) {
+    //   const areaName = betNode.name;
+
+    //   // 扣除餘額與累加下注金額
+    //   this.chipManager.Balance_Num -= this.selectedChipValue;
+    //   this.chipManager.Bet_Num += this.selectedChipValue;
+
+    //   // 更新下注區金額
+    //   const currentAmount = this.chipManager.betAmounts[areaName] ?? 0;
+    //   const newAmount = currentAmount + this.selectedChipValue;
+    //   this.chipManager.betAmounts[areaName] = newAmount;
+
+    //   // 建立籌碼圖像
+    //   this.chipManager.createChipInArea(betNode, this.selectedChipValue, actionId);
+
+    //   // 更新下注區金額 Label
+    //   this.chipManager.updateBetAmountLabel(betNode, newAmount);
+
+    //   // 加入動作紀錄
+    //   actionRecord.actions.push({
+    //     areaName: areaName,
+    //     amount: this.selectedChipValue,
+    //     chips: [this.selectedChipValue],
+    //   });
+    // }
+
+    // // 加入歷史堆疊
+    // this.chipManager.actionHistory.push(actionRecord);
+
+    // // 更新畫面下方資訊
+    // this.chipManager.updateGlobalLabels();
+
+    // this.toolButton.updateStartButton(); // 全部下注後也要更新按鈕
   }
 
   // =========================================== 清除籌碼(結算)  ======================================================
