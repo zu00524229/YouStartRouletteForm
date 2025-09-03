@@ -146,7 +146,7 @@ export class index extends Component {
 
   // ==== 回調Lottery 抽獎(PICK)結束後的值 ========
   private handleLotteryResult = (data: UnifiedLotteryEvent) => {
-    if (this.roundIdLabel) this.roundIdLabel.string = `#${data.roundId}`;
+    if (this.roundIdLabel) this.roundIdLabel.string = `# ${data.roundId}`;
     this.Lottery.onGetLotteryRewardRstEventCallback(data);
   };
 

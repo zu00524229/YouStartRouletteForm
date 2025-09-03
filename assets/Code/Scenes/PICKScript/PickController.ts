@@ -71,9 +71,9 @@ export class PickController extends Component {
       this.Win_Num = data.winAmount || 0;
       this.Balance_Num = data.balanceAfterWin || 0;
       this.RoundId_Label.string = `#${data.roundId || 0}`;
+      this.ID_Label.string = `帳號: ${data.username || 'Guest'}`;
 
       // this.ID_Label.string = '帳號: Ethan';
-      this.ID_Label.string = `帳號: ${player.currentPlayer.username}`;
       this.Balance_Label.string = this.Balance_Num.toFixed(2);
       this.Bet_Label.string = this.Bet_Num.toFixed(2);
       // this.Win_Label.string = this.Win_Num.toFixed(2);
