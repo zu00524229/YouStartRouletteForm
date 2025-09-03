@@ -183,42 +183,52 @@ export class BetController extends Component {
         continue;
       }
 
-      //  餘額足夠，執行加倍下注邏輯
-      this.chipManager.Balance_Num -= doubleAmount; // 扣除餘額
-      this.chipManager.Bet_Num += doubleAmount; // 增加總下注金額
-      this.chipManager.betAmounts[areaName] += doubleAmount; // 更新此區的下注金額
-
       // 依照加倍金額產生籌碼並顯示在畫面上
       let remaining = doubleAmount;
-      const chipsToCreate: number[] = []; // 暫存每顆籌碼的面額
-
+      // ================== 統一交給 ChipManager.performBet 方法計算 ========================
       while (remaining > 0) {
         const chipValue = this.chipManager.getClosestChip(remaining); // 根據剩餘金額取出最接近的籌碼面額
-        this.chipManager.createChipInArea(betNode, chipValue, actionId); // 在該下注區生成籌碼
-        chipsToCreate.push(chipValue); // 紀錄這次生成籌碼
+        this.chipManager.performBet(betNode, chipValue, actionId, 'bet');
         remaining -= chipValue; // 扣除已使用的籌碼金額
       }
 
-      doubleActions.push({
-        areaName,
-        amount: doubleAmount,
-        chips: chipsToCreate,
-      });
+      this.toolButton.updateStartButton(); // 更新 Start 按鈕
 
-      // 更新下注區域上的金額 Label 顯示
-      this.chipManager.updateBetAmountLabel(betNode, this.chipManager.betAmounts[areaName]);
+      //// ===================== 舊版邏輯 ==============================
+      //   const chipsToCreate: number[] = []; // 暫存每顆籌碼的面額
+      //   //  餘額足夠，執行加倍下注邏輯
+      //   this.chipManager.Balance_Num -= doubleAmount; // 扣除餘額
+      //   this.chipManager.Bet_Num += doubleAmount; // 增加總下注金額
+      //   this.chipManager.betAmounts[areaName] += doubleAmount; // 更新此區的下注金額
+
+      //   while (remaining > 0) {
+      //     const chipValue = this.chipManager.getClosestChip(remaining); // 根據剩餘金額取出最接近的籌碼面額
+      //     this.chipManager.createChipInArea(betNode, chipValue, actionId); // 在該下注區生成籌碼
+      //     chipsToCreate.push(chipValue); // 紀錄這次生成籌碼
+      //     remaining -= chipValue; // 扣除已使用的籌碼金額
+      //   }
+
+      //   doubleActions.push({
+      //     areaName,
+      //     amount: doubleAmount,
+      //     chips: chipsToCreate,
+      //   });
+
+      //   // 更新下注區域上的金額 Label 顯示
+      //   this.chipManager.updateBetAmountLabel(betNode, this.chipManager.betAmounts[areaName]);
+      // }
+
+      // if (doubleActions.length > 0) {
+      //   this.chipManager.actionHistory.push({
+      //     type: 'double',
+      //     actions: doubleActions,
+      //     actionId,
+      //   });
+      // }
+
+      // // 最後統一更新畫面上的 Balance / Bet / Win 顯示
+      // this.chipManager.updateGlobalLabels();
     }
-
-    if (doubleActions.length > 0) {
-      this.chipManager.actionHistory.push({
-        type: 'double',
-        actions: doubleActions,
-        actionId,
-      });
-    }
-
-    // 最後統一更新畫面上的 Balance / Bet / Win 顯示
-    this.chipManager.updateGlobalLabels();
   }
 
   // 點擊undo(撤銷)按鈕
