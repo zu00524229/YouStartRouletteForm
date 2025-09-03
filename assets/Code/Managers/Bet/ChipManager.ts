@@ -35,6 +35,7 @@ export class ChipManager extends Component {
 
   betAmounts: { [areaName: string]: number } = {}; // 儲存每個下注區域的累積下注金額(哈希表)
   lastBetAmounts: { [areaName: string]: number } = {}; // 用於儲存上局最後下注資訊
+  lastMergedBets: { [areaName: string]: number } = {};
 
   // 儲存下注歷史紀錄(堆疊法)
   actionHistory: {
@@ -257,6 +258,7 @@ export class ChipManager extends Component {
 
     if (totalAmount <= 0) {
       this.updateBetAmountLabel(betNode, 0); // Label 也清空
+      this.lastMergedBets[betNode.name] = 0;
       return;
     }
 
@@ -293,6 +295,8 @@ export class ChipManager extends Component {
     } else {
       console.warn(`⚠️ 沒找到 AmountLabel 節點 (Prefab=${prefab.name})`);
     }
+
+    this.lastMergedBets[betNode.name] = totalAmount; // 更新最後合併金額
   }
 
   //   // ================ Agaon 與 Auto 按鈕 (尚未使用) 用來重複下注上局下注區籌碼與金額 =================

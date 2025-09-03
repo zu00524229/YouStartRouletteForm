@@ -217,11 +217,11 @@ export class index extends Component {
     this.Lottery.onGoLotterEventCallback(); // 轉盤轉動(隨機抽獎)
   }
 
-  //
+  // 給Auto 模式使用 重複上局下注
   rebetAndStart(): void {
     console.log('🔄 進入 rebetAndStart()，Auto 模式檢查中');
     const lastBets = this.chipManager.lastBetAmounts || {};
-    console.log('💰 Auto下注內容：', this.chipManager.lastBetAmounts);
+    console.log('💰 Auto下注內容：', lastBets);
 
     // 計算上局總下注金額
     let totalNeeded = 0;
@@ -236,14 +236,13 @@ export class index extends Component {
       console.warn('🛑 餘額不足，停止自動下注');
       this.chipManager._isAutoMode = false;
       this.Lottery._isAutoRunning = false;
+      this.toolButton.updateStartButton();
+      ToastMessage.showToast('餘額不足，自動已停止');
 
       // 還原
       this.chipManager.AutoSprite.spriteFrame = this.chipManager.AutoSpriteFrame; // 更新 Auto 按鈕圖片
       this.chipManager.AutoBouttonSprite.spriteFrame = this.chipManager.AutoStartFrame; // 更新 Auto 按鈕圖片 (藍)
-
-      this.toolButton.updateStartButton();
       // this.chipManager.AllButton.interactable = true;
-      ToastMessage.showToast('餘額不足，自動已停止');
       return; // 不夠錢就不下注，直接退出
     }
     // let totalBet = 0;
@@ -255,21 +254,31 @@ export class index extends Component {
         // const areaIndex = this.chipManager.betAreaMap[areaName];
         const betNode = this.chipManager.getBetAreas().find((n) => n.name === areaName);
 
-        if (betNode) {
-          let remaining = amount;
+        if (!betNode) continue;
+        let remaining = amount;
+        const actionId = ++this.betController.currentActionId;
 
-          // 拆分下注金額成最接近的籌碼，並下注
-          while (remaining > 0) {
-            const chipValue = this.chipManager.getClosestChip(remaining);
-            const actionId = this.chipManager.actionHistory.length + 1;
-
-            this.chipManager.performBet(betNode, chipValue, actionId, 'again');
-            remaining -= chipValue;
+        // 拆分下注金額成最接近的籌碼，並下注
+        while (remaining > 0) {
+          const chipValue = this.chipManager.getClosestChip(remaining);
+          const result = this.chipManager.performBet(betNode, chipValue, actionId, 'again');
+          if (result) {
+            this.chipManager.actionHistory.push({
+              type: 'again',
+              actionId,
+              actions: [result],
+            });
           }
+
+          // const actionId = this.chipManager.actionHistory.length + 1;
+
+          // this.chipManager.performBet(betNode, chipValue, actionId, 'again');
+          remaining -= chipValue;
         }
+        // 最後統一合併
+        this.chipManager.mergeChips(betNode);
       }
     }
-
     // 延遲啟動
     this.scheduleOnce(() => {
       this.onStartButton(); //開始下一輪轉盤
