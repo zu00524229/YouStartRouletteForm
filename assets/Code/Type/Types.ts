@@ -58,7 +58,7 @@ export type LotteryResponse = {
 
 // ==================== 前端整合後的統一事件 ====================
 export type UnifiedLotteryEvent = {
-  roundId: number; // 局號
+  roundId: string; // 局號(改成字串, 避免超過js 安全範圍)
   rewardName: string; // 獎項名稱（決定動畫/音效）
   rewardIndex: number; // 落點 index（轉盤停在哪）
   multiplier: number; // 倍率（不中獎為 0）

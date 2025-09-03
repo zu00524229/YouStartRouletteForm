@@ -241,7 +241,7 @@ export class TurnLottery extends Component {
         rewardIndex: finalRewardIndex, // 只有在大獎才覆蓋掉原本的rewardIndex
         pickBetAmount: pickBetAmount,
         winAmount: winAmount,
-        username: player.currentPlayer,
+        username: player.currentPlayer.username,
         balanceAfterWin: data.balanceAfter, //  用後端回傳的 balanceAfter
       };
       // LotteryCache.lastResult = data;     // 儲存資料準備轉場用
@@ -263,13 +263,12 @@ export class TurnLottery extends Component {
       this.toast.hideBetLocked();
       this.handleExtraPay(data.extraPay, () => {
         // 執行轉盤動畫
-        // this.Turn.playWheelAnimation(rewardIndex, rewardName, multiplier, data, () => {
+        this.Turn.playWheelAnimation(rewardIndex, rewardName, multiplier, data, () => {
+          // 隨機選一個轉盤動畫
+          // const animations = [this.Turn.playWheelAnimation.bind(this.Turn), this.Turn.playWheelAnimation2.bind(this.Turn), this.Turn.playWheelAnimation3.bind(this.Turn)];
+          // const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+          // randomAnimation(rewardIndex, rewardName, multiplier, data, () => {
 
-        // 隨機選一個轉盤動畫
-        const animations = [this.Turn.playWheelAnimation.bind(this.Turn), this.Turn.playWheelAnimation2.bind(this.Turn), this.Turn.playWheelAnimation3.bind(this.Turn)];
-        const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
-
-        randomAnimation(rewardIndex, rewardName, multiplier, data, () => {
           // ExtraPay 命中加倍處理
           const hitArea = TurnLottery.getRewardByBetArea(rewardName);
           const extraArea = data.extraPay?.rewardName ? TurnLottery.getRewardByBetArea(data.extraPay.rewardName) : null;
