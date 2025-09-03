@@ -159,17 +159,18 @@ export class ChipManager extends Component {
     this.createChipInArea(betNode, chipValue, actionId); // 在下注區生成籌碼
     this.updateBetAmountLabel(betNode, this.betAmounts[areaName]); // 更新下注區上的金額標籤
     this.updateGlobalLabels(); // 更新總下注金額與餘額顯示
-    this.actionHistory.push({
-      type: 'bet',
-      actions: [
-        {
-          areaName,
-          amount: chipValue,
-          chips: [chipValue],
-        },
-      ],
-      actionId, //  記錄來源 id
-    }); // 紀錄下注動作
+
+    // this.actionHistory.push({
+    //   type: 'bet',
+    //   actions: [
+    //     {
+    //       areaName,
+    //       amount: chipValue,
+    //       chips: [chipValue],
+    //     },
+    //   ],
+    //   actionId, //  記錄來源 id
+    // }); // 紀錄下注動作
 
     // console.log("🔨 正在下注，滑鼠尚未放開");
     // this.updateStartButton(); // 每次下注後都更新 Start 按鈕狀態  (改用事件通知 防止循環依賴)
@@ -193,6 +194,12 @@ export class ChipManager extends Component {
 
     // 4) 紀錄 callback 方便 unschedule
     this.mergeTimers[areaName] = callback;
+
+    return {
+      areaName,
+      amount: chipValue,
+      chips: [chipValue],
+    };
   }
 
   // 高亮下注區域（用於中獎提示或視覺效果）
@@ -254,10 +261,20 @@ export class ChipManager extends Component {
   }
 
   // 把該區域籌碼合併
-  private mergeChips(betNode: Node) {
+  public mergeChips(betNode: Node) {
     const totalAmount = this.betAmounts[betNode.name] || 0;
-    if (totalAmount <= 0) return;
 
+    // 先刪掉該區所有籌碼
+    for (const child of [...betNode.children]) {
+      if (child.name === 'Chip') {
+        child.destroy();
+      }
+    }
+
+    if (totalAmount <= 0) {
+      this.updateBetAmountLabel(betNode, 0); // Label 也清空
+      return;
+    }
     // 先刪掉該區所有籌碼(圖)
     const chips = betNode.children.filter((c) => c.name === 'Chip');
     chips.forEach((c) => c.destroy());
@@ -273,12 +290,12 @@ export class ChipManager extends Component {
     // 隱藏掉舊的圖片數字 (Number)
     // const numberNode = mergedChip.getChildByName('Number');
     const numberNode = find('ChangeColor/Number', mergedChip);
-    if (numberNode) {
-      console.log(`✅ 找到 Number 節點 (Prefab=${prefab.name})`);
-      numberNode.active = false;
-    } else {
-      console.warn(`⚠️ 沒找到 Number 節點 (Prefab=${prefab.name})`);
-    }
+    // if (numberNode) {
+    //   console.log(`✅ 找到 Number 節點 (Prefab=${prefab.name})`);
+    //   numberNode.active = false;
+    // } else {
+    //   console.warn(`⚠️ 沒找到 Number 節點 (Prefab=${prefab.name})`);
+    // }
 
     // 嘗試更新 Label 數字
     // const amountLabel = mergedChip.getChildByName('AmountLabel')?.getComponent(Label);
@@ -286,7 +303,7 @@ export class ChipManager extends Component {
     if (amountNode) {
       const amountLabel = amountNode.getComponent(Label);
       if (amountLabel) {
-        console.log(`✅ 找到 AmountLabel 節點 (Prefab=${prefab.name})`);
+        // console.log(`✅ 找到 AmountLabel 節點 (Prefab=${prefab.name})`);
         amountLabel.string = String(totalAmount);
         amountLabel.node.active = true;
         // 動態縮放

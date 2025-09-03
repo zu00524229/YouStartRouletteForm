@@ -58,7 +58,20 @@ export class BetController extends Component {
       return;
     }
 
-    this.chipManager.performBet(betNode, chipValue, actionId, 'bet');
+    // 呼叫 ChipManager 執行下注,回傳結果
+    const result = this.chipManager.performBet(betNode, chipValue, actionId, 'bet');
+
+    if (result) {
+      // ✅ 建立動作紀錄（單擊下注也要 push）
+      this.chipManager.actionHistory.push({
+        type: 'bet',
+        actionId,
+        actions: [result], // 單一區域下注
+      });
+    }
+
+    this.chipManager.updateGlobalLabels();
+    this.toolButton.updateStartButton();
   }
 
   // ================== 點擊 All Bet 按鈕觸發 ====================
@@ -77,11 +90,36 @@ export class BetController extends Component {
 
     const actionId = ++this.currentActionId;
 
+    // ==== 建立動作紀錄
+    const actionRecord = {
+      type: 'bet' as const,
+      actionId,
+      actions: [] as {
+        areaName: string;
+        amount: number;
+        chips: number[];
+      }[],
+    };
+
     // 新版直接交給 ChipManager.performBet 方法
     // 遍歷所有下注區域
     for (const betNode of areas) {
+      const areaName = betNode.name;
+
       this.chipManager.performBet(betNode, selected, actionId, 'bet');
+
+      // 加入動作紀錄
+      actionRecord.actions.push({
+        areaName,
+        amount: selected,
+        chips: [selected],
+      });
     }
+
+    // ==== 把 ALL Bet 的集合動作丟進歷史堆疊 =====
+    this.chipManager.actionHistory.push(actionRecord);
+
+    this.chipManager.updateGlobalLabels();
 
     // All Bet 後更新 Start 按鈕狀態
     this.toolButton.updateStartButton();
@@ -255,10 +293,12 @@ export class BetController extends Component {
       const chipsToRemove = [...betNode.children].filter((c) => c.name === 'Chip' && c['actionId'] === actionId);
       chipsToRemove.forEach((c) => c.destroy());
 
-      this.chipManager.updateBetAmountLabel(betNode, this.chipManager.betAmounts[areaName] || 0);
+      // this.chipManager.updateBetAmountLabel(betNode, this.chipManager.betAmounts[areaName] || 0);
+      // 3. 重新合併並繪製最新籌碼 (金額 + Prefab + Label)
+      this.chipManager.mergeChips(betNode);
     }
 
-    this.chipManager.updateGlobalLabels();
+    this.chipManager.updateGlobalLabels(); // 更新
     this.toolButton.updateStartButton(); // 更新 Start 按鈕是否可用
   }
 
