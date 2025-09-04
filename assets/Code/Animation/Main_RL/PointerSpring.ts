@@ -114,7 +114,7 @@ export class PointerAnim extends Component {
         let lastSwingAngle = 15;
         seq = seq.to(half, { angle: lastSwingAngle }, { easing: 'sineOut' }).call(() => {
           this.Audio.AudioSources[4].play();
-          console.log(`第 ${idx + 1} 下 🔼 上擺結束(緩慢): ${this.pivotNode.angle.toFixed(2)}°`);
+          // console.log(`第 ${idx + 1} 下 🔼 上擺結束(緩慢): ${this.pivotNode.angle.toFixed(2)}°`);
         });
         // .delay(0.8); // 在上擺位置停 1.5 秒
         // 下擺到 0 會放到最後統一處理
@@ -133,11 +133,11 @@ export class PointerAnim extends Component {
             .to(half, { angle: upAngle }, { easing: 'sineOut' }) // ⬅ 緩慢上擺
             .call(() => {
               this.Audio.AudioSources[4].play();
-              console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+              // console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
             })
             .to(half, { angle: targetAngle }, { easing: 'sineIn' })
             .call(() => {
-              console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+              // console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
             })
             .delay(reboundTime * 0.8);
         }
@@ -146,11 +146,11 @@ export class PointerAnim extends Component {
           .to(half, { angle: upAngle }, { easing: 'linear' })
           .call(() => {
             this.Audio.AudioSources[4].play();
-            console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+            // console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           })
           .to(half, { angle: targetAngle }, { easing: 'quartIn' })
           .call(() => {
-            console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+            // console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           });
       }
     });

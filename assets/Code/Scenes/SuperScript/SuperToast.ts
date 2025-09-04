@@ -60,7 +60,12 @@ export class SuperToast extends Component {
 
   // ======================= BIG WIN (PICK)獎金提示 =========================
   showEPICTips(mult: number, total: number) {
+    console.log('SupWinTotalContainer=', this.SupWinTotalContainer?.name, 'uuid=', this.SupWinTotalContainer?._uuid);
+    console.log('SupWinMultContainer=', this.SupWinMultContainer?.name, 'uuid=', this.SupWinMultContainer?._uuid);
+
     this.SupWinTips.active = true;
+    this.SupWinTips.setSiblingIndex(9999);
+    console.log('SupWinTips 顯示，children=', this.SupWinTotalContainer.children.length, this.SupWinMultContainer.children.length);
     this.Audio.AudioSources[2].play(); // 金錢音效
     this.Audio.AudioSources[1].play(); // 高分音效
 
@@ -94,6 +99,8 @@ export class SuperToast extends Component {
       '8': this.multSprites[8],
       '9': this.multSprites[9],
     };
+    console.log('digitSprites=', this.digitSprites);
+    console.log('multSprites=', this.multSprites);
 
     this.createImageText(this.SupWinMultContainer, Mult, multMap, 0.6);
 
@@ -101,6 +108,7 @@ export class SuperToast extends Component {
     opacity.opacity = 0;
 
     tween(opacity).to(0.3, { opacity: 255 }, { easing: 'fade' }).start();
+    console.log('💰 showEPICTips total=', total, 'mult=', mult, 'totalStr=', total.toString());
   }
 
   // 隱藏（可清空文字）

@@ -1,9 +1,8 @@
-import { _decorator, Component, Node, Sprite, SpriteFrame, resources, tween, sp, Vec3, UIOpacity, UITransform, director, Label } from 'cc';
+import { _decorator, Component, Node, Sprite, SpriteFrame, resources, tween, sp, Vec3, UIOpacity, UITransform, director, Label, AudioSource } from 'cc';
 import { CardRef } from './CardRef';
 import { LotteryResultEvent, LotteryCache } from '../../TurnLottery'; // 或你的 TurnLottery 檔案相對路徑
 import { PickToast } from './PickToast';
 import { AudioManager } from '../../Managers/Audio/AudioManager';
-import { player } from '../../Login/playerState';
 
 const { ccclass, property } = _decorator;
 
@@ -100,20 +99,6 @@ export class PickController extends Component {
 
     for (let i = 0; i < this.cardRefs.length; i++) {
       const ref = this.cardRefs[i];
-      // if (!ref) {
-      //     console.error(`❌ cardRefs[${i}] 是 null，請檢查是否拖錯`);
-      //     continue;
-      // }
-
-      // if (!ref.node || !ref.backCard || !ref.frontCard || !ref.effect) {
-      //     console.error(`❌ 第 ${i + 1} 張卡片有欄位沒設好：`, {
-      //         node: ref.node?.name,
-      //         back: ref.backCard,
-      //         front: ref.frontCard,
-      //         effect: ref.effect
-      //     });
-      //     continue;
-      // }
       const cardData: CardData = {
         index: i,
         multiplier: 0, // 初始倍率
@@ -210,7 +195,10 @@ export class PickController extends Component {
     if (card.isSelected) {
       // ✅ 被選中的卡片：直接顯示倍率＋播放動畫
       effect.active = true;
-      this.Audio.AudioSources[6].play(); // 翻牌音效
+      // this.Audio.AudioSources[6].play(); // 翻牌音效
+      const audioSrc = AudioManager.instance.AudioSources[6]; // 翻牌音效
+      console.log('🎵 準備播放音效 [6]：', audioSrc.node.name, 'enabled=', audioSrc.enabled, 'volume=', audioSrc.volume);
+      audioSrc.play();
       spine?.setAnimation(0, 'Standby_Pick', false);
       spine?.addAnimation(0, 'Standby_Pick_Glow', false);
       spine?.addAnimation(0, 'Standby_Pick_Glow_Loop', true);
