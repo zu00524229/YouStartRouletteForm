@@ -171,17 +171,35 @@ export class PointerAnim extends Component {
         seq = seq
           .to(half, { angle: swingAngle }, { easing: 'sineOut' })
           .call(() => this.Audio.AudioSources[4].play())
-          .delay(1.5); // 在上擺位置停 1.5 秒
+          .delay(0.8); // 在上擺位置停 1.5 秒
         // 下擺到 0 會放到最後統一處理
       } else {
         // ✅ 一般擺動
         let targetAngle = 0;
-        if (isfourLast) targetAngle = 10; // 10
-        else if (isThirdLast) targetAngle = 20; // 10
-        else if (isSecondLast) targetAngle = 21; // 22
+        let upAngle = swingAngle;
+        if (isfourLast) {
+          targetAngle = 0;
+          upAngle = 18;
+          seq = seq
+            .to(half, { angle: upAngle }, { easing: 'sineOut' }) // ⬅ 緩慢上擺
+            .call(() => {
+              this.Audio.AudioSources[4].play();
+              console.log(`第 ${idx + 1} 下 🔼 上擺結束(緩慢): ${this.pivotNode.angle.toFixed(2)}°`);
+            })
+            .to(half, { angle: targetAngle }, { easing: 'quartIn' })
+            .call(() => {
+              console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+            });
+        } // 10
+        else if (isThirdLast) {
+          targetAngle = 22;
+        } // 10
+        else if (isSecondLast) {
+          targetAngle = 22;
+        } // 22
 
         seq = seq
-          .to(half, { angle: swingAngle }, { easing: 'linear' })
+          .to(half, { angle: upAngle }, { easing: 'linear' })
           .call(() => {
             this.Audio.AudioSources[4].play();
             console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
@@ -194,7 +212,7 @@ export class PointerAnim extends Component {
     });
 
     // === 最後回正 (和轉盤回正同步) ===
-    seq = seq.to(reboundTime * 0.8, { angle: 0 }, { easing: 'quadIn' });
+    seq = seq.to(reboundTime * 0.4, { angle: 0 }, { easing: 'quadIn' });
 
     seq.call(() => console.log('✅ 指針動畫完成')).start();
   }
