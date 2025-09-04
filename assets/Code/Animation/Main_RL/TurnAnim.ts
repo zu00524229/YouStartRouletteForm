@@ -93,42 +93,43 @@ export class TurnAnim extends Component {
   //! 轉盤動畫2
   playWheelAnimation2(rewardIndex: number, rewardName: string, multiplier: number, data: UnifiedLotteryEvent, onFinished: () => void) {
     const rotatelottertSecs = 7; // 轉圈數
-    // 初始化角度
+    // 先初始化轉盤角度，避免累積太多旋轉角度
     this.turnBgNode.angle %= 360;
 
-    const startAngle = this.turnBgNode.angle; // ✅ 定義開始角度
     // 計算最終目標角度
     let targetAngle = -rotatelottertSecs * 360 + rewardIndex * (360 / this.rewardTypeCount);
-    console.log('🎯 準備轉盤角度', targetAngle);
+    // console.log('🎯 準備轉盤角度', targetAngle);
 
-    //? 超轉設定
-    let overshootAngle = targetAngle - WheelConfig.overshootAngle;
-    //? 時間分配
-    let overshootTime = WheelConfig.lotterSecsL - WheelConfig.reboundTime - WheelConfig.delayPointerSwing;
-    let reboundTime = WheelConfig.reboundTime;
-    let fullTime = WheelConfig.lotterSecsL;
+    // 設定超轉角度（轉過頭一點）
+    let overshootAngle = targetAngle + WheelConfig.overshootAngle;
+    // const undershootDeg = Math.abs(WheelSyncConfig.overshootAngle) || 12;
+    // const stopBeforeAngle = targetAngle + undershootDeg;
 
-    // 找到指針動畫2
+    // 時間控制
+    const totalTime = WheelConfig.lotterSecsL;
+    const reboundTime = WheelConfig.reboundTime;
+    const holdTime = 0.5; // 停留秒數（可調整）
+
+    // 自訂 easing：越到尾端越慢
+    const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 5);
+    // 如果想更誇張，改成 6、7 都可以
+
+    // 指針動畫同步
     const pointer = this.dotContainerNode.getComponent('PointerAnim') as any;
     if (pointer) {
-      const totalAngle = Math.abs(overshootAngle - startAngle);
-      const slowThreshold = (totalAngle - 90) / totalAngle;
-      pointer.playPointerSwing2(fullTime, slowThreshold);
+      pointer.playPointerSwing2(totalTime, reboundTime, holdTime);
     }
 
     tween(this.turnBgNode)
-      // 前段：到 overshootAngle，帶 slowLast90 曲線
-      .to(
-        overshootTime,
-        { angle: overshootAngle },
-        {
-          easing: (t) => slowLast90(t, startAngle, overshootAngle),
-        }
-      )
-      // ✨ 停留  秒（可調整）
-      .delay(WheelConfig.delayPointerSwing)
-      // 後段：從 overshootAngle 回 targetAngle
-      .to(reboundTime, { angle: targetAngle }, { easing: 'quadOut' })
+      // 1) 一路旋轉到 overshootAngle，用自訂 easing
+      .to(totalTime, { angle: overshootAngle }, { easing: superSlowOut })
+
+      // 2) 停住
+      .delay(holdTime)
+
+      // 3) 回正
+      .to(reboundTime, { angle: targetAngle }, { easing: 'quadIn' })
+
       .call(() => onFinished?.())
       .start();
   }
