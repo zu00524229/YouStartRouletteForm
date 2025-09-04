@@ -135,24 +135,21 @@ export class PointerAnim extends Component {
 
   //! 指針動畫
   playPointerSwing(totalTime: number, reboundTime: number, holdTime: number = 0.5) {
-    if (!this.pivotNode) {
-      console.warn('⚠️ pivotNode 未設置，請在 Inspector 拖一個控節點進來！');
-      return;
-    }
+    if (!this.pivotNode) return;
+
     tween(this.pivotNode).stop();
 
-    const swingAngle = 25; // 最大右擺角度
-    const totalSwings = 13; // 擺動次數
-    const times: number[] = [];
+    const swingAngle = 25;
+    const totalSwings = 16;
 
-    // ✅ 前快後慢 (t^n)
+    // easing: 前快後慢
+    const times: number[] = [];
     for (let i = 1; i <= totalSwings; i++) {
       const progress = i / totalSwings;
-      const eased = Math.pow(progress, 3); // n=3，可調 2~5
+      const eased = Math.pow(progress, 3);
       times.push(eased);
     }
 
-    // 計算每一下的時間間隔
     let prev = 0;
     const swingIntervals = times.map((t) => {
       const dt = (t - prev) * totalTime;
@@ -160,24 +157,40 @@ export class PointerAnim extends Component {
       return dt;
     });
 
-    // ===== Tween 組合 =====
     let seq = tween(this.pivotNode);
 
-    // 1) 前快後慢 → 擺動
-    swingIntervals.forEach((dt) => {
+    swingIntervals.forEach((dt, idx) => {
       const half = dt / 2;
-      seq = seq
-        .to(half, { angle: swingAngle }, { easing: 'linear' })
-        .call(() => this.Audio.AudioSources[4].play()) // 播放指針音效
-        .to(half, { angle: 4 }, { easing: 'linear' });
+      const isfourLast = idx === totalSwings - 4;
+      const isThirdLast = idx === totalSwings - 3; // 倒數第3下
+      const isSecondLast = idx === totalSwings - 2; // 倒數第2下
+      const isLast = idx === totalSwings - 1; // 倒數最後1下
+
+      if (isLast) {
+        // ✅ 倒數最後一下：上擺後停住
+        seq = seq
+          .to(half, { angle: swingAngle }, { easing: 'sineOut' })
+          .call(() => this.Audio.AudioSources[4].play())
+          .delay(1.5); // 在上擺位置停 1.5 秒
+        // 下擺到 0 會放到最後統一處理
+      } else {
+        // ✅ 一般擺動
+        let targetAngle = 0;
+        if (isfourLast) targetAngle = 10;
+        else if (isThirdLast) targetAngle = 10;
+        else if (isSecondLast) targetAngle = 25;
+        seq = seq
+          .to(half, { angle: swingAngle }, { easing: 'sineOut' })
+          .call(() => this.Audio.AudioSources[4].play())
+          .to(half, { angle: targetAngle }, { easing: 'sineIn' });
+      }
     });
 
-    // 2) 停住 (和轉盤超轉的 holdTime 同步)
-    seq = seq.delay(holdTime);
-
-    // 3) 回正
+    // === 最後回正 (和轉盤回正同步) ===
     seq = seq.to(reboundTime, { angle: 0 }, { easing: 'quadIn' });
 
     seq.call(() => console.log('✅ 指針動畫完成')).start();
   }
+
+  // 'linear'、'expoOut'
 }

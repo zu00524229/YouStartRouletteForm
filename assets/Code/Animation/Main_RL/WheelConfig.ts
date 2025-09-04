@@ -6,7 +6,7 @@ export const WheelSyncConfig = {
   lotterSecsL: 7, // 抽獎動畫持續時間
   overshootTime: 3.5, // 超轉段時間
   reboundTime: 1.0, // 回正時間
-  overshootAngle: 4, // 超轉角度
+  overshootAngle: 7, // 超轉角度
 };
 
 // 用於 轉盤/指針 動畫2共用變數
