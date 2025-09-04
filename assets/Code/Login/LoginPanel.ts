@@ -34,12 +34,15 @@ export class LoginPanel extends Component {
     this.passwordInput.node.on('editing-return', this.onLoginClick, this);
 
     // 滑鼠事件
-    this.node.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
+    this.loginButton.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
   }
 
   onDisable() {
     console.log('🔎 loginButton =', this.loginButton);
-    this.node.off(Node.EventType.TOUCH_END, this.onLoginClick, this);
+    this.loginButton.off(Node.EventType.TOUCH_END, this.onLoginClick, this);
+
+    this.usernameInput.node.off('editing-return', this.onLoginClick, this);
+    this.passwordInput.node.off('editing-return', this.onLoginClick, this);
     input.off(Input.EventType.KEY_DOWN, this.onKeyDown, this);
   }
 
