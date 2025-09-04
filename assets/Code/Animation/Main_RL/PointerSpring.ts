@@ -139,8 +139,8 @@ export class PointerAnim extends Component {
 
     tween(this.pivotNode).stop();
 
-    const swingAngle = 25;
-    const totalSwings = 16;
+    const swingAngle = 21;
+    const totalSwings = 22;
 
     // easing: 前快後慢
     const times: number[] = [];
@@ -176,18 +176,25 @@ export class PointerAnim extends Component {
       } else {
         // ✅ 一般擺動
         let targetAngle = 0;
-        if (isfourLast) targetAngle = 10;
-        else if (isThirdLast) targetAngle = 10;
-        else if (isSecondLast) targetAngle = 25;
+        if (isfourLast) targetAngle = 10; // 10
+        else if (isThirdLast) targetAngle = 20; // 10
+        else if (isSecondLast) targetAngle = 21; // 22
+
         seq = seq
-          .to(half, { angle: swingAngle }, { easing: 'sineOut' })
-          .call(() => this.Audio.AudioSources[4].play())
-          .to(half, { angle: targetAngle }, { easing: 'sineIn' });
+          .to(half, { angle: swingAngle }, { easing: 'linear' })
+          .call(() => {
+            this.Audio.AudioSources[4].play();
+            console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          })
+          .to(half, { angle: targetAngle }, { easing: 'quartIn' })
+          .call(() => {
+            console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          });
       }
     });
 
     // === 最後回正 (和轉盤回正同步) ===
-    seq = seq.to(reboundTime, { angle: 0 }, { easing: 'quadIn' });
+    seq = seq.to(reboundTime * 0.8, { angle: 0 }, { easing: 'quadIn' });
 
     seq.call(() => console.log('✅ 指針動畫完成')).start();
   }
