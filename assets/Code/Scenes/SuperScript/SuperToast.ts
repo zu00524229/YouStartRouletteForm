@@ -60,8 +60,8 @@ export class SuperToast extends Component {
 
   // ======================= BIG WIN (PICK)獎金提示 =========================
   showEPICTips(mult: number, total: number) {
-    console.log('SupWinTotalContainer=', this.SupWinTotalContainer?.name, 'uuid=', this.SupWinTotalContainer?._uuid);
-    console.log('SupWinMultContainer=', this.SupWinMultContainer?.name, 'uuid=', this.SupWinMultContainer?._uuid);
+    console.log('SupWinTotalContainer=', this.SupWinTotalContainer?.name, 'uuid=', this.SupWinTotalContainer?.uuid);
+    console.log('SupWinMultContainer=', this.SupWinMultContainer?.name, 'uuid=', this.SupWinMultContainer?.uuid);
 
     this.SupWinTips.active = true;
     this.SupWinTips.setSiblingIndex(9999);

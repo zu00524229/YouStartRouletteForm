@@ -115,7 +115,8 @@ export class Toast extends Component {
     const opacity = this.WinningTips.getComponent(UIOpacity);
     if (!opacity) {
       this.WinningTips.active = false;
-      this.Audio.AudioSources[6].stop(); // 金幣音效
+      this.Audio.AudioSources[3].stop(); //一般得分音效
+      this.Audio.AudioSources[5].stop(); // 金幣音效
       return;
     }
 
@@ -125,6 +126,10 @@ export class Toast extends Component {
         this.WinningTips.active = false;
         // AudioManager.instance.stopBGM();
         // this.WinTextContainer.removeAllChildren();
+        // 停止音效
+        this.Audio.AudioSources[3].stop(); // 一般得分音效
+        this.Audio.AudioSources[5].stop(); // 金幣音效
+
         this.WinTotalContainer.removeAllChildren();
         this.WinMultContainer.removeAllChildren();
       })

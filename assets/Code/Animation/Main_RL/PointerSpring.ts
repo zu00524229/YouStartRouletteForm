@@ -111,10 +111,10 @@ export class PointerAnim extends Component {
 
       if (isLast) {
         // ✅ 倒數最後一下：上擺後停住
-        let lastSwingAngle = 15;
+        let lastSwingAngle = 12;
         seq = seq.to(half, { angle: lastSwingAngle }, { easing: 'sineOut' }).call(() => {
           this.Audio.AudioSources[4].play();
-          // console.log(`第 ${idx + 1} 下 🔼 上擺結束(緩慢): ${this.pivotNode.angle.toFixed(2)}°`);
+          console.log(`第 ${idx + 1} 下 🔼 上擺結束(緩慢): ${this.pivotNode.angle.toFixed(2)}°`);
         });
         // .delay(0.8); // 在上擺位置停 1.5 秒
         // 下擺到 0 會放到最後統一處理
@@ -125,19 +125,19 @@ export class PointerAnim extends Component {
         if (isfourLast || isfiveLast || isSixLast) {
           targetAngle = 10;
         } else if (isThirdLast) {
-          targetAngle = 7;
+          targetAngle = 5;
         } else if (isSecondLast) {
-          targetAngle = 7;
-          upAngle = 7;
+          targetAngle = 5;
+          upAngle = 5;
           seq = seq
             .to(half, { angle: upAngle }, { easing: 'sineOut' }) // ⬅ 緩慢上擺
             .call(() => {
               this.Audio.AudioSources[4].play();
-              // console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+              console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
             })
             .to(half, { angle: targetAngle }, { easing: 'sineIn' })
             .call(() => {
-              // console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+              console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
             })
             .delay(reboundTime * 0.8);
         }
@@ -146,11 +146,11 @@ export class PointerAnim extends Component {
           .to(half, { angle: upAngle }, { easing: 'linear' })
           .call(() => {
             this.Audio.AudioSources[4].play();
-            // console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+            console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           })
           .to(half, { angle: targetAngle }, { easing: 'quartIn' })
           .call(() => {
-            // console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+            console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           });
       }
     });

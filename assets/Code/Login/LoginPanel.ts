@@ -1,5 +1,5 @@
 import { SignalRClient } from './../Signal/SignalRClient';
-import { _decorator, Component, director, EditBox, Label, Node } from 'cc';
+import { _decorator, Component, director, EditBox, EventKeyboard, input, Input, KeyCode, Label, Node } from 'cc';
 import { player, playerState } from './playerState';
 import { ToastMessage } from '../Managers/Toasts/ToastMessage';
 const { ccclass, property } = _decorator;
@@ -22,34 +22,36 @@ export class LoginPanel extends Component {
     SignalRClient.connect((user, message) => {
       console.log(`📩 [訊息忽略] ${user}: ${message}`);
     });
-
-    // this.loginButton.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
     console.log('✅ LoginPanel 已初始化');
   }
 
   onEnable() {
     console.log('🔎 loginButton =', this.loginButton);
-    // ✅ 在啟用時綁定
-    // if (this.loginButton && this.loginButton.isValid) {
-    //   this.loginButton.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
-    // }
+    input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+
+    // 在帳號或密碼輸入框按 Enter 都能觸發登入
+    this.usernameInput.node.on('editing-return', this.onLoginClick, this);
+    this.passwordInput.node.on('editing-return', this.onLoginClick, this);
+
+    // 滑鼠事件
     this.node.on(Node.EventType.TOUCH_END, this.onLoginClick, this);
   }
 
   onDisable() {
     console.log('🔎 loginButton =', this.loginButton);
-
-    // if (this.loginButton && this.loginButton.isValid) {
-    //   try {
-    //     this.loginButton.off(Node.EventType.TOUCH_END, this.onLoginClick, this);
-    //   } catch (e) {
-    //     console.warn('⚠️ loginButton 已被銷毀，跳過解綁');
-    //   }
-    // }
     this.node.off(Node.EventType.TOUCH_END, this.onLoginClick, this);
+    input.off(Input.EventType.KEY_DOWN, this.onKeyDown, this);
   }
 
   start() {}
+
+  private onKeyDown(event: EventKeyboard) {
+    if (event.keyCode === KeyCode.ENTER || event.keyCode === KeyCode.NUM_ENTER) {
+      console.log('🔑 按下 Enter，觸發登入');
+      // 直接模擬點擊登入按鈕
+      this.onLoginClick();
+    }
+  }
 
   onLoginClick() {
     if (this.isLoggingIn) return; // 防止重複送出
