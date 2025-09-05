@@ -98,7 +98,7 @@ export class SignalRClient {
       if (lastResult && lastBalance) {
         const unified: UnifiedLotteryEvent = {
           ...lastResult,
-          roundId: lastBalance.roundId, // 局號
+          roundId: String(lastBalance.roundId), // 局號
           balanceBefore: lastBalance.balanceBefore,
           balanceAfter: lastBalance.balanceAfter,
           totalBet: lastBalance.totalBet,
@@ -155,6 +155,17 @@ export class SignalRClient {
       console.warn('⚠️ SignalR 尚未連線完成，不能送下注');
       return;
     }
+
+    // ✅ 防呆：檢查下注資料是否有效(防止 Heisenbug 程序錯誤)
+    if (!data || !data.totalBet || data.totalBet <= 0) {
+      console.warn('⚠️ 無效的下注資料，不送 StartLottery', data);
+      return;
+    }
+    if (!data.betAmounts || Object.keys(data.betAmounts).length === 0) {
+      console.warn('⚠️ 沒有下注區域，不送 StartLottery', data);
+      return;
+    }
+
     if (this._hubProxy) {
       this._hubProxy
         .invoke('StartLottery', data)

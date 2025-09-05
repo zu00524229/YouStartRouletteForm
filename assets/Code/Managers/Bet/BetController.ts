@@ -59,7 +59,7 @@ export class BetController extends Component {
     }
 
     // 呼叫 ChipManager 執行下注,回傳結果
-    const result = this.chipManager.performBet(betNode, chipValue, actionId, 'bet');
+    const result = this.chipManager.performBetMerged(betNode, chipValue, actionId, 'bet');
 
     if (result) {
       // ✅ 建立動作紀錄（單擊下注也要 push）
@@ -106,7 +106,8 @@ export class BetController extends Component {
     for (const betNode of areas) {
       const areaName = betNode.name;
 
-      this.chipManager.performBet(betNode, selected, actionId, 'bet');
+      // this.chipManager.performBet(betNode, selected, actionId, 'bet');
+      this.chipManager.performBetMerged(betNode, selected, actionId, 'bet');
 
       // 加入動作紀錄
       actionRecord.actions.push({
@@ -187,7 +188,8 @@ export class BetController extends Component {
       // ================== 統一交給 ChipManager.performBet 方法計算 ========================
       while (remaining > 0) {
         const chipValue = this.chipManager.getClosestChip(remaining); // 根據剩餘金額取出最接近的籌碼面額
-        const result = this.chipManager.performBet(betNode, chipValue, actionId, 'bet');
+        // const result = this.chipManager.performBet(betNode, chipValue, actionId, 'bet');
+        const result = this.chipManager.performBetMerged(betNode, chipValue, actionId, 'bet');
         if (result) {
           actionRecord.actions.push(result); // 收集下注結果
         }

@@ -147,7 +147,7 @@ export class ChipManager extends Component {
   }
 
   private mergeTimers: { [key: string]: (() => void) | null } = {}; // 每個下注區各自紀錄一個計時器 callback
-  //? 2) 下注主要邏輯
+  //? 舊版下注邏輯
   performBet(betNode: Node, chipValue: number, actionId: number, type: 'bet' | 'again') {
     const areaName = betNode.name;
     this.Balance_Num -= chipValue; // 扣除餘額
@@ -353,5 +353,78 @@ export class ChipManager extends Component {
       actionId,
       actions,
     });
+  }
+
+  //? 新版：直接更新合併籌碼
+  public performBetMerged(betNode: Node, chipValue: number, actionId: number, type: 'bet' | 'again') {
+    const areaName = betNode.name;
+    this.Balance_Num -= chipValue; // 扣除餘額
+    this.Bet_Num += chipValue; // 增加總下注金額
+
+    // 更新該區域下注金額
+    this.betAmounts[areaName] = (this.betAmounts[areaName] || 0) + chipValue;
+
+    // 🎯 直接更新合併籌碼
+    this.updateMergedChip(betNode);
+
+    // 同步更新下注區 Label
+    this.updateBetAmountLabel(betNode, this.betAmounts[areaName]);
+    this.updateGlobalLabels();
+
+    this.Audio.AudioSources[1].play(); // 下注音效
+    // 發送事件通知
+    this.node.emit('bet-updated');
+
+    return {
+      areaName,
+      amount: chipValue,
+      chips: [chipValue],
+    };
+  }
+
+  //? 新版:更新單一合併籌碼
+  private updateMergedChip(betNode: Node) {
+    const totalAmount = this.betAmounts[betNode.name] || 0;
+
+    // 清除舊的 Chip
+    betNode.children.filter((c) => c.name === 'Chip').forEach((c) => c.removeFromParent());
+
+    if (totalAmount <= 0) {
+      this.updateBetAmountLabel(betNode, 0);
+      this.lastMergedBets[betNode.name] = 0;
+      return;
+    }
+
+    // 選擇對應的籌碼 prefab
+    const prefab = this.getChipPrefabByAmount(totalAmount);
+    const mergedChip = instantiate(prefab);
+    mergedChip.name = 'Chip';
+    betNode.addChild(mergedChip);
+    mergedChip.setPosition(0, 0, 0);
+    mergedChip.setScale(new Vec3(1.2, 1.2, 1));
+
+    // 隱藏數字
+    const numberNode = find('ChangeColor/Number', mergedChip);
+    if (numberNode) numberNode.active = false;
+
+    // 顯示金額 Label
+    const amountNode = find('ChangeColor/AmountLabel', mergedChip);
+    if (amountNode) {
+      const amountLabel = amountNode.getComponent(Label);
+      if (amountLabel) {
+        amountLabel.string = String(totalAmount);
+        amountLabel.node.active = true;
+        amountLabel.fontSize = totalAmount >= 10000 ? 24 : 30;
+      }
+    }
+
+    this.lastMergedBets[betNode.name] = totalAmount;
+
+    // 🎬 縮放動畫（像舊版 createChipInArea）
+    mergedChip.setScale(new Vec3(1.0, 1.0, 1));
+    tween(mergedChip)
+      .to(0.1, { scale: new Vec3(1.4, 1.4, 1) })
+      .to(0.1, { scale: new Vec3(1.2, 1.2, 1) })
+      .start();
   }
 }
