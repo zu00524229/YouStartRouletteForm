@@ -156,7 +156,7 @@ export class SignalRClient {
       return;
     }
 
-    // ✅ 防呆：檢查下注資料是否有效(防止 Heisenbug 程序錯誤)
+    // ✅ 防呆：檢查下注資料是否有效(防止 Heisenbug 時序敏感)
     if (!data || !data.totalBet || data.totalBet <= 0) {
       console.warn('⚠️ 無效的下注資料，不送 StartLottery', data);
       return;
