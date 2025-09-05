@@ -70,7 +70,7 @@ export class TurnAnim extends Component {
     // 找到指針動畫
     const pointer = this.dotContainerNode.getComponent('PointerAnim') as any;
     if (pointer) {
-      pointer.playPointerSwing3(fullTime);
+      pointer.playPointerSwing3(fullTime, reboundTime);
     }
 
     tween(this.turnBgNode)

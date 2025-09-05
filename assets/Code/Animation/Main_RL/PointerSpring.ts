@@ -16,62 +16,143 @@ export class PointerAnim extends Component {
   swingInterval: number = 0.15; // 每次來回時間（越小越快）
 
   //! 指針動畫3
-  playPointerSwing3(fullTime: number) {
-    if (!this.pivotNode) {
-      console.warn('⚠️ pivotNode 未設置，請在 Inspector 拖一個控節點進來！');
-      return;
-    }
+  playPointerSwing3(totalTime: number, reboundTime: number) {
+    if (!this.pivotNode) return;
+
     tween(this.pivotNode).stop();
 
-    // const fullTime = preStopTime + WheelThreeConfig.delayPointerSwing + reboundTime;
-    const swingAngle = 40; // 最大右擺角度
-    const totalSwings = 16;
-    const activeSwings = 14;
-    const times: number[] = [];
+    const swingAngle = 20;
+    const totalSwings = 22;
 
-    // 前快後慢
-    for (let i = 1; i <= activeSwings; i++) {
-      times.push(Math.pow(i / totalSwings, 3));
+    // easing: 前快後慢
+    const times: number[] = [];
+    for (let i = 1; i <= totalSwings; i++) {
+      const progress = i / totalSwings;
+      const eased = Math.pow(progress, 3);
+      times.push(eased);
     }
 
     let prev = 0;
     const swingIntervals = times.map((t) => {
-      const dt = (t - prev) * fullTime;
+      const dt = (t - prev) * totalTime;
       prev = t;
       return dt;
     });
 
     let seq = tween(this.pivotNode);
 
-    // 前 14 下：在 40 ↔ 30 間擺動
-    swingIntervals.forEach((dt, i) => {
+    swingIntervals.forEach((dt, idx) => {
       const half = dt / 2;
-      if (i === 14) {
+      const isLast = idx === totalSwings - 1; // 倒數最後1下
+      const isSecondLast = idx === totalSwings - 2; // 倒數第2下
+      const isThirdLast = idx === totalSwings - 3; // 倒數第3下
+      // const isfourLast = idx === totalSwings - 4;
+      // const isfiveLast = idx === totalSwings - 5;
+      // const isSixLast = idx === totalSwings - 6;
+
+      if (isThirdLast) {
+        // === 倒數第3下：對應盤面「超轉 → 彈回」===
         seq = seq
-          .to(half, { angle: swingAngle }, { easing: 'quadOut' })
-          .call(() => this.Audio.AudioSources[4].play())
-          .to(half, { angle: 20 }, { easing: 'quadIn' });
+          .to(half, { angle: 8 }, { easing: 'sineOut' }) // 上擺
+          .call(() => {
+            this.Audio.AudioSources[4].play();
+            // console.log(`🔼 倒數第3下 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          })
+          .to(half, { angle: 8 }, { easing: 'sineIn' }) // 被彈回
+          .call(() => {
+            // console.log(`🔽 倒數第3下 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          })
+          .delay(reboundTime * 1.5);
+      } else if (isSecondLast) {
+        // === 倒數第2下：對應盤面「推回 target+2°」===
+        seq = seq
+          .to(half, { angle: 20 }, { easing: 'sineOut' }) // 卡住
+          .call(() => {
+            this.Audio.AudioSources[4].play();
+            // console.log(`🔼 倒數第2下 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          })
+          .to(half, { angle: 15 }, { easing: 'sineIn' }) // 慢慢回
+          .call(() => {
+            // console.log(`🔽 倒數第2下 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          });
+        // .delay(reboundTime);
+      } else if (isLast) {
+        // === 倒數第1下：對應盤面「超轉 → 彈回」===
+        seq = seq
+          .to(half, { angle: 18 }, { easing: 'sineOut' }) // 上擺
+          .call(() => {
+            this.Audio.AudioSources[4].play();
+            // console.log(`🔼 倒數第3下 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          })
+          .to(half, { angle: -5 }, { easing: 'sineIn' }) // 被彈回
+          .call(() => {
+            // console.log(`🔽 倒數第3下 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          })
+          .delay(reboundTime * 0.5);
+        // 下擺回正會放在最後統一處理
       } else {
+        // === 一般擺動 ===
         seq = seq
-          .to(half, { angle: swingAngle }, { easing: 'quadOut' })
-          .call(() => this.Audio.AudioSources[4].play())
-          .to(half, { angle: 30 }, { easing: 'quadIn' });
+          .to(half, { angle: swingAngle }, { easing: 'linear' })
+          .call(() => {
+            this.Audio.AudioSources[4].play();
+            // console.log(`🔼 一般上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          })
+          .to(half, { angle: 0 }, { easing: 'quartIn' })
+          .call(() => {
+            // console.log(`🔽 一般下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          });
       }
     });
 
-    // 第 15 下：停在 swingAngle
-    seq = seq.to(WheelThreeConfig.reboundTime * 0.5, { angle: 8 }, { easing: 'quadOut' }).call(() => this.Audio.AudioSources[4].play());
+    // === 最後回正 (和轉盤回正同步) ===
+    seq = seq.to(reboundTime * 0.6, { angle: 0 }, { easing: 'quadOut' });
 
-    // 停留
-    seq = seq.delay(WheelThreeConfig.delayPointerSwing); // 高點停留時間
+    seq.call(() => console.log('✅ 指針動畫完成')).start();
 
-    // 第 16 下：補進終點回正
-    // 最後：先被「頂上去」再回正
-    seq = seq
-      .to(WheelThreeConfig.reboundTime * 1.4, { angle: 40 }, { easing: 'quadOut' }) //
-      .to(WheelThreeConfig.reboundTime * 0.8, { angle: 0 }, { easing: 'quadIn' }); // ➡️ 再回正
+    // // 前快後慢
+    // for (let i = 1; i <= activeSwings; i++) {
+    //   times.push(Math.pow(i / totalSwings, 3));
+    // }
 
-    seq.call(() => console.log('✅ 指針動畫3完成')).start();
+    // let prev = 0;
+    // const swingIntervals = times.map((t) => {
+    //   const dt = (t - prev) * fullTime;
+    //   prev = t;
+    //   return dt;
+    // });
+
+    // let seq = tween(this.pivotNode);
+
+    // // 前 14 下：在 40 ↔ 30 間擺動
+    // swingIntervals.forEach((dt, i) => {
+    //   const half = dt / 2;
+    //   if (i === 14) {
+    //     seq = seq
+    //       .to(half, { angle: swingAngle }, { easing: 'quadOut' })
+    //       .call(() => this.Audio.AudioSources[4].play())
+    //       .to(half, { angle: 20 }, { easing: 'quadIn' });
+    //   } else {
+    //     seq = seq
+    //       .to(half, { angle: swingAngle }, { easing: 'quadOut' })
+    //       .call(() => this.Audio.AudioSources[4].play())
+    //       .to(half, { angle: 30 }, { easing: 'quadIn' });
+    //   }
+    // });
+
+    // // 第 15 下：停在 swingAngle
+    // seq = seq.to(WheelThreeConfig.reboundTime * 0.5, { angle: 8 }, { easing: 'quadOut' }).call(() => this.Audio.AudioSources[4].play());
+
+    // // 停留
+    // seq = seq.delay(WheelThreeConfig.delayPointerSwing); // 高點停留時間
+
+    // // 第 16 下：補進終點回正
+    // // 最後：先被「頂上去」再回正
+    // seq = seq
+    //   .to(WheelThreeConfig.reboundTime * 1.4, { angle: 40 }, { easing: 'quadOut' }) //
+    //   .to(WheelThreeConfig.reboundTime * 0.8, { angle: 0 }, { easing: 'quadIn' }); // ➡️ 再回正
+
+    // seq.call(() => console.log('✅ 指針動畫3完成')).start();
   }
 
   //! 指針動畫2
