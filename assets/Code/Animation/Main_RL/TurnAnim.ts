@@ -108,7 +108,7 @@ export class TurnAnim extends Component {
     // 時間控制
     const totalTime = WheelConfig.lotterSecsL;
     const reboundTime = WheelConfig.reboundTime;
-    const holdTime = 0.5; // 停留秒數（可調整）
+    const holdTime = 1.0; // 停留秒數（可調整）
 
     // 自訂 easing：越到尾端越慢
     const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 5);
@@ -150,7 +150,7 @@ export class TurnAnim extends Component {
     // 時間控制
     const totalTime = WheelSyncConfig.lotterSecsL;
     const reboundTime = WheelSyncConfig.reboundTime;
-    const holdTime = 0.5; // 停留秒數（可調整）
+    const holdTime = 1.0; // 停留秒數（可調整）
 
     // 自訂 easing：越到尾端越慢
     const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 5);
