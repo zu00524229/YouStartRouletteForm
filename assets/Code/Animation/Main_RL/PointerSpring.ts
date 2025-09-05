@@ -308,12 +308,12 @@ export class PointerAnim extends Component {
           })
           .to(half, { angle: 0 }, { easing: 'quartIn' }) // 回到 0
           .call(() => {
-            console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+            // console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           });
       } else if (isThirdLast) {
         // ✅ 倒數第3下：固定到 22°
         seq = seq
-          .to(half, { angle: 22 }, { easing: 'linear' })
+          .to(half, { angle: 25 }, { easing: 'linear' })
           .call(() => {
             this.Audio.AudioSources[4].play();
             // console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
