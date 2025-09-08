@@ -101,17 +101,17 @@ export class TurnAnim extends Component {
     // console.log('🎯 準備轉盤角度', targetAngle);
 
     // 設定超轉角度（轉過頭一點）
-    let overshootAngle = targetAngle + WheelConfig.overshootAngle;
+    let overshootAngle = targetAngle - WheelConfig.overshootAngle;
     // const undershootDeg = Math.abs(WheelSyncConfig.overshootAngle) || 12;
     // const stopBeforeAngle = targetAngle + undershootDeg;
 
     // 時間控制
     const totalTime = WheelConfig.lotterSecsL;
     const reboundTime = WheelConfig.reboundTime;
-    const holdTime = 1.0; // 停留秒數（可調整）
+    const holdTime = 1.5; // 停留秒數（可調整）
 
     // 自訂 easing：越到尾端越慢
-    const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 5);
+    const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 2.5);
     // 如果想更誇張，改成 6、7 都可以
 
     // 指針動畫同步
@@ -122,13 +122,16 @@ export class TurnAnim extends Component {
 
     tween(this.turnBgNode)
       // 1) 一路旋轉到 overshootAngle，用自訂 easing
-      .to(totalTime, { angle: overshootAngle }, { easing: superSlowOut })
+      .to(totalTime * 0.8, { angle: overshootAngle + 1 }, { easing: superSlowOut })
 
       // 2) 停住
       .delay(holdTime)
 
-      // 3) 回正
-      .to(reboundTime, { angle: targetAngle }, { easing: 'quadIn' })
+      .to(totalTime * 0.2, { angle: overshootAngle }, { easing: superSlowOut })
+
+      // 3) 補正
+      .to(reboundTime * 0.7, { angle: targetAngle + 2 }, { easing: 'quadIn' })
+      .to(reboundTime * 0.3, { angle: targetAngle }, { easing: 'quadIn' })
 
       .call(() => onFinished?.())
       .start();
