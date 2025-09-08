@@ -130,8 +130,8 @@ export class TurnAnim extends Component {
       .to(totalTime * 0.2, { angle: overshootAngle }, { easing: superSlowOut })
 
       // 3) 補正
-      .to(reboundTime * 0.7, { angle: targetAngle + 2 }, { easing: 'quadIn' })
-      .to(reboundTime * 0.3, { angle: targetAngle }, { easing: 'quadIn' })
+      .to(reboundTime * 0.65, { angle: targetAngle + 2 }, { easing: 'quadIn' })
+      .to(reboundTime * 0.35, { angle: targetAngle }, { easing: 'quadIn' })
 
       .call(() => onFinished?.())
       .start();
@@ -139,7 +139,7 @@ export class TurnAnim extends Component {
 
   //! 轉盤動畫1
   playWheelAnimation(rewardIndex: number, rewardName: string, multiplier: number, data: UnifiedLotteryEvent, onFinished: () => void) {
-    const rotatelottertSecs = 7; // 轉圈數
+    const rotatelottertSecs = 12; // 轉圈數
     // 先初始化轉盤角度，避免累積太多旋轉角度
     this.turnBgNode.angle %= 360;
 
@@ -153,10 +153,10 @@ export class TurnAnim extends Component {
     // 時間控制
     const totalTime = WheelSyncConfig.lotterSecsL;
     const reboundTime = WheelSyncConfig.reboundTime;
-    const holdTime = 1.0; // 停留秒數（可調整）
+    const holdTime = 2.0; // 停留秒數（可調整）
 
     // 自訂 easing：越到尾端越慢
-    const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 5);
+    const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 2.5);
     // 如果想更誇張，改成 6、7 都可以
 
     // 指針動畫同步
@@ -173,7 +173,7 @@ export class TurnAnim extends Component {
       .delay(holdTime)
 
       // 3) 回正
-      .to(reboundTime, { angle: targetAngle }, { easing: 'quadIn' })
+      .to(reboundTime * 1.5, { angle: targetAngle }, { easing: 'quadIn' })
 
       .call(() => onFinished?.())
       .start();
