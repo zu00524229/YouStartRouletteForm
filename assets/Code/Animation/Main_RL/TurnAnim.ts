@@ -131,8 +131,8 @@ export class TurnAnim extends Component {
       .to(totalTime * 0.2, { angle: overshootAngle }, { easing: superSlowOut })
 
       // 3) 補正
-      .to(reboundTime * 0.65, { angle: targetAngle + 2 }, { easing: 'quadIn' })
-      .to(reboundTime * 0.35, { angle: targetAngle }, { easing: 'quadIn' })
+      .to(reboundTime * 0.65, { angle: targetAngle + 1 }, { easing: 'quadIn' })
+      .to(reboundTime * 0.4, { angle: targetAngle }, { easing: 'quadIn' })
 
       .call(() => onFinished?.())
       .start();
