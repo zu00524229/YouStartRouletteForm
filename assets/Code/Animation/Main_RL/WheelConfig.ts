@@ -24,5 +24,5 @@ export const WheelThreeConfig = {
   delayPointerSwing: 1.5, // 停留時間
   reboundTime: 0.8, // 回正時間
   // overshootAngle: 5, // 超轉角度（動畫用）
-  preStopAngle: 3.6, // 提前停在終點前的角度
+  preStopAngle: 2, // 提前停在終點前的角度
 };

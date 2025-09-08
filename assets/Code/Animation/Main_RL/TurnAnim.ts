@@ -48,7 +48,7 @@ export class TurnAnim extends Component {
 
   //! 轉盤動畫3
   playWheelAnimation3(rewardIndex: number, rewardName: string, multiplier: number, data: UnifiedLotteryEvent, onFinished: () => void) {
-    const rotatelottertSecs = 7; // 轉圈數
+    const rotatelottertSecs = 10; // 轉圈數
     this.turnBgNode.angle %= 360;
     // const startAngle = this.turnBgNode.angle;
 
@@ -80,12 +80,13 @@ export class TurnAnim extends Component {
 
       // 第二段：往回「過頭」一點 (像是被指針卡住往回甩)
       .to(reboundTime * 2.0, { angle: preStopAngle - 10 }, { easing: 'quadOut' })
+      .delay(0.5)
 
       // 身為被指針往回推
-      .to(reboundTime * 0.8, { angle: targetAngle + 2.0 }, { easing: 'quadOut' })
+      .to(reboundTime * 1.2, { angle: targetAngle + 2.0 }, { easing: 'quadOut' })
 
       // 後段：再補進終點
-      .to(reboundTime * 0.6, { angle: targetAngle }, { easing: 'quadInOut' })
+      .to(reboundTime * 0.8, { angle: targetAngle }, { easing: 'quadInOut' })
       .call(() => onFinished?.())
       .start();
   }
