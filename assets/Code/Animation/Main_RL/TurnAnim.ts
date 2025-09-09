@@ -64,9 +64,11 @@ export class TurnAnim extends Component {
     let preStopTime = WheelThreeConfig.lotterSecsL - WheelThreeConfig.reboundTime;
     let reboundTime = WheelThreeConfig.reboundTime;
     let delay = WheelThreeConfig.delayPointerSwing;
-    const holdTime = 0.1;
+    const holdTime = 0.05;
 
     let fullTime = preStopTime + delay + reboundTime; // 總時間 = 前段 + 停留 + 回正;
+    // 自訂 easing：越到尾端越慢
+    const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 2.5);
 
     // 找到指針動畫
     const pointer = this.dotContainerNode.getComponent('PointerAnim') as any;
@@ -76,7 +78,7 @@ export class TurnAnim extends Component {
 
     tween(this.turnBgNode)
       // 前段：到終點前角度（幾乎停下）
-      .to(preStopTime, { angle: preStopAngle }, { easing: 'cubicOut' })
+      .to(preStopTime, { angle: preStopAngle }, { easing: superSlowOut })
 
       // 第二段：往回「過頭」一點 (像是被指針卡住往回甩)
       .to(reboundTime, { angle: preStopAngle - 10 }, { easing: 'quadOut' })
