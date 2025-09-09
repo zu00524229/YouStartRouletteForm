@@ -169,22 +169,30 @@ export class BetController extends Component {
       actions: [] as { areaName: string; amount: number; chips: number[] }[],
     };
 
-    // 遍歷所有下注區域節點
+    //  先計算全部加倍需要的總金額
+    let totalDoubleAmount = 0;
     for (const betNode of this.chipManager.getBetAreas()) {
-      const areaName = betNode.name; // 取得下注區名稱
-      const currentAmount = this.chipManager.betAmounts[areaName] || 0; // 取得該區已下注金額，預設為 0
-
-      if (currentAmount === 0) continue; // 若該區尚未下注，跳過這一圈
-      const doubleAmount = currentAmount; // 要額外再下注相同金額（加倍）
-
-      // 餘額不足，無法加倍，跳過該區域
-      if (this.chipManager.Balance_Num < doubleAmount) {
-        ToastMessage.showToast(`❌ 餘額不足，無法在加倍下注！`);
-        continue;
+      const areaName = betNode.name;
+      const currentAmount = this.chipManager.betAmounts[areaName] || 0;
+      if (currentAmount > 0) {
+        totalDoubleAmount += currentAmount; // 加倍需要再補同樣金額
       }
+    }
+
+    // 餘額不足，無法加倍，跳過該區域
+    if (this.chipManager.Balance_Num < totalDoubleAmount) {
+      ToastMessage.showToast(`餘額不足，無法加倍！`);
+      return;
+    }
+
+    // 餘額足夠 → 執行加倍下注
+    for (const betNode of this.chipManager.getBetAreas()) {
+      const areaName = betNode.name;
+      const currentAmount = this.chipManager.betAmounts[areaName] || 0;
+      if (currentAmount === 0) continue;
 
       // 依照加倍金額產生籌碼並顯示在畫面上
-      let remaining = doubleAmount;
+      let remaining = currentAmount;
       // ================== 統一交給 ChipManager.performBet 方法計算 ========================
       while (remaining > 0) {
         const chipValue = this.chipManager.getClosestChip(remaining); // 根據剩餘金額取出最接近的籌碼面額

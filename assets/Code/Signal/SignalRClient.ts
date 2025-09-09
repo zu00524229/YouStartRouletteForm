@@ -1,4 +1,5 @@
 import { _decorator, Component, director, Node } from 'cc';
+import { ToastMessage } from '../Managers/Toasts/ToastMessage';
 import { LotteryResponse, LotteryResultEvent, PlaceBetRequest, SIGNALR_EVENTS, UnifiedLotteryEvent } from '../Type/Types'; // 型別呼叫
 
 const { ccclass } = _decorator;
@@ -61,6 +62,13 @@ export class SignalRClient {
             this.registerLotteryHandlers();
             this._handlersRegistered = true;
           }
+
+          // ✅ 加上斷線提示
+          this._connection.disconnected = () => {
+            console.warn('⚠️ 與 SignalR 斷線');
+            this._isConnected = false;
+            ToastMessage.showToast('已斷線');
+          };
         })
         .fail((err: any) => {
           console.error('❌ SignalR 連線失敗:', err);
@@ -73,6 +81,7 @@ export class SignalRClient {
   // =================== 單區下注 ==================
   public static placeBet(req: PlaceBetRequest) {
     if (!this._hubProxy || !this._connection || this._connection.state !== 1) {
+      ToastMessage.showToast('已斷線');
       console.warn('⚠️ SignalR 尚未連線完成，不能送下注');
       return;
     }
@@ -153,6 +162,7 @@ export class SignalRClient {
     if (!this._hubProxy || !this._connection || this._connection.state !== 1) {
       // 1 = connected
       console.warn('⚠️ SignalR 尚未連線完成，不能送下注');
+      ToastMessage.showToast('已斷線');
       return;
     }
 

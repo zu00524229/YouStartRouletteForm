@@ -76,8 +76,10 @@ export class BetSelectorAnima extends Component {
   }
 
   // ========= 籌碼選單(動畫滑出/淡出) ===========
+  private isAnimating: boolean = false;
   // 點擊籌碼選單按鈕
   onClickChipButton() {
+    if (this.isAnimating) return; // 防止動畫中連點
     if (this.isPopupVisible) {
       this.hideChipPopup();
     } else {
@@ -87,6 +89,7 @@ export class BetSelectorAnima extends Component {
 
   // 顯示動畫
   showChipPopup() {
+    this.isAnimating = true; // 鎖住 防止連點
     // console.log('已啟用');
     this.Audio.AudioSources[0].play(); // 播放按鈕音效
     this.chipPopupPanel.active = true;
@@ -97,37 +100,35 @@ export class BetSelectorAnima extends Component {
     const localBtnPos = this.chipPopupPanel.parent!.getComponent(UITransform).convertToNodeSpaceAR(worldBtnPos);
     // 再根據這個位置設定起點與終點
     const popupStart = new Vec3(localBtnPos.x, localBtnPos.y - 50, 0); // 從按鈕下方開始
-    const popupEnd = new Vec3(localBtnPos.x, localBtnPos.y + 50, 0); // 動畫滑到按鈕上方
+    const popupEnd = new Vec3(localBtnPos.x, localBtnPos.y + 30, 0); // 動畫滑到按鈕上方
 
     this.chipPopupPanel.setPosition(popupStart);
 
     this.chipPopupOpactiy.opacity = 0;
 
-    tween(this.chipPopupPanel).to(0.3, { position: popupEnd }, { easing: 'backOut' }).start();
-
-    tween(this.chipPopupOpactiy).to(0.3, { opacity: 255 }, { easing: 'fade' }).start();
+    tween(this.chipPopupPanel)
+      .parallel(tween().to(0.3, { position: popupEnd }, { easing: 'backOut' }), tween(this.chipPopupOpactiy).to(0.3, { opacity: 255 }, { easing: 'fade' }))
+      .call(() => {
+        this.isAnimating = false; // ✅ 動畫結束才允許再點
+      })
+      .start();
 
     this.isPopupVisible = true;
   }
 
   // 隱藏動畫
   hideChipPopup() {
+    this.isAnimating = true; // 鎖住
+    this.Audio.AudioSources[0].play(); // 播放按鈕音效
     const currentPos = this.chipPopupPanel.getPosition();
     const targetPos = new Vec3(currentPos.x, currentPos.y - 100, 0); // 收回時往下滑
 
+    // 用 parallel 同步控制位置 + 透明度
     tween(this.chipPopupPanel)
-      .to(0.5, { position: targetPos }, { easing: 'backIn' })
+      .parallel(tween().to(0.5, { position: targetPos }, { easing: 'backIn' }), tween(this.chipPopupOpactiy).to(0.5, { opacity: 0 }))
       .call(() => {
         this.chipPopupPanel.active = false;
-      })
-      .start();
-
-    tween(this.chipPopupOpactiy)
-      .to(0.5, {
-        opacity: 0,
-      })
-      .call(() => {
-        this.chipPopupPanel.active = false;
+        this.isAnimating = false; // ✅ 統一在這裡解鎖
       })
       .start();
 

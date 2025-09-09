@@ -87,6 +87,7 @@ export class SettingManager extends Component {
   }
 
   // ===== 開啟選單 ====
+  private isAnimatingSetting: boolean = false;
   onChickSetingButton() {
     this.Audio.AudioSources[0].play(); // 播放按鈕音效
     if (this._isSetting) {
@@ -99,40 +100,43 @@ export class SettingManager extends Component {
   private _isSetting: boolean = false;
   // 顯示設定面板動畫（向下滑出）
   showSettingPanel() {
+    if (this.isAnimatingSetting) return; // 動畫中禁止再次呼叫
+    this.isAnimatingSetting = true; // ✅ 開始動畫就鎖住
     this.Audio.AudioSources[0].play(); // 播放按鈕音效
     this.settingPanel.active = true;
     this.settingMask.node.active = true;
     this.settingPanel.setPosition(220.5, 550, 0); // 起始點（畫面外上方）
     const opacity = this.settingPanel.getComponent(UIOpacity);
-    // this.settingPanel.opacity = 0;  // 初始透明
 
+    // 將滑動與透明化動畫合併
     tween(this.settingPanel)
-      .to(0.4, {
-        position: new Vec3(220.5, 330, 0), // 展開面板位置
+      .parallel(tween().to(0.4, { position: new Vec3(220.5, 330, 0) }, { easing: 'backOut' }), tween(opacity).to(0.4, { opacity: 255 }))
+      .call(() => {
+        this._isSetting = true;
+        this.isAnimatingSetting = false; // ✅ 動畫結束解鎖
       })
       .start();
-
-    tween(opacity).to(0.4, { opacity: 255 }).start();
-
     this._isSetting = true;
   }
 
   // 隱藏設定面板動畫（往上滑回）
   hideSettingPanel() {
+    if (this.isAnimatingSetting) return; // 動畫中禁止再次呼叫
+    this.isAnimatingSetting = true; // ✅ 開始動畫就鎖住
     this.Audio.AudioSources[0].play(); // 播放按鈕音效
     this.settingMask.node.active = false;
 
     const opacity = this.settingPanel.getComponent(UIOpacity);
+
+    // 將滑動與透明化動畫合併
     tween(this.settingPanel)
-      .to(0.4, {
-        position: new Vec3(220.5, 550, 0), // 滑回到畫面外上方(收起面板位置
-      })
+      .parallel(tween().to(0.4, { position: new Vec3(220.5, 550, 0) }, { easing: 'backIn' }), tween(opacity).to(0.4, { opacity: 0 }))
       .call(() => {
         this.settingPanel.active = false;
+        this._isSetting = false;
+        this.isAnimatingSetting = false; // ✅ 動畫結束後解鎖
       })
       .start();
-
-    tween(opacity).to(0.4, { opacity: 0 }).start();
 
     this._isSetting = false;
   }
