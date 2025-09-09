@@ -199,9 +199,9 @@ export class PickController extends Component {
       const audioSrc = AudioManager.instance.AudioSources[6]; // 翻牌音效
       console.log('🎵 準備播放音效 [6]：', audioSrc.node.name, 'enabled=', audioSrc.enabled, 'volume=', audioSrc.volume);
       audioSrc.play();
-      spine?.setAnimation(0, 'Standby_Pick', false);
-      spine?.addAnimation(0, 'Standby_Pick_Glow', false);
-      spine?.addAnimation(0, 'Standby_Pick_Glow_Loop', true);
+      spine?.setAnimation(0, 'Standby_Pick', false); // 翻牌
+      spine?.addAnimation(1, 'Standby_Pick_Glow', false); // 亮光
+      spine?.addAnimation(1, 'Standby_Pick_Glow_Loop', true); // 進入光循環
 
       frontCard.active = true;
       frontOpacity.opacity = 0;

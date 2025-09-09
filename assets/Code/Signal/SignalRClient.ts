@@ -19,6 +19,19 @@ export class SignalRClient {
     return this._hubProxy;
   }
 
+  public static isConnected(): boolean {
+    return this._isConnected;
+  }
+
+  // ============ 心跳 Ping 給後端 檢測連線狀態 ===========
+  private static startHeartbeat() {
+    setInterval(() => {
+      if (this._hubProxy && this._isConnected) {
+        this._hubProxy.invoke('Ping').catch((err: any) => console.warn('Ping 失敗', err));
+      }
+    }, 5000); // 每 5 秒一次
+  }
+
   // =================== SignalR 相關方法 ===================
   // ========== 建立連線 ==========
   public static async connect(onMessageReceived: (user: string, message: string) => void) {
@@ -55,6 +68,7 @@ export class SignalRClient {
         .start()
         .done(() => {
           console.log('SignalR 已連線');
+          SignalRClient.startHeartbeat();
           this._isConnected = true;
 
           // 事件註冊只做一次
@@ -62,12 +76,33 @@ export class SignalRClient {
             this.registerLotteryHandlers();
             this._handlersRegistered = true;
           }
-
+          let retryCount = 0;
           // ✅ 加上斷線提示
           this._connection.disconnected = () => {
             console.warn('⚠️ 與 SignalR 斷線');
             this._isConnected = false;
             ToastMessage.showToast('已斷線');
+
+            const delay = Math.min(30000, 2000 * Math.pow(2, retryCount)); // 最長30秒
+            retryCount++;
+
+            // 自動重連（延遲 5 秒）
+            setTimeout(() => {
+              // console.log('🔄 嘗試重新連線...');
+              ToastMessage.showToast(`🔄 嘗試重新連線...(第${retryCount}次)`);
+              this._connection
+                .start()
+                .done(() => {
+                  console.log('✅ SignalR 重新連線成功');
+                  this._isConnected = true;
+                  retryCount = 0; // 成功後重製
+                  ToastMessage.showToast('✅ 已重新連線成功');
+                })
+                .fail((err: any) => {
+                  console.error('❌ SignalR 重連失敗:', err);
+                  ToastMessage.showToast('❌ 重新連線失敗，將繼續嘗試...');
+                });
+            }, delay);
           };
         })
         .fail((err: any) => {

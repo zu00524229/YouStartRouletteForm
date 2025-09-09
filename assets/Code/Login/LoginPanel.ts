@@ -18,6 +18,7 @@ export class LoginPanel extends Component {
   private isLoggingIn: boolean = false;
 
   onLoad() {
+    // this.loginButton.interactable = false;
     this.errorLabel.string = ''; // 清空錯誤訊息
     SignalRClient.connect((user, message) => {
       console.log(`📩 [訊息忽略] ${user}: ${message}`);
@@ -65,6 +66,7 @@ export class LoginPanel extends Component {
 
     if (!username || !password) {
       console.log('⚠ 請輸入帳號與密碼');
+      ToastMessage.showToast('請輸入帳號與密碼');
       this.isLoggingIn = false; // 重置鎖
       return;
     }
@@ -73,8 +75,9 @@ export class LoginPanel extends Component {
 
     // 使用 SignalR 呼叫後端 Login 方法
     const proxy = SignalRClient.getHubProxy();
-    if (!proxy) {
-      console.error('❌ 尚未連線到 SignalR');
+    if (!proxy || SignalRClient.isConnected()) {
+      console.error('尚未連線到 SignalR，請稍後再試');
+      this.errorLabel.string = '⚠ 尚未連線伺服器，請稍後再試';
       this.isLoggingIn = false;
       return;
     }
