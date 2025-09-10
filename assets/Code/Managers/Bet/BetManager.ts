@@ -101,6 +101,7 @@ export class BetManager extends Component {
     this.X6Bet.interactable = false;
     this.X10Bet.interactable = false;
     console.log('🔧 offLightButton called, fromLongPress =', fromLongPress);
+
     if (!fromLongPress) {
       const mask = this.AutoButton.node.getChildByName('Mask');
       if (mask) mask.active = true;

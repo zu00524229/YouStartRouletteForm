@@ -1,5 +1,8 @@
 import { _decorator, Component, director, Node } from 'cc';
 import { ToastMessage } from '../Managers/Toasts/ToastMessage';
+import { TurnLottery } from '../TurnLottery';
+import { BetManager } from '../Managers/Bet/BetManager';
+import { ToolButtonsController } from '../Managers/ToolButtonsController';
 import { LotteryResponse, LotteryResultEvent, PlaceBetRequest, SIGNALR_EVENTS, UnifiedLotteryEvent } from '../Type/Types'; // 型別呼叫
 
 const { ccclass } = _decorator;
@@ -178,6 +181,30 @@ export class SignalRClient {
     // 📦 完整封包：錢包 / UI 用
     this._hubProxy.on('lotteryResult', (resp: LotteryResponse) => {
       console.log('📦 收到 lotteryResult (完整封包)：', resp);
+
+      if (resp.insufficientBalance || (resp.message && resp.message !== 'OK')) {
+        // 🔴 錯誤情況：不要進入動畫
+        ToastMessage.showToast(resp.message || '超過下注上限!');
+
+        // ⚡ 修正：重置遊戲狀態，避免卡住
+        const turnLottery = director.getScene().getComponentInChildren(TurnLottery) as any;
+        if (turnLottery) turnLottery._isLottery = false;
+
+        const betManager = director.getScene().getComponentInChildren(BetManager) as any;
+        if (betManager) {
+          betManager.onLightBetArea(); // ✅ 用既有的方法開下注區
+          betManager.onCloseMask(); // ✅ 關掉 AutoButton 遮罩
+        }
+        const toolButtons = director.getScene().getComponentInChildren(ToolButtonsController) as any;
+        if (toolButtons) toolButtons.updateStartButton(); // 讓按鈕恢復
+
+        // 額外清掉 lastResult，避免殘留舊資料觸發動畫
+        lastResult = null;
+        lastBalance = null;
+        return;
+      }
+
+      // ✅ 正常情況 → 記錄下來
       lastBalance = resp;
       tryEmitUnified();
     });
@@ -201,34 +228,38 @@ export class SignalRClient {
   }
 
   // =================== 傳送下注資料的方法 ==================
-  public static sendBetData(data: any /* TODO: 改成 BetData */) {
-    if (!this._hubProxy || !this._connection || this._connection.state !== 1) {
-      // 1 = connected
-      console.warn('⚠️ SignalR 尚未連線完成，不能送下注');
-      ToastMessage.showToast('已斷線');
-      return;
-    }
+  public static sendBetData(data: any): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (!this._hubProxy || !this._connection || this._connection.state !== 1) {
+        console.warn('⚠️ SignalR 尚未連線完成，不能送下注');
+        resolve(false);
+        return;
+      }
 
-    // ✅ 防呆：檢查下注資料是否有效(防止 Heisenbug 時序敏感)
-    if (!data || !data.totalBet || data.totalBet <= 0) {
-      console.warn('⚠️ 無效的下注資料，不送 StartLottery', data);
-      return;
-    }
-    if (!data.betAmounts || Object.keys(data.betAmounts).length === 0) {
-      console.warn('⚠️ 沒有下注區域，不送 StartLottery', data);
-      return;
-    }
+      // ✅ 基本防呆：下注資料是否合法
+      if (!data || !data.totalBet || data.totalBet <= 0) {
+        console.warn('⚠️ 無效的下注資料，不送 StartLottery', data);
+        resolve(false);
+        return;
+      }
+      if (!data.betAmounts || Object.keys(data.betAmounts).length === 0) {
+        console.warn('⚠️ 沒有下注區域，不送 StartLottery', data);
+        resolve(false);
+        return;
+      }
 
-    if (this._hubProxy) {
+      // 送到後端
       this._hubProxy
-        .invoke('StartLottery', data)
+        .invoke('StartLottery', data) // 這裡用後端方法名稱
         .then(() => {
-          console.log('✅ 下注資料已送出', data);
+          console.log('✅ 已送出下注資料:', data);
+          resolve(true); // 成功
         })
-        .catch((err) => {
-          console.error('❌ 傳送失敗', err);
+        .catch((err: any) => {
+          console.error('❌ 傳送下注失敗', err);
+          reject(err);
         });
-    }
+    });
   }
 
   /** 動態載入 script */

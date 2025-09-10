@@ -1,3 +1,4 @@
+import { ToastMessage } from './Managers/Toasts/ToastMessage';
 import { _decorator, Button, CCInteger, Component, director, Label, Node, tween, UIOpacity, Vec3 } from 'cc';
 import { HoverController } from './Animation/Hover/HoverController';
 import { ChipManager } from './Managers/Bet/ChipManager';
@@ -201,13 +202,18 @@ export class TurnLottery extends Component {
     // === 送出下注資料給後端 ===
     if (this.chipManager) {
       const betData = this.getBetDataJson();
-      SignalRClient.sendBetData(betData); // 傳送下注資料給後端
+      // SignalRClient.sendBetData(betData); // 傳送下注資料給後端
+      SignalRClient.sendBetData(betData).catch(() => {
+        // 傳送失敗（斷線/網路錯誤）
+        this._isLottery = false;
+        ToastMessage.showToast('網路錯誤，下注失敗');
+      });
     }
 
-    this.toast.showBetLocked(); // 顯示(BetLocked)
-    this.scheduleOnce(() => {
-      this.toast.hideBetLocked(); // 隱藏(BetLocked)
-    }, this.Delay_Hide); // 2.5秒後隱藏提示
+    // this.toast.showBetLocked(); // 顯示(BetLocked)
+    // this.scheduleOnce(() => {
+    //   this.toast.hideBetLocked(); // 隱藏(BetLocked)
+    // }, this.Delay_Hide); // 2.5秒後隱藏提示
   }
 
   //============== 抽獎結果回調 ====================
@@ -256,7 +262,7 @@ export class TurnLottery extends Component {
     let multiplier = data.multiplier || 0;
 
     // 顯示 BetLocked 提示
-    // this.toast.showBetLocked();
+    this.toast.showBetLocked();
 
     // 等待 2.5 秒後開始轉盤動畫
     this.scheduleOnce(() => {
