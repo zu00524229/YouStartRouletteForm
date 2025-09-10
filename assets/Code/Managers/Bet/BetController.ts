@@ -16,9 +16,6 @@ export class BetController extends Component {
   @property(Toast) toast: Toast = null; // 拖 有掛載 Toast 腳本的節點
   @property(AudioManager) Audio: AudioManager = null; // 連結 AudioManager
 
-  // Bet_Num: number = 0; // 玩家總下注金額(預設0)
-  // Balance_Num: number = player.currentPlayer.balance; // 初始餘額(未來會連後端)
-
   public currentActionId = 0; // 下注唯一Id
   selectedChipValue: number = 100; // 玩家當前籌碼金額 預設100
   totalNeeded: number = 0; // 預設總共需要的下注金額
