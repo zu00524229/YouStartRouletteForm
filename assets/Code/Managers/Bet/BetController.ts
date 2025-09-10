@@ -23,6 +23,8 @@ export class BetController extends Component {
   selectedChipValue: number = 100; // 玩家當前籌碼金額 預設100
   totalNeeded: number = 0; // 預設總共需要的下注金額
 
+  private readonly MAX_BET_PER_AREA = 100000; // 下注上限 跟後端一致
+
   onLoad() {
     this.totalNeeded = this.selectedChipValue * this.betManager.getAllBetAreas().length; // 總共需要的下注金額(每個下注區域都下注選擇的籌碼金額) 用來判斷餘額夠不夠
   }
@@ -30,7 +32,6 @@ export class BetController extends Component {
   // ========== 下注區域點擊事件(onBetClick用) ==========
   public BetClick(event: EventTouch) {
     // console.log('👉 BetClick 被觸發:', event.currentTarget?.name);
-
     if (this.canPlaceBet()) {
       this.onBetClick(event);
     }
@@ -58,6 +59,13 @@ export class BetController extends Component {
       return;
     }
 
+    // 超過下注上限
+    const currentAmount = this.chipManager.betAmounts[betNode.name] || 0;
+    if (currentAmount + chipValue > this.MAX_BET_PER_AREA) {
+      ToastMessage.showToast(`單區下注上限 10萬，無法再下注`);
+      return;
+    }
+
     // 呼叫 ChipManager 執行下注,回傳結果
     const result = this.chipManager.performBetMerged(betNode, chipValue, actionId, 'bet');
 
@@ -81,13 +89,6 @@ export class BetController extends Component {
     // 用 ChipManager 的資料源
     const areas = this.chipManager.getBetAreas();
     const selected = this.selectedChipValue;
-    // 確認餘額是否足夠
-    const totalNeeded = selected * areas.length;
-    if (this.chipManager.Balance_Num < totalNeeded) {
-      ToastMessage.showToast('餘額不足，無法全部下注');
-      return;
-    }
-
     const actionId = ++this.currentActionId;
 
     // ==== 建立動作紀錄
@@ -101,28 +102,37 @@ export class BetController extends Component {
       }[],
     };
 
+    // 確認餘額是否足夠
+    const totalNeeded = selected * areas.length;
+    if (this.chipManager.Balance_Num < totalNeeded) {
+      ToastMessage.showToast('餘額不足，無法全部下注');
+      return;
+    }
+
     // 新版直接交給 ChipManager.performBet 方法
     // 遍歷所有下注區域
     for (const betNode of areas) {
       const areaName = betNode.name;
+      const currentAmount = this.chipManager.betAmounts[betNode.name] || 0;
 
-      // this.chipManager.performBet(betNode, selected, actionId, 'bet');
-      this.chipManager.performBetMerged(betNode, selected, actionId, 'bet');
+      // 檢查單區上限
+      if (currentAmount + selected > this.MAX_BET_PER_AREA) {
+        ToastMessage.showToast(`單區下注上限 十萬，無法再下注`);
+        continue; // 跳過這區，不加籌碼
+      }
 
-      // 加入動作紀錄
-      actionRecord.actions.push({
-        areaName,
-        amount: selected,
-        chips: [selected],
-      });
+      // 執行下注
+      const result = this.chipManager.performBetMerged(betNode, selected, actionId, 'bet');
+      if (result) {
+        actionRecord.actions.push(result);
+      }
     }
 
     // ==== 把 ALL Bet 的集合動作丟進歷史堆疊 =====
     this.chipManager.actionHistory.push(actionRecord);
 
-    this.chipManager.updateGlobalLabels();
-
     // All Bet 後更新 Start 按鈕狀態
+    this.chipManager.updateGlobalLabels();
     this.toolButton.updateStartButton();
   }
 
@@ -169,14 +179,23 @@ export class BetController extends Component {
       actions: [] as { areaName: string; amount: number; chips: number[] }[],
     };
 
-    //  先計算全部加倍需要的總金額
+    // 1️⃣ 先計算總需求 + 檢查單區上限
     let totalDoubleAmount = 0;
+    const validAreas: Node[] = [];
+
     for (const betNode of this.chipManager.getBetAreas()) {
       const areaName = betNode.name;
       const currentAmount = this.chipManager.betAmounts[areaName] || 0;
-      if (currentAmount > 0) {
-        totalDoubleAmount += currentAmount; // 加倍需要再補同樣金額
+      if (currentAmount === 0) continue;
+
+      // 檢查加倍後是否超過上限
+      if (currentAmount * 2 > this.MAX_BET_PER_AREA) {
+        ToastMessage.showToast(`單區下注上限 十萬，無法加倍`);
+        return; // 直接中指，不執行任何加倍
       }
+
+      totalDoubleAmount += currentAmount; // 加倍需要再補同樣金額
+      validAreas.push(betNode); // 記錄可以加倍的區域
     }
 
     // 餘額不足，無法加倍，跳過該區域
@@ -193,7 +212,7 @@ export class BetController extends Component {
 
       // 依照加倍金額產生籌碼並顯示在畫面上
       let remaining = currentAmount;
-      // ================== 統一交給 ChipManager.performBet 方法計算 ========================
+      // ================== 統一交給 ChipManager.performBetMerged 方法計算 ========================
       while (remaining > 0) {
         const chipValue = this.chipManager.getClosestChip(remaining); // 根據剩餘金額取出最接近的籌碼面額
         // const result = this.chipManager.performBet(betNode, chipValue, actionId, 'bet');

@@ -2,6 +2,7 @@ import { SignalRClient } from './../Signal/SignalRClient';
 import { NetworkManager } from '../Signal/NetworkController';
 import { _decorator, Component, director, EditBox, EventKeyboard, input, Input, KeyCode, Label, Node } from 'cc';
 import { player, playerState } from './playerState';
+import { PingState } from '../Signal/Ping/PingState'; // ✅ 引入
 import { ToastMessage } from '../Managers/Toasts/ToastMessage';
 const { ccclass, property } = _decorator;
 
@@ -95,7 +96,8 @@ export class LoginPanel extends Component {
           player.currentPlayer = { username, balance: res.balance };
           player.isLoggedIn = true;
 
-          SignalRClient.startHeartbeat(); // ping 連線檢查
+          // SignalRClient.startHeartbeat(); // ping 連線檢查
+          PingState.startHeartbeat(proxy, () => NetworkManager.isConnected());
 
           setTimeout(() => director.loadScene('Game'), 0);
         } else {

@@ -17,30 +17,22 @@ export class SignalRClient {
   private static _isConnected = false;
   private static _handlersRegistered = false;
 
-  // 是給 LoginPanel 用的
+  /**
+   * 取得目前的 HubProxy 物件
+   * - 提供給 LoginPanel、NetworkManager 呼叫後端方法用
+   * - 若還沒連線，可能會是 null
+   */
   public static getHubProxy() {
     return this._hubProxy;
   }
 
+  /**
+   * 檢查 SignalR 是否已連線成功
+   * - 用於判斷是否可以送資料給後端
+   * - true = 已連線, false = 尚未連線 / 已斷線
+   */
   public static isConnected(): boolean {
     return this._isConnected;
-  }
-
-  // ============ 心跳 Ping 給後端 檢測連線狀態 ===========
-  public static startHeartbeat() {
-    setInterval(() => {
-      if (this._hubProxy && this._isConnected) {
-        // this._hubProxy.invoke('Ping').catch((err: any) => console.warn('Ping 失敗', err));
-        this._hubProxy
-          .invoke('Ping')
-          .then(() => {
-            console.log('Ping 成功(心跳送出)');
-          })
-          .catch((err: any) => {
-            console.log('Ping 失敗', err);
-          });
-      }
-    }, 5000); // 每 5 秒一次
   }
 
   // =================== SignalR 相關方法 ===================
