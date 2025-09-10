@@ -24,10 +24,18 @@ export class SignalRClient {
   }
 
   // ============ 心跳 Ping 給後端 檢測連線狀態 ===========
-  private static startHeartbeat() {
+  public static startHeartbeat() {
     setInterval(() => {
       if (this._hubProxy && this._isConnected) {
-        this._hubProxy.invoke('Ping').catch((err: any) => console.warn('Ping 失敗', err));
+        // this._hubProxy.invoke('Ping').catch((err: any) => console.warn('Ping 失敗', err));
+        this._hubProxy
+          .invoke('Ping')
+          .then(() => {
+            console.log('Ping 成功(心跳送出)');
+          })
+          .catch((err: any) => {
+            console.log('Ping 失敗', err);
+          });
       }
     }, 5000); // 每 5 秒一次
   }
@@ -67,8 +75,8 @@ export class SignalRClient {
       this._connection
         .start()
         .done(() => {
-          console.log('SignalR 已連線');
-          SignalRClient.startHeartbeat();
+          console.log('SignalR 已連線, 進入登入畫面');
+          // SignalRClient.startHeartbeat(); // ping 連線檢查
           this._isConnected = true;
 
           // 事件註冊只做一次

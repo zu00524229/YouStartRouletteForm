@@ -49,10 +49,10 @@ export class index extends Component {
     }
     index.isLoggedIn = false;
 
-    // 建立 SignalR 連線
-    SignalRClient.connect((user, msg) => {
-      console.log(`${user}: ${msg}`);
-    });
+    // // 建立 SignalR 連線
+    // SignalRClient.connect((user, msg) => {
+    //   console.log(`${user}: ${msg}`);
+    // });
 
     this.ID_Label.string = `帳號： ${player.currentPlayer.username}`;
 
