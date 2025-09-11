@@ -137,14 +137,25 @@ export class PointerAnim extends Component {
 
     tween(this.pivotNode).stop();
 
-    const swingAngle = 35; // 上擺 最高角度
-    const totalSwings = 35;
+    const swingAngle = 40; // 上擺 最高角度
+    const totalSwings = 70;
+    const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 3); // 自訂 easing：越到尾端越慢
+    const superlow = (t: number) => 1 - Math.pow(1 - t, 3); // 自訂 (1 - t, 2)  數字越高 頻率降得越快(慢)
 
+    // 如讓前 70% 幾乎線性，最後 30% 再慢下來：
+    // let eased;
+    // if (progress < 0.7) {
+    //   eased = progress * 0.7; // 幾乎線性
+    // } else {
+    //   const sub = (progress - 0.7) / 0.3; // 映射到 [0,1]
+    //   eased = 0.7 + Math.pow(sub, 3) * 0.3;
+    // }
     // easing: 前快後慢
     const times: number[] = [];
     for (let i = 1; i <= totalSwings; i++) {
       const progress = i / totalSwings;
-      const eased = Math.pow(progress, 3);
+      // const eased = Math.pow(progress, 5); // 更靠近尾端才慢,可調7,9 。
+      const eased = 1 - superlow(1 - progress); // 套用轉盤降速公式
       times.push(eased);
     }
 
@@ -156,6 +167,7 @@ export class PointerAnim extends Component {
     });
 
     let seq = tween(this.pivotNode);
+    // const superSlowlow = (t: number) => 1 - Math.pow(1 - t, 6);
 
     swingIntervals.forEach((dt, idx) => {
       const half = dt / 2;
@@ -164,7 +176,7 @@ export class PointerAnim extends Component {
       const isThirdLast = idx === totalSwings - 3; // 倒數第3下
       const isfourLast = idx === totalSwings - 4;
       const isfiveLast = idx === totalSwings - 5;
-      // const isSixLast = idx === totalSwings - 6;
+      const isSixLast = idx === totalSwings - 6;
 
       if (idx == 0) {
         // 第一次上擺：慢起快到，有啟動爆發感
@@ -176,52 +188,65 @@ export class PointerAnim extends Component {
       } else if (isLast) {
         // ✅ 倒數最後一下：上擺後停住
         seq = seq
-          // .delay(holdTime)
+          .delay(holdTime)
           .to(half, { angle: swingAngle }, { easing: 'sineOut' })
           .call(() => {
             // this.Audio.AudioSources[4].play();
             // console.log(`第 ${idx + 1} 下 🔼 上擺結束(最後一下): ${this.pivotNode.angle.toFixed(2)}°`);
           })
-          .to(half * 4.0, { angle: 0 }, { easing: 'quartIn' })
+          .to(half * 7.0, { angle: 0 }, { easing: superSlowOut }) //quartIn  half * 4.55
           .call(() => {
             this.Audio.AudioSources[4].play();
             // console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           });
         // 下擺到 0 放到最後統一處理
-      } else if (isThirdLast || isfourLast) {
-        // ✅ 倒數第 2/3/4 下：回擺到 10°
+      } else if (isSixLast) {
+        // ✅ 倒數第5下
+        seq = seq
+          .to(half * 2.0, { angle: swingAngle }, { easing: 'sineOut' })
+          .call(() => {
+            // console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          })
+          // .delay(reboundTime + 0.2)
+          .to(half * 0.5, { angle: 40 }, { easing: 'sineIn' })
+          .call(() => {
+            // this.Audio.AudioSources[4].play();
+            // console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
+          });
+      } else if (isThirdLast || isfourLast || isfiveLast) {
+        // ✅ 倒數第 3 4 5下
         seq = seq
           .to(half * 0.5, { angle: swingAngle }, { easing: 'linear' })
           .call(() => {
             // console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           })
-          .to(half * 0.5, { angle: 35 }, { easing: 'quartIn' })
+          .to(half * 0.5, { angle: 40 }, { easing: 'quartInOut' })
           .call(() => {
-            this.Audio.AudioSources[4].play();
+            // this.Audio.AudioSources[4].play();
             // console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           });
       } else if (isSecondLast) {
         // ✅ 倒數第2下
         seq = seq
-          .to(half, { angle: 40 }, { easing: 'sineOut' }) //7
+          .to(half * 2.0, { angle: swingAngle }, { easing: 'sineOut' }) //7
           .call(() => {
             console.log(`第 ${idx + 1} 下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           })
           // .delay(reboundTime + 0.2)
-          .to(half * 0.1, { angle: 35 }, { easing: 'sineIn' }) //7
+          .to(half * 0.1, { angle: 40 }, { easing: 'sineIn' }) //7
           .call(() => {
             // this.Audio.AudioSources[4].play();
             console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           });
       } else {
-        // ✅ 一般擺動：21° ↔ 0°
+        // ✅ 一般擺動
         seq = seq
           .to(half, { angle: swingAngle }, { easing: 'linear' })
           .call(() => {
             this.Audio.AudioSources[4].play();
             // console.log(`第 ${idx + 1} 下 🔼 上擺結束(一般): ${this.pivotNode.angle.toFixed(2)}°`);
           })
-          .to(half, { angle: 30 }, { easing: 'quartIn' })
+          .to(half, { angle: 30 }, { easing: 'quartInOut' })
           .call(() => {
             // console.log(`第 ${idx + 1} 下 🔽 下擺結束(一般): ${this.pivotNode.angle.toFixed(2)}°`);
           });
@@ -240,14 +265,17 @@ export class PointerAnim extends Component {
 
     tween(this.pivotNode).stop();
 
-    const swingAngle = 35;
-    const totalSwings = 40;
+    const swingAngle = 40;
+    const totalSwings = 70;
+
+    const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 3); // 自訂 easing：越到尾端越慢
 
     // easing: 前快後慢
     const times: number[] = [];
     for (let i = 1; i <= totalSwings; i++) {
       const progress = i / totalSwings;
-      const eased = Math.pow(progress, 3);
+      // const eased = Math.pow(progress, 3);
+      const eased = 1 - superSlowOut(1 - progress); // 套用轉盤降速公式
       times.push(eased);
     }
 
@@ -277,10 +305,10 @@ export class PointerAnim extends Component {
       } else if (isLast) {
         // ✅ 倒數最後一下：上擺後停住
         seq = seq
-          .to(half, { angle: swingAngle }, { easing: 'sineOut' })
-          .delay(holdTime * 2.0) // 在上擺位置停
+          .to(half, { angle: swingAngle - 5 }, { easing: 'sineOut' })
+          .delay(holdTime * 1.2) // 在上擺位置停
           // .call(() => this.Audio.AudioSources[4].play())
-          .to(half * 5.0, { angle: 0 }, { easing: 'sineInOut' }); // 下擺
+          .to(half * 10.5, { angle: 0 }, { easing: 'sineInOut' }); // 下擺
         // 下擺到 0 會放到最後統一處理
       } else if (isfourLast) {
         // ✅ 倒數第4下：上擺小一點
@@ -289,7 +317,7 @@ export class PointerAnim extends Component {
           .call(() => {
             // console.log(`第 ${idx + 1} 下 🔼 上擺結束(緩慢): ${this.pivotNode.angle.toFixed(2)}°`);
           })
-          .to(half, { angle: 30 }, { easing: 'quartIn' })
+          .to(half, { angle: 35 }, { easing: 'quartIn' })
           .call(() => {
             this.Audio.AudioSources[4].play();
             // console.log(`第 ${idx + 1} 下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
@@ -309,13 +337,13 @@ export class PointerAnim extends Component {
       } else if (isSecondLast) {
         // ✅ 倒數第2下：固定到 22°
         seq = seq
-          .to(half, { angle: swingAngle }, { easing: 'linear' })
+          .to(half * 2.0, { angle: swingAngle - 5 }, { easing: 'linear' })
           .call(() => {
             // console.log(`第 ${idx + 1} 倒數地 2下 🔼 上擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           })
-          .to(half, { angle: 25 }, { easing: 'quartIn' })
+          .to(half, { angle: 35 }, { easing: 'quartIn' })
           .call(() => {
-            this.Audio.AudioSources[4].play();
+            // this.Audio.AudioSources[4].play();
             // console.log(`第 ${idx + 1} 倒數地 2下 🔽 下擺結束: ${this.pivotNode.angle.toFixed(2)}°`);
           });
       } else {
