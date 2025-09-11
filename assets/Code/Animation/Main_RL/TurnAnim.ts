@@ -35,16 +35,6 @@ export class TurnAnim extends Component {
   @property(Node) dotContainerNode: Node = null; // 指針容器節點
 
   @property(CCInteger) rewardTypeCount: number = 50; // 轉盤中獎品分區數量
-  // @property(CCInteger) rotatelottertSecs: number = 5; // 轉盤動畫旋轉次數
-  // @property(CCInteger) lotterSecsL: number = 7; // 抽獎動畫持續時間
-
-  // TurnLottery.ts
-
-  // 播放轉盤動畫
-  // let targetAngle = -this.rotatelottertSecs * 360 + rewardIndex * (360 / this.rewardTypeCount);
-  // console.log("✅ turnBgNode 是否為 null：", this.turnBgNode);  // 這裡先驗證
-  // console.log("🎯 準備轉盤角度", targetAngle);
-  // this.turnBgNode.angle %= 360;   // 隨機角度初始化
 
   //! 轉盤動畫3
   playWheelAnimation3(rewardIndex: number, rewardName: string, multiplier: number, data: UnifiedLotteryEvent, onFinished: () => void) {
@@ -57,10 +47,11 @@ export class TurnAnim extends Component {
 
     // console.log('🎯 準備轉盤角度', targetAngle);
 
-    // 🎯 提前停在終點前 preStopAngle
-    let preStopAngle = targetAngle + WheelThreeConfig.preStopAngle;
+    // 設定超轉角度（轉過頭一點）
+    let overshootAngle = targetAngle - WheelThreeConfig.overshootAngle;
 
     // 時間切分
+    const totalTime = WheelConfig.lotterSecsL; // 總秒數
     let preStopTime = WheelThreeConfig.lotterSecsL - WheelThreeConfig.reboundTime;
     let reboundTime = WheelThreeConfig.reboundTime;
     let delay = WheelThreeConfig.delayPointerSwing;
@@ -68,7 +59,15 @@ export class TurnAnim extends Component {
 
     let fullTime = preStopTime + delay + reboundTime; // 總時間 = 前段 + 停留 + 回正;
     // 自訂 easing：越到尾端越慢
-    const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 2.5);
+    const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 1.5);
+
+    const smoothstep = (x: number) => x * x * (3 - 2 * x);
+    const customEase = (t: number) => {
+      const fast = t; // 高速
+      const slow = 1 - Math.pow(1 - t, 3.5); // 降速
+      const blend = smoothstep(Math.min(t / 0.2, 1)); // 在前20%漸進轉換
+      return fast * (1 - blend) + slow * blend;
+    };
 
     // 找到指針動畫
     const pointer = this.dotContainerNode.getComponent('PointerAnim') as any;
@@ -77,19 +76,15 @@ export class TurnAnim extends Component {
     }
 
     tween(this.turnBgNode)
-      // 前段：到終點前角度（幾乎停下）
-      .to(preStopTime, { angle: preStopAngle }, { easing: superSlowOut })
+      // 1) 一路旋轉到 overshootAngle，用自訂 easing
+      .to(totalTime, { angle: overshootAngle }, { easing: customEase })
 
-      // 第二段：往回「過頭」一點 (像是被指針卡住往回甩)
-      .to(reboundTime, { angle: preStopAngle - 10 }, { easing: 'quadOut' })
-      .delay(holdTime) // 停留時間
-      // .delay(0.2)
+      // 2) 停住
+      .delay(holdTime)
 
-      // 身為被指針往回推
-      .to(reboundTime * 1.8, { angle: targetAngle + 2.0 }, { easing: 'quadOut' })
+      // 3) 回正
+      .to(reboundTime * 1.5, { angle: targetAngle }, { easing: 'quadIn' })
 
-      // 後段：再補進終點
-      .to(reboundTime * 0.8, { angle: targetAngle }, { easing: 'quadInOut' })
       .call(() => onFinished?.())
       .start();
   }
@@ -106,8 +101,6 @@ export class TurnAnim extends Component {
 
     // 設定超轉角度（轉過頭一點）
     let overshootAngle = targetAngle - WheelConfig.overshootAngle;
-    // const undershootDeg = Math.abs(WheelSyncConfig.overshootAngle) || 12;
-    // const stopBeforeAngle = targetAngle + undershootDeg;
 
     // 時間控制
     const totalTime = WheelConfig.lotterSecsL;
