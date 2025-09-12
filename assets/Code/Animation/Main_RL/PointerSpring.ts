@@ -22,7 +22,7 @@ export class PointerAnim extends Component {
     tween(this.pivotNode).stop();
 
     const swingAngle = 40;
-    const totalSwings = 60;
+    const totalSwings = 80;
     const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
     const smoothstep = (x: number) => x * x * (3 - 2 * x);
@@ -82,85 +82,85 @@ export class PointerAnim extends Component {
               // console.log(`🔼 倒數${fromEnd}下 最後上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
               // console.log(`⏸️ 即將停留 ${holdTime * 40.2}s`);
             })
-            .delay(holdTime * 5.5) // 在上擺位置停
-            .to(half * 25.0, { angle: 0 }, { easing: 'sineInOut' }) // 下擺
+            .delay(holdTime * 15.5) // 在上擺位置停
+            .to(half * 25.0, { angle: 0 }, { easing: 'sineIn' }) // 下擺
             .call(() => {
               // console.log(`▶️ 停留結束 (${holdTime * 40.2}s)，開始下擺`);
               // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
             });
           break;
         }
-        case fromEnd === 9 || fromEnd === 10 || fromEnd === 11 || fromEnd === 12: {
+        case fromEnd === 9 || fromEnd === 10 || fromEnd === 11 || fromEnd === 12 || fromEnd === 13 || fromEnd === 14: {
           seq = seq
-            .to(half * 0.8, { angle: swingAngle - 3 }, { easing: 'sineOut' })
+            .to(half * 0.6, { angle: swingAngle - 5 }, { easing: 'sineOut' })
             .call(() => {
               // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
             })
             // .delay(holdTime * 1.2) // 在上擺位置停
-            .to(half * 0.5, { angle: 25 }, { easing: 'sineInOut' }) // 下擺
+            .to(half * 0.6, { angle: 25 }, { easing: 'sineInOut' }) // 下擺
             .call(() => {
               // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
               this.Audio.AudioSources[4].play();
             });
           break;
         }
-        case fromEnd === 5 || fromEnd === 6 || fromEnd === 7 || fromEnd === 8: {
+        case fromEnd === 6 || fromEnd === 7 || fromEnd === 8: {
           seq = seq
-            .to(half, { angle: swingAngle - 5 }, { easing: 'sineOut' })
+            .to(half * 0.8, { angle: swingAngle - 5 }, { easing: 'sineOut' })
             .call(() => {
               // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
             })
-            .to(half * 0.7, { angle: 25 }, { easing: 'sineInOut' }) // 下擺
+            .to(half * 0.8, { angle: 25 }, { easing: 'sineInOut' }) // 下擺
             .call(() => {
               // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
               this.Audio.AudioSources[4].play();
             });
           break;
         }
-        case fromEnd === 4: {
+        case fromEnd === 4 || fromEnd === 5: {
           seq = seq
-            .to(half, { angle: 35 }, { easing: 'sineOut' })
+            .to(half * 1.2, { angle: swingAngle - 5 }, { easing: 'sineOut' })
             .call(() => {
-              // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
-            })
-            .to(half * 0.8, { angle: 30 }, { easing: 'sineInOut' }) // 下擺
-            .call(() => {
-              // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
               this.Audio.AudioSources[4].play();
+            })
+            .to(half * 1.2, { angle: 25 }, { easing: 'sineInOut' }) // 下擺
+            .call(() => {
+              console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
             });
           break;
         }
         case fromEnd === 3: {
           seq = seq
-            .to(half * 0.7, { angle: 20 }, { easing: 'sineOut' })
-            .delay(0.2)
+            .to(half, { angle: swingAngle - 5 }, { easing: 'sineOut' })
             .call(() => {
-              // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
               this.Audio.AudioSources[4].play();
             })
-            .to(half * 3.5, { angle: 35 }, { easing: 'sineInOut' }) // 下擺
+            .to(half, { angle: 25 }, { easing: 'sineInOut' }) // 下擺
             .call(() => {
-              // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
             });
           break;
         }
         case fromEnd === 2: {
           seq = seq
-            .to(half * 3.5, { angle: swingAngle - 5 }, { easing: 'sineOut' })
+            .to(half, { angle: 20 }, { easing: 'sineOut' })
+            // .delay(0.2)
             .call(() => {
-              // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              this.Audio.AudioSources[4].play();
             })
-            .to(half, { angle: 35 }, { easing: 'sineInOut' }) // 下擺
+            .to(half * 5.5, { angle: 35 }, { easing: 'sineInOut' }) // 下擺
             .call(() => {
-              // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
-              // this.Audio.AudioSources[4].play();
+              console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
             });
           break;
         }
         default: {
           // 一般擺動
           seq = seq
-            .to(half * 0.95, { angle: swingAngle }, { easing: 'linear' })
+            .to(half * 0.95, { angle: swingAngle - 3 }, { easing: 'linear' })
             .call(() => {
               // console.log(`🔼 一般上擺結束: 倒數${fromEnd}下, 角度=${this.pivotNode.angle.toFixed(2)}°`);
             })
