@@ -11,6 +11,8 @@ export class LotteryEventHandler extends Component {
   // ========== 抽獎事件註冊（只註冊一次） ==========
   /** 註冊抽獎相關事件 */
   public static registerLotteryHandlers(hubProxy: any) {
+    console.log('✅ 已註冊事件 broadcastLotteryResult / lotteryResult');
+
     if (!hubProxy) return;
 
     let lastResult: LotteryResultEvent | null = null;
@@ -45,7 +47,6 @@ export class LotteryEventHandler extends Component {
       lastResult = result;
       tryEmitUnified();
     });
-
     // 📦 完整封包：錢包 / UI 用
     hubProxy.on('lotteryResult', (resp: LotteryResponse) => {
       console.log('📦 收到 lotteryResult (完整封包)：', resp);

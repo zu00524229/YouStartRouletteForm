@@ -39,12 +39,10 @@ export class SignalRClient {
 
   // =================== SignalR 相關方法 ===================
   // ========== 建立連線 ==========
-  public static async connect(onMessageReceived: (user: string, message: string) => void) {
+  public static async connect() {
     try {
       // 測試用
       if (CC_DEV) {
-        // await this.loadScriptWithCheck('http://localhost:5001/signalr/jquery-3.6.0.min.js', () => typeof (window as any).$ !== 'undefined');
-        // await this.loadScriptWithCheck('http://localhost:5001/signalr/jquery.signalR-2.4.3.min.js', () => typeof (window as any).$?.hubConnection !== 'undefined');
         await ScriptLoader.loadScriptWithCheck('http://localhost:5001/signalr/jquery-3.6.0.min.js', () => typeof (window as any).$ !== 'undefined');
         await ScriptLoader.loadScriptWithCheck('http://localhost:5001/signalr/jquery.signalR-2.4.3.min.js', () => typeof (window as any).$?.hubConnection !== 'undefined');
       }
@@ -61,16 +59,33 @@ export class SignalRClient {
       console.log('✅ jQuery 與 SignalR 載入成功');
 
       this._connection = $.hubConnection('http://172.16.5.21:5000'); // 這條線插哪台伺服器（URL/Port/協定）
-      this._hubProxy = this._connection.createHubProxy('ChatHub'); // 後端 Hub 名稱（注意大小寫）最好一致
-      console.log(this._hubProxy.hubName);
+      this._hubProxy = this._connection.createHubProxy('chathub'); // 後端 Hub 名稱（注意大小寫）最好一致
+      console.log('hubProxy.hubName =', this._hubProxy.hubName);
 
       // ==========================================================================================
-      // this._hubProxy.on('broadcastMessage', (user: string, message: string) => {
-      //   console.log('📩 收到訊息:', user, message);
-      //   console.log('🛑 onMessageReceived callback 觸發:', user, message);
+      this._hubProxy.on('broadcastMessage', (event: string, payload: any) => {
+        console.log('📩 收到 broadcastMessage:', event, payload);
 
-      //   onMessageReceived(user, message);
-      // });
+        switch (event) {
+          case 'ForceLogout':
+            // ⚡ 後端在 Login() 時檢查到「同帳號重複登入」，
+            // -  會踢掉舊連線，並推送這個事件。
+            // -  payload: { message: "帳號已在別處登入" }
+            director.emit('ForceLogout', payload);
+            break;
+
+          case 'LotteryBalanceUpdate':
+            // 💰 後端在 PlaceBet() 時推送的即時餘額更新事件。
+            // - 成功下注：payload = { balance, betAmounts }
+            // - 失敗（餘額不足 / 超過上限）：payload = { balance, betAmounts, message }
+            director.emit(SIGNALR_EVENTS.LOTTERY_BALANCE, payload);
+            break;
+
+          default:
+            console.warn('⚠️ 未知 broadcastMessage 事件:', event, payload);
+            break;
+        }
+      });
 
       // 連線
       this._connection
@@ -79,6 +94,7 @@ export class SignalRClient {
           console.log('SignalR 已連線, 進入登入畫面');
           // SignalRClient.startHeartbeat(); // ping 連線檢查
           this._isConnected = true;
+          // this._hubProxy.invoke('TestEvent', 'hello world');
 
           // 事件註冊只做一次
           if (!this._handlersRegistered) {
@@ -138,14 +154,6 @@ export class SignalRClient {
       .catch((err: any) => {
         console.error('❌ 傳送失敗', err);
       });
-  }
-
-  // ========== 提供給外部註冊 callback（如果還要用） ==========
-  public static onLotteryResult(callback: (result: any) => void, onResponse?: (response: any) => void): void {
-    director.on(SIGNALR_EVENTS.LOTTERY_RESULT, callback);
-    if (onResponse) {
-      director.on(SIGNALR_EVENTS.LOTTERY_BALANCE, onResponse);
-    }
   }
 
   // =================== 傳送下注資料的方法 ==================

@@ -10,9 +10,7 @@ export class NetworkManager {
       return;
     }
 
-    await SignalRClient.connect((user, message) => {
-      console.log(`📩 [訊息忽略] ${user}: ${message}`);
-    });
+    await SignalRClient.connect();
 
     this._initialized = true;
     console.log('✅ NetworkManager 初始化完成');
