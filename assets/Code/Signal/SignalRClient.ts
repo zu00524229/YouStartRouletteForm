@@ -65,10 +65,12 @@ export class SignalRClient {
       console.log(this._hubProxy.hubName);
 
       // ==========================================================================================
-      this._hubProxy.on('broadcastMessage', (user: string, message: string) => {
-        console.log('📩 收到訊息:', user, message);
-        onMessageReceived(user, message);
-      });
+      // this._hubProxy.on('broadcastMessage', (user: string, message: string) => {
+      //   console.log('📩 收到訊息:', user, message);
+      //   console.log('🛑 onMessageReceived callback 觸發:', user, message);
+
+      //   onMessageReceived(user, message);
+      // });
 
       // 連線
       this._connection

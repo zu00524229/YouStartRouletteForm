@@ -150,9 +150,9 @@ export class index extends Component {
     this.Lottery.onGetLotteryRewardRstEventCallback(data);
   };
 
-  onSendClick() {
-    SignalRClient.sendMessage('Player1', 'Hello from Cocos');
-  }
+  // onSendClick() {
+  //   SignalRClient.sendMessage('Player1', 'Hello from Cocos');
+  // }
 
   onDisable() {
     director.off('LotteryResultEvent', this.handleLotteryResult, this);
