@@ -63,8 +63,8 @@ export class PickToast extends Component {
     AudioManager.instance.AudioSources[5].play();
     // this.Audio.AudioSources[1].play(); // 金幣音效
     AudioManager.instance.AudioSources[1].play();
-    console.log('AudioManager:', this.Audio);
-    console.log('AudioSources[5]:', this.Audio?.AudioSources?.[5]);
+    // console.log('AudioManager:', this.Audio);
+    // console.log('AudioSources[5]:', this.Audio?.AudioSources?.[5]);
 
     // ==== 金額數字 ====
     const totalStr = total.toString();
