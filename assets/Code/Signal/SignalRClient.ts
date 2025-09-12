@@ -1,8 +1,10 @@
 import { _decorator, Component, director, Node } from 'cc';
+import { ScriptLoader } from './Utils/ScriptLoader';
 import { ToastMessage } from '../Managers/Toasts/ToastMessage';
 import { TurnLottery } from '../TurnLottery';
 import { BetManager } from '../Managers/Bet/BetManager';
 import { ToolButtonsController } from '../Managers/ToolButtonsController';
+import { LotteryEventHandler } from './Handlers/LotteryEventHandler';
 import { LotteryResponse, LotteryResultEvent, PlaceBetRequest, SIGNALR_EVENTS, UnifiedLotteryEvent } from '../Type/Types'; // 型別呼叫
 
 const { ccclass } = _decorator;
@@ -41,8 +43,10 @@ export class SignalRClient {
     try {
       // 測試用
       if (CC_DEV) {
-        await this.loadScriptWithCheck('http://localhost:5001/signalr/jquery-3.6.0.min.js', () => typeof (window as any).$ !== 'undefined');
-        await this.loadScriptWithCheck('http://localhost:5001/signalr/jquery.signalR-2.4.3.min.js', () => typeof (window as any).$?.hubConnection !== 'undefined');
+        // await this.loadScriptWithCheck('http://localhost:5001/signalr/jquery-3.6.0.min.js', () => typeof (window as any).$ !== 'undefined');
+        // await this.loadScriptWithCheck('http://localhost:5001/signalr/jquery.signalR-2.4.3.min.js', () => typeof (window as any).$?.hubConnection !== 'undefined');
+        await ScriptLoader.loadScriptWithCheck('http://localhost:5001/signalr/jquery-3.6.0.min.js', () => typeof (window as any).$ !== 'undefined');
+        await ScriptLoader.loadScriptWithCheck('http://localhost:5001/signalr/jquery.signalR-2.4.3.min.js', () => typeof (window as any).$?.hubConnection !== 'undefined');
       }
 
       if (typeof $ === 'undefined' || !$.hubConnection) {
@@ -76,7 +80,8 @@ export class SignalRClient {
 
           // 事件註冊只做一次
           if (!this._handlersRegistered) {
-            this.registerLotteryHandlers();
+            // this.registerLotteryHandlers();
+            LotteryEventHandler.registerLotteryHandlers(this._hubProxy); // 呼叫抽獎相關事件
             this._handlersRegistered = true;
           }
           let retryCount = 0;
@@ -133,90 +138,12 @@ export class SignalRClient {
       });
   }
 
-  // ========== 抽獎事件註冊（只註冊一次） ==========
-  private static registerLotteryHandlers() {
-    if (!this._hubProxy) return;
-
-    let lastResult: LotteryResultEvent | null = null;
-    let lastBalance: LotteryResponse | null = null;
-
-    // 🚀 整合器：檢查是否兩邊都回來了
-    const tryEmitUnified = () => {
-      if (lastResult && lastBalance) {
-        const unified: UnifiedLotteryEvent = {
-          ...lastResult,
-          roundId: String(lastBalance.roundId), // 局號
-          balanceBefore: lastBalance.balanceBefore,
-          balanceAfter: lastBalance.balanceAfter,
-          totalBet: lastBalance.totalBet,
-          netChange: lastBalance.netChange,
-          insufficientBalance: lastBalance.insufficientBalance,
-          message: lastBalance.message,
-        };
-
-        console.log('🚀 發射 UnifiedLotteryEvent：', unified);
-        director.emit(SIGNALR_EVENTS.UNIFIED_LOTTERY_EVENT, unified);
-
-        // 用完清掉，避免舊資料卡住
-        lastResult = null;
-        lastBalance = null;
-      }
-    };
-
-    // 🎯 轉盤動畫用：只有抽獎結果
-    this._hubProxy.on('broadcastLotteryResult', (result: LotteryResultEvent) => {
-      console.log('🎯 收到 broadcastLotteryResult：', result);
-      lastResult = result;
-      tryEmitUnified();
-    });
-
-    // 📦 完整封包：錢包 / UI 用
-    this._hubProxy.on('lotteryResult', (resp: LotteryResponse) => {
-      console.log('📦 收到 lotteryResult (完整封包)：', resp);
-
-      if (resp.insufficientBalance || (resp.message && resp.message !== 'OK')) {
-        // 🔴 錯誤情況：不要進入動畫
-        ToastMessage.showToast(resp.message || '超過下注上限!');
-
-        // ⚡ 修正：重置遊戲狀態，避免卡住
-        const turnLottery = director.getScene().getComponentInChildren(TurnLottery) as any;
-        if (turnLottery) turnLottery._isLottery = false;
-
-        const betManager = director.getScene().getComponentInChildren(BetManager) as any;
-        if (betManager) {
-          betManager.onLightBetArea(); // ✅ 用既有的方法開下注區
-          betManager.onCloseMask(); // ✅ 關掉 AutoButton 遮罩
-        }
-        const toolButtons = director.getScene().getComponentInChildren(ToolButtonsController) as any;
-        if (toolButtons) toolButtons.updateStartButton(); // 讓按鈕恢復
-
-        // 額外清掉 lastResult，避免殘留舊資料觸發動畫
-        lastResult = null;
-        lastBalance = null;
-        return;
-      }
-
-      // ✅ 正常情況 → 記錄下來
-      lastBalance = resp;
-      tryEmitUnified();
-    });
-  }
-
   // ========== 提供給外部註冊 callback（如果還要用） ==========
   public static onLotteryResult(callback: (result: any) => void, onResponse?: (response: any) => void): void {
     director.on(SIGNALR_EVENTS.LOTTERY_RESULT, callback);
     if (onResponse) {
       director.on(SIGNALR_EVENTS.LOTTERY_BALANCE, onResponse);
     }
-  }
-
-  // ========== 發訊息測試 ==========
-  public static sendMessage(user: string, message: string) {
-    if (!this._hubProxy) {
-      console.warn('⚠️ Hub 尚未建立');
-      return;
-    }
-    this._hubProxy.invoke('send', user, message);
   }
 
   // =================== 傳送下注資料的方法 ==================
@@ -251,36 +178,6 @@ export class SignalRClient {
           console.error('❌ 傳送下注失敗', err);
           reject(err);
         });
-    });
-  }
-
-  /** 動態載入 script */
-  private static loadScript(url: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      console.log('🟡 載入中: ' + url); // 👈 觀察真實網址
-      const script = document.createElement('script');
-      script.src = url;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error(`載入失敗: ${url}`));
-      document.head.appendChild(script);
-    });
-  }
-  // =================== 動態載入 script 結束 ===================
-  private static async loadScriptWithCheck(url: string, checkFn: () => boolean): Promise<void> {
-    await this.loadScript(url);
-    return new Promise((resolve, reject) => {
-      const maxWait = 3000;
-      const interval = 50;
-      let waited = 0;
-      const timer = setInterval(() => {
-        if (checkFn()) {
-          clearInterval(timer);
-          resolve();
-        } else if ((waited += interval) >= maxWait) {
-          clearInterval(timer);
-          reject(new Error(`❌ ${url} 載入超時或格式錯誤`));
-        }
-      }, interval);
     });
   }
 }
