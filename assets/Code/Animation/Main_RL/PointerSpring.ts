@@ -41,7 +41,6 @@ export class PointerAnim extends Component {
       // const eased = 1 - superSlowOut(1 - progress); // 套用轉盤降速公式
       // const eased = 1 - customEase(1 - progress);
       const eased = Math.pow(1 - customEase(1 - progress), 1.2);
-      // const eased = customEase(progress);
 
       times.push(eased);
     }
@@ -58,7 +57,7 @@ export class PointerAnim extends Component {
     swingIntervals.forEach((dt, idx) => {
       const half = dt / 2;
       const fromEnd = totalSwings - idx; // 倒數第幾下
-
+      let lastTime = Date.now();
       switch (true) {
         case idx === 0: {
           // 第一次上擺：慢起快到，有啟動爆發感
@@ -66,101 +65,113 @@ export class PointerAnim extends Component {
           seq = seq
             .to(firstHalf, { angle: swingAngle + 8 }, { easing: 'sineIn' })
             .call(() => {
-              console.log(`🔼 第一次上擺: 倒數${fromEnd}下, 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              // console.log(`🔼 第一次上擺: 倒數${fromEnd}下, 角度=${this.pivotNode.angle.toFixed(2)}°`);
               this.Audio.AudioSources[4].play();
             })
             .to(firstHalf, { angle: 30 }, { easing: 'quartIn' })
             .call(() => {
-              console.log(`🔽 第一次下擺: 倒數${fromEnd}下, 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              // console.log(`🔽 第一次下擺: 倒數${fromEnd}下, 角度=${this.pivotNode.angle.toFixed(2)}°`);
             });
           break;
         }
-
         case fromEnd === 1: {
           // 倒數最後一下：上擺後停住
           seq = seq
             .to(half, { angle: swingAngle - 5 }, { easing: 'sineOut' })
             .call(() => {
-              // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              console.log(`🔼 倒數${fromEnd}下 最後上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              // console.log(`⏸️ 即將停留 ${holdTime * 40.2}s`);
             })
-            .delay(holdTime * 1.2) // 在上擺位置停
-            .to(half * 20.0, { angle: 0 }, { easing: 'sineInOut' }) // 下擺
+            .delay(holdTime * 5.5) // 在上擺位置停
+            .to(half * 25.0, { angle: 0 }, { easing: 'sineInOut' }) // 下擺
             .call(() => {
-              // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              // console.log(`▶️ 停留結束 (${holdTime * 40.2}s)，開始下擺`);
+              console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
             });
           break;
         }
-        case fromEnd === 10 || fromEnd === 11 || fromEnd === 12: {
+        case fromEnd === 7 || fromEnd === 8 || fromEnd === 9 || fromEnd === 10 || fromEnd === 11 || fromEnd === 12: {
           seq = seq
-            .to(half * 0.5, { angle: swingAngle }, { easing: 'sineOut' })
+            .to(half, { angle: swingAngle }, { easing: 'sineOut' })
             .call(() => {
-              console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
             })
             // .delay(holdTime * 1.2) // 在上擺位置停
             .to(half * 0.5, { angle: 30 }, { easing: 'sineInOut' }) // 下擺
             .call(() => {
-              console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
               this.Audio.AudioSources[4].play();
             });
           break;
         }
-        case fromEnd === 6 || fromEnd === 7 || fromEnd === 8 || fromEnd === 9: {
-          seq = seq
-            .to(half * 0.5, { angle: swingAngle - 5 }, { easing: 'sineOut' })
-            .call(() => {
-              console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
-            })
-            // .delay(holdTime * 1.2) // 在上擺位置停
-            .to(half * 0.5, { angle: 25 }, { easing: 'sineInOut' }) // 下擺
-            .call(() => {
-              console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
-              this.Audio.AudioSources[4].play();
-            });
-          break;
-        }
-        case fromEnd === 5: {
-          seq = seq
-            .to(half * 0.5, { angle: swingAngle - 5 }, { easing: 'sineOut' })
-            // .delay(holdTime)
-            .call(() => {
-              console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
-            })
-            .to(half * 1.2, { angle: 35 }, { easing: 'sineInOut' }) // 下擺
-            .call(() => {
-              console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
-              this.Audio.AudioSources[4].play();
-            });
-          break;
-        }
-
-        case fromEnd === 4: {
-          seq = seq
-            .to(half, { angle: 20 }, { easing: 'sineOut' })
-            .call(() => {
-              console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
-            })
-            .delay(holdTime * 1.5) // 在上擺位置停
-            .to(half * 3.5, { angle: 35 }, { easing: 'sineInOut' }) // 下擺
-            .call(() => {
-              console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
-              this.Audio.AudioSources[4].play();
-            });
-          break;
-        }
-        case fromEnd === 2 || fromEnd === 3: {
-          // 倒數第4下：上擺小一點
+        case fromEnd === 4 || fromEnd === 5 || fromEnd === 6: {
           seq = seq
             .to(half, { angle: swingAngle - 5 }, { easing: 'sineOut' })
             .call(() => {
               // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
             })
-            .to(half, { angle: 35 }, { easing: 'quartIn' })
+            .to(half * 0.7, { angle: 25 }, { easing: 'sineInOut' }) // 下擺
             .call(() => {
               // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
-              // this.Audio.AudioSources[4].play();
+              this.Audio.AudioSources[4].play();
             });
           break;
         }
+        case fromEnd === 3: {
+          seq = seq
+            .to(half, { angle: 20 }, { easing: 'sineOut' })
+            .delay(0.1)
+            .call(() => {
+              // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+            })
+            .to(half * 3.5, { angle: 35 }, { easing: 'sineInOut' }) // 下擺
+            .call(() => {
+              // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              this.Audio.AudioSources[4].play();
+            });
+          break;
+        }
+        // case fromEnd === 3: {
+        //   seq = seq
+        //     .to(half * 2.5, { angle: swingAngle - 5 }, { easing: 'sineOut' })
+        //     .call(() => {
+        //       // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+        //     })
+        //     .to(half, { angle: 35 }, { easing: 'sineInOut' }) // 下擺
+        //     .call(() => {
+        //       // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+        //       this.Audio.AudioSources[4].play();
+        //     });
+        //   break;
+        // }
+
+        case fromEnd === 2: {
+          seq = seq
+            .to(half * 3.5, { angle: swingAngle - 5 }, { easing: 'sineOut' })
+            .call(() => {
+              // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+            })
+            .to(half, { angle: 35 }, { easing: 'sineInOut' }) // 下擺
+            .call(() => {
+              // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+              this.Audio.AudioSources[4].play();
+            });
+          break;
+        }
+        // case fromEnd === 2: {
+        //   // 倒數第2下：上擺小一點
+        //   seq = seq
+        //     .to(half, { angle: swingAngle - 5 }, { easing: 'sineOut' })
+        //     .call(() => {
+        //       // console.log(`🔼 倒數${fromEnd}下 上擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+        //     })
+        //     .to(half, { angle: 35 }, { easing: 'quartIn' })
+        //     .call(() => {
+        //       // console.log(`🔽 倒數${fromEnd}下 下擺結束: 角度=${this.pivotNode.angle.toFixed(2)}°`);
+        //       // this.Audio.AudioSources[4].play();
+        //     });
+        //   break;
+        // }
 
         default: {
           // 一般擺動

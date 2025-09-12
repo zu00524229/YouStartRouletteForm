@@ -52,12 +52,9 @@ export class TurnAnim extends Component {
 
     // 時間切分
     const totalTime = WheelConfig.lotterSecsL; // 總秒數
-    let preStopTime = WheelThreeConfig.lotterSecsL - WheelThreeConfig.reboundTime;
     let reboundTime = WheelThreeConfig.reboundTime;
-    let delay = WheelThreeConfig.delayPointerSwing;
     const holdTime = 0.05;
 
-    let fullTime = preStopTime + delay + reboundTime; // 總時間 = 前段 + 停留 + 回正;
     // 自訂 easing：越到尾端越慢
     const superSlowOut = (t: number) => 1 - Math.pow(1 - t, 1.5);
 
@@ -72,7 +69,7 @@ export class TurnAnim extends Component {
     // 找到指針動畫
     const pointer = this.dotContainerNode.getComponent('PointerAnim') as any;
     if (pointer) {
-      pointer.playPointerSwing3(fullTime, reboundTime);
+      pointer.playPointerSwing3(totalTime, reboundTime, holdTime);
     }
 
     tween(this.turnBgNode)
