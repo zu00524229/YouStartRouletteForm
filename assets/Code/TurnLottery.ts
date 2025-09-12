@@ -269,7 +269,7 @@ export class TurnLottery extends Component {
       this.toast.hideBetLocked();
       this.handleExtraPay(data.extraPay, () => {
         // 執行轉盤動畫
-        this.Turn.playWheelAnimation2(rewardIndex, rewardName, multiplier, data, () => {
+        this.Turn.playWheelAnimation(rewardIndex, rewardName, multiplier, data, () => {
           // 隨機選一個轉盤動畫 (動畫三先不要)
           // const animations = [this.Turn.playWheelAnimation.bind(this.Turn), this.Turn.playWheelAnimation2.bind(this.Turn)];
           // const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
