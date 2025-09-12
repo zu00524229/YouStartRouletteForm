@@ -124,6 +124,7 @@ export class TurnAnim extends Component {
       .delay(holdTime)
 
       .to(totalTime * 0.2, { angle: overshootAngle }, { easing: superSlowOut })
+      .delay(0.2)
 
       // 3) 補正
       .to(reboundTime * 0.48, { angle: targetAngle + 1 }, { easing: superSlowlow })
