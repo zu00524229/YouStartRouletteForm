@@ -1,10 +1,9 @@
 import { _decorator, Component, director, Node } from 'cc';
 import { ScriptLoader } from './Utils/ScriptLoader';
 import { ToastMessage } from '../Managers/Toasts/ToastMessage';
-import { TurnLottery } from '../TurnLottery';
-import { BetManager } from '../Managers/Bet/BetManager';
-import { ToolButtonsController } from '../Managers/ToolButtonsController';
+import { ForceLogout } from './Handlers/ForceLogout';
 import { LotteryEventHandler } from './Handlers/LotteryEventHandler';
+import { LotteryBalanceUpdate } from './Handlers/LotteryBalanceUpdate';
 import { LotteryResponse, LotteryResultEvent, PlaceBetRequest, SIGNALR_EVENTS, UnifiedLotteryEvent } from '../Type/Types'; // 型別呼叫
 
 const { ccclass } = _decorator;
@@ -72,6 +71,7 @@ export class SignalRClient {
             // -  會踢掉舊連線，並推送這個事件。
             // -  payload: { message: "帳號已在別處登入" }
             director.emit('ForceLogout', payload);
+            ForceLogout.handleForceLogout(payload);
             break;
 
           case 'LotteryBalanceUpdate':
@@ -79,6 +79,7 @@ export class SignalRClient {
             // - 成功下注：payload = { balance, betAmounts }
             // - 失敗（餘額不足 / 超過上限）：payload = { balance, betAmounts, message }
             director.emit(SIGNALR_EVENTS.LOTTERY_BALANCE, payload);
+            LotteryBalanceUpdate.handleBalanceUpdate(payload);
             break;
 
           default:
@@ -94,7 +95,6 @@ export class SignalRClient {
           console.log('SignalR 已連線, 進入登入畫面');
           // SignalRClient.startHeartbeat(); // ping 連線檢查
           this._isConnected = true;
-          // this._hubProxy.invoke('TestEvent', 'hello world');
 
           // 事件註冊只做一次
           if (!this._handlersRegistered) {
