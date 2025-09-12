@@ -42,6 +42,9 @@ export class index extends Component {
 
   // === 初始化階段 ===
   protected onLoad(): void {
+    // window.addEventListener('error', function (e) {
+    //   console.error('🔴 Global Error 捕捉：', e.message, e.filename, e.lineno, e.colno);
+    // });
     // 先顯示登入面板
     const loginPanelNode = this.node.getChildByName('login');
     if (loginPanelNode) {
@@ -150,12 +153,9 @@ export class index extends Component {
     this.Lottery.onGetLotteryRewardRstEventCallback(data);
   };
 
-  // onSendClick() {
-  //   SignalRClient.sendMessage('Player1', 'Hello from Cocos');
-  // }
-
   onDisable() {
-    director.off('LotteryResultEvent', this.handleLotteryResult, this);
+    // director.off('LotteryResultEvent', this.handleLotteryResult, this);
+    director.off(SIGNALR_EVENTS.UNIFIED_LOTTERY_EVENT, this.handleLotteryResult, this); // 就是'LotteryResultEvent'
     director.off('LotteryEnded', this.onLotteryEnd, this);
   }
 
@@ -175,9 +175,6 @@ export class index extends Component {
     }
 
     this.Lottery.onGoLotterEventCallback(); // 轉盤轉動(隨機抽獎)
-    window.addEventListener('error', function (e) {
-      console.error('🔴 Global Error 捕捉：', e.message, e.filename, e.lineno, e.colno);
-    });
   }
 
   //=================== 點擊 Auto 按鈕(自動下注) ===================
