@@ -3,7 +3,6 @@ const { ccclass, property } = _decorator;
 
 @ccclass('ConfirmDialog')
 export class ConfirmDialog extends Component {
-  @property(Node) dialogNode: Node = null; // 整個對話框節點
   @property(Label) messageLabel: Label = null; // 顯示訊息文字
   @property(Button) confirmButton: Button = null; // 確認按鈕
 
@@ -13,7 +12,12 @@ export class ConfirmDialog extends Component {
 
   /** 🔹 呼叫前要先在入口 (例如 Game.ts) preload 一次 Prefab */
   public static registerPrefab(prefab: Prefab) {
+    if (!prefab) {
+      console.error('❌ ConfirmDialog.registerPrefab 傳入 prefab 為 null');
+      return;
+    }
     this._prefab = prefab;
+    console.log('✅ ConfirmDialog prefab 已註冊');
   }
 
   public static show(message: string, onConfirm?: () => void) {

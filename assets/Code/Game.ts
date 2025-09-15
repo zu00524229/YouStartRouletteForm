@@ -3,6 +3,7 @@ import { BetController } from './Managers/Bet/BetController';
 import { StartTouch } from './Managers/Touch/StartTouch';
 import { AudioManager } from './Managers/Audio/AudioManager';
 import { ChipManager } from './Managers/Bet/ChipManager';
+import { ConfirmDialog } from './Managers/Toasts/ConfirmDialog';
 import { SignalRClient } from './Signal/SignalRClient';
 import { LotteryResponse, SIGNALR_EVENTS, UnifiedLotteryEvent } from './Type/Types'; // 型別呼叫
 import { Toast } from './Managers/Toasts/Toast';
@@ -31,6 +32,7 @@ export class index extends Component {
 
   // 玩家目前選擇的籌碼金額(在chipManager.ts中管理)
   @property(Toast) toast: Toast = null; // 連結 Toast 腳本
+  @property(Prefab) confirmDialogPrefab: Prefab = null; // 登出登入提示
 
   // private betManager: BetManager | null = null;
   public static isLoggedIn: boolean = false; // 預設未登入
@@ -42,16 +44,13 @@ export class index extends Component {
 
   // === 初始化階段 ===
   protected onLoad(): void {
-    // window.addEventListener('error', function (e) {
-    //   console.error('🔴 Global Error 捕捉：', e.message, e.filename, e.lineno, e.colno);
-    // });
     // 先顯示登入面板
     const loginPanelNode = this.node.getChildByName('login');
     if (loginPanelNode) {
       loginPanelNode.active = true;
     }
     index.isLoggedIn = false;
-
+    // ✅ 預先註冊 Prefab
     // // 建立 SignalR 連線
     // SignalRClient.connect((user, msg) => {
     //   console.log(`${user}: ${msg}`);

@@ -22,9 +22,6 @@ export class LoginPanel extends Component {
 
   async onLoad() {
     this.errorLabel.string = ''; // 清空錯誤訊息
-    // SignalRClient.connect((user, message) => {
-    //   console.log(`📩 [訊息忽略] ${user}: ${message}`);
-    // });
 
     // 確保全域連線已初始化
     await NetworkManager.init();

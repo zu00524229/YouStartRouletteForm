@@ -5,6 +5,7 @@ import { ForceLogout } from './Handlers/ForceLogout';
 import { LotteryEventHandler } from './Handlers/LotteryEventHandler';
 import { LotteryBalanceUpdate } from './Handlers/LotteryBalanceUpdate';
 import { LotteryResponse, LotteryResultEvent, PlaceBetRequest, SIGNALR_EVENTS, UnifiedLotteryEvent } from '../Type/Types'; // 型別呼叫
+import { ConfirmDialog } from '../Managers/Toasts/ConfirmDialog';
 
 const { ccclass } = _decorator;
 declare const $: any;
@@ -68,7 +69,9 @@ export class SignalRClient {
         switch (event) {
           case 'ForceDisconnect':
             console.warn('⚠️ 收到伺服器斷線通知:', payload);
-            ToastMessage.showToast(payload.message || '已斷線，請重新登入');
+            ConfirmDialog.show(payload.message || '已斷線，請重新登入', () => {
+              director.loadScene('Login');
+            });
             break;
           case 'ForceLogout':
             // ⚡ 後端在 Login() 時檢查到「同帳號重複登入」，
@@ -110,8 +113,11 @@ export class SignalRClient {
           // 如果 TCP/WebSocket 掛掉，SignalR 會在 10 秒內觸發
           this._connection.disconnected = () => {
             console.warn('⚠️ 與 SignalR 斷線');
+            ConfirmDialog.show('已斷線');
             this._isConnected = false;
-            ToastMessage.showToast('已斷線');
+            ConfirmDialog.show('⚠️ 已斷線，請重新登入', () => {
+              director.loadScene('Login');
+            });
 
             const delay = Math.min(30000, 2000 * Math.pow(2, retryCount)); // 最長30秒
             retryCount++;
@@ -137,7 +143,9 @@ export class SignalRClient {
         })
         .fail((err: any) => {
           console.error('❌ SignalR 連線失敗:', err);
-          ToastMessage.showToast('❌ 連線逾時，請檢查網路或稍後再試');
+          ConfirmDialog.show('❌ 連線逾時，請檢查網路或稍後再試', () => {
+            window.close(); // 預覽器可能會檔, 建議搭外層包裝(桌面環境才會正常關閉)
+          });
         });
     } catch (err) {
       console.error('❌ SignalR 連線錯誤:', err);
@@ -147,7 +155,9 @@ export class SignalRClient {
   // =================== 單區下注 ==================
   public static placeBet(req: PlaceBetRequest) {
     if (!this._hubProxy || !this._connection || this._connection.state !== 1) {
-      ToastMessage.showToast('已斷線');
+      ConfirmDialog.show('⚠️ 已斷線，請重新登入', () => {
+        director.loadScene('Login');
+      });
       console.warn('⚠️ SignalR 尚未連線完成，不能送下注');
       return;
     }

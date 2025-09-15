@@ -35833,6 +35833,10 @@
     "toast": {
       "__id__": 624
     },
+    "confirmDialogPrefab": {
+      "__uuid__": "d00ddcf2-3fe4-4812-a28b-7ce05ff2269f",
+      "__expectedType__": "cc.Prefab"
+    },
     "_id": "2dBFH76lNHD7JC95Dte7eV"
   },
   {

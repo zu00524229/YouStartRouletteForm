@@ -1,6 +1,7 @@
 import { _decorator, Component, director, Node } from 'cc';
 import { LotteryResponse, LotteryResultEvent, SIGNALR_EVENTS, UnifiedLotteryEvent } from '../../Type/Types';
 import { ToastMessage } from '../../Managers/Toasts/ToastMessage';
+import { ConfirmDialog } from '../../Managers/Toasts/ConfirmDialog';
 import { TurnLottery } from '../../TurnLottery';
 import { BetManager } from '../../Managers/Bet/BetManager';
 import { ToolButtonsController } from '../../Managers/ToolButtonsController';
@@ -14,6 +15,8 @@ export class LotteryEventHandler extends Component {
     console.log('✅ 已註冊事件 broadcastLotteryResult / lotteryResult');
 
     if (!hubProxy) return;
+    hubProxy.off('lotteryResult');
+    hubProxy.off('broadcastLotteryResult');
 
     let lastResult: LotteryResultEvent | null = null;
     let lastBalance: LotteryResponse | null = null;
@@ -51,9 +54,23 @@ export class LotteryEventHandler extends Component {
     hubProxy.on('lotteryResult', (resp: LotteryResponse) => {
       console.log('📦 收到 lotteryResult (完整封包)：', resp);
 
-      if (resp.insufficientBalance || (resp.message && resp.message !== 'OK')) {
-        // 🔴 錯誤情況：不要進入動畫
-        ToastMessage.showToast(resp.message || '超過下注上限!');
+      if (resp.message && resp.message !== 'OK') {
+        if (resp.message.includes('斷線')) {
+          // 🔌 斷線 / 會話失效
+          ConfirmDialog.show(resp.message, () => {
+            console.warn('⚠️ 玩家斷線 → 回登入畫面');
+            director.loadScene('Login'); // ✅ 這裡場景名稱就是 "Login"，跟你的資源資料夾一致
+          });
+          return;
+        }
+
+        if (resp.insufficientBalance) {
+          // 💰 餘額不足
+          ToastMessage.showToast(resp.message || '餘額不足！');
+        } else {
+          // ❌ 其他錯誤（超過下注上限等）
+          ToastMessage.showToast(resp.message || '超過下注上限!');
+        }
 
         // ⚡ 修正：重置遊戲狀態，避免卡住
         const turnLottery = director.getScene().getComponentInChildren(TurnLottery) as any;

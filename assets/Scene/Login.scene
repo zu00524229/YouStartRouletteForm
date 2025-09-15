@@ -3143,6 +3143,10 @@
       "__uuid__": "d00ddcf2-3fe4-4812-a28b-7ce05ff2269f",
       "__expectedType__": "cc.Prefab"
     },
+    "toastPrefab": {
+      "__uuid__": "632a3c67-acfd-425a-871d-599c3af536e3",
+      "__expectedType__": "cc.Prefab"
+    },
     "_id": "38lg3J2xRNU7yy8ij0K2NW"
   },
   {
@@ -4311,11 +4315,8 @@
     "node": {
       "__id__": 87
     },
-    "_enabled": true,
+    "_enabled": false,
     "__prefab": null,
-    "toastNode": {
-      "__id__": 87
-    },
     "toastText": {
       "__id__": 99
     },
