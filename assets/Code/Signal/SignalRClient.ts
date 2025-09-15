@@ -66,6 +66,10 @@ export class SignalRClient {
         console.log('📩 收到 broadcastMessage:', event, payload);
 
         switch (event) {
+          case 'ForceDisconnect':
+            console.warn('⚠️ 收到伺服器斷線通知:', payload);
+            ToastMessage.showToast(payload.message || '已斷線，請重新登入');
+            break;
           case 'ForceLogout':
             // ⚡ 後端在 Login() 時檢查到「同帳號重複登入」，
             // -  會踢掉舊連線，並推送這個事件。
@@ -103,7 +107,7 @@ export class SignalRClient {
             this._handlersRegistered = true;
           }
           let retryCount = 0;
-          // ✅ 加上斷線提示
+          // 如果 TCP/WebSocket 掛掉，SignalR 會在 10 秒內觸發
           this._connection.disconnected = () => {
             console.warn('⚠️ 與 SignalR 斷線');
             this._isConnected = false;
@@ -112,7 +116,7 @@ export class SignalRClient {
             const delay = Math.min(30000, 2000 * Math.pow(2, retryCount)); // 最長30秒
             retryCount++;
 
-            // 自動重連（延遲 5 秒）
+            // 自動重連（延遲 5 秒） 前端自測
             setTimeout(() => {
               // console.log('🔄 嘗試重新連線...');
               ToastMessage.showToast(`🔄 嘗試重新連線...(第${retryCount}次)`);
@@ -133,6 +137,7 @@ export class SignalRClient {
         })
         .fail((err: any) => {
           console.error('❌ SignalR 連線失敗:', err);
+          ToastMessage.showToast('❌ 連線逾時，請檢查網路或稍後再試');
         });
     } catch (err) {
       console.error('❌ SignalR 連線錯誤:', err);

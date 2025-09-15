@@ -1,47 +1,60 @@
-import { _decorator, Component, Label, Node } from 'cc';
+import { _decorator, Component, find, instantiate, Label, Node, Prefab } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('ToastMessage')
 export class ToastMessage extends Component {
-  @property(Node) toastNode: Node = null; // 提示訊息(餘額不足)
+  // @property(Node) toastNode: Node = null; // 提示訊息(餘額不足)
   @property(Label) toastText: Label = null; // 提示訊息文字
+
+  private static _prefab: Prefab = null;
+  private static _instance: Node = null;
+
+  /** ✅ 在入口註冊 Prefab */
+  public static registerPrefab(prefab: Prefab) {
+    this._prefab = prefab;
+  }
 
   // 🔑 單例
   static instance: ToastMessage;
 
-  onLoad() {
-    console.log('✅ ToastMessage 已初始化');
-
-    this.toastNode.active = false;
-    // 綁定單例
-    ToastMessage.instance = this;
-  }
   //============================== 一般提示訊息 ============================
 
   public static showToast(message: string) {
-    console.log('👉 showToast 被呼叫', message);
-    if (ToastMessage.instance?.toastNode && ToastMessage.instance.toastText) {
-      ToastMessage.instance.toastNode.active = true;
-      ToastMessage.instance.toastText.string = message;
-      console.log('toastText.string =', ToastMessage.instance.toastText.string);
-
-      const node = ToastMessage.instance.toastNode;
-
-      node.active = true;
-      node.setScale(1, 1, 1);
-      node.setSiblingIndex(node.parent.children.length - 1);
-
-      // 🔍 Debug log
-      console.log('toastNode.active =', node.active);
-      console.log('toastNode.worldPosition =', node.worldPosition);
-    } else {
-      console.warn('⚠ Toast 節點或文字沒有綁定');
+    if (!this._prefab) {
+      console.error('❌ ToastMessage prefab 尚未註冊');
+      return;
     }
-  }
 
-  public hideToast() {
-    if (ToastMessage.instance?.toastNode) {
-      ToastMessage.instance.toastNode.active = false;
+    // 如果已經有一個 Toast，就先刪掉
+    if (this._instance) {
+      this._instance.destroy();
+      this._instance = null;
     }
+
+    // 動態生成
+    const canvas = find('Canvas');
+    if (!canvas) {
+      console.error('❌ 場景中沒有 Canvas');
+      return;
+    }
+
+    this._instance = instantiate(this._prefab);
+    canvas.addChild(this._instance);
+
+    // 設定文字
+    const comp = this._instance.getComponent(ToastMessage);
+    if (comp && comp.toastText) {
+      comp.toastText.string = message;
+    }
+
+    this._instance.active = true;
+
+    // ✅ 幾秒後自動消失
+    setTimeout(() => {
+      if (this._instance) {
+        this._instance.destroy();
+        this._instance = null;
+      }
+    }, 2000);
   }
 }

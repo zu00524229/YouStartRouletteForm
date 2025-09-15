@@ -1,9 +1,10 @@
 import { SignalRClient } from './../Signal/SignalRClient';
 import { NetworkManager } from '../Signal/NetworkController';
-import { _decorator, Component, director, EditBox, EventKeyboard, input, Input, KeyCode, Label, Node } from 'cc';
+import { _decorator, Component, director, EditBox, EventKeyboard, input, Input, KeyCode, Label, Node, Prefab } from 'cc';
 import { player, playerState } from './playerState';
 import { PingState } from '../Signal/Ping/PingState'; // ✅ 引入
 import { ToastMessage } from '../Managers/Toasts/ToastMessage';
+import { ConfirmDialog } from './../Managers/Toasts/ConfirmDialog';
 const { ccclass, property } = _decorator;
 
 @ccclass('LoginPanel')
@@ -12,6 +13,9 @@ export class LoginPanel extends Component {
   @property(EditBox) passwordInput: EditBox = null;
   @property(Node) loginButton: Node = null;
   @property(Label) errorLabel: Label = null;
+
+  @property(Prefab) confirmDialogPrefab: Prefab = null; // 登出登入提示
+  @property(Prefab) toastPrefab: Prefab = null; // 一般提示
 
   public static isLoggedIn: boolean = false; // 預設未登入
   private isLoggingIn: boolean = false;
@@ -25,6 +29,11 @@ export class LoginPanel extends Component {
     // 確保全域連線已初始化
     await NetworkManager.init();
     console.log('✅ LoginPanel 已初始化');
+    // ✅ 預先註冊 Prefab
+    ConfirmDialog.registerPrefab(this.confirmDialogPrefab);
+    if (this.toastPrefab) {
+      ToastMessage.registerPrefab(this.toastPrefab);
+    }
   }
 
   onEnable() {
@@ -96,10 +105,9 @@ export class LoginPanel extends Component {
           player.currentPlayer = { username, balance: res.balance };
           player.isLoggedIn = true;
 
-          // SignalRClient.startHeartbeat(); // ping 連線檢查
-          PingState.startHeartbeat(proxy, () => NetworkManager.isConnected());
+          PingState.startHeartbeat(proxy, () => NetworkManager.isConnected()); // 啟動心跳
 
-          setTimeout(() => director.loadScene('Game'), 0);
+          setTimeout(() => director.loadScene('Game'), 0); // 呼叫主遊戲場景
         } else {
           console.warn('❌ 登入失敗：', res.message);
           this.errorLabel.string = '登入失敗：' + res.message;

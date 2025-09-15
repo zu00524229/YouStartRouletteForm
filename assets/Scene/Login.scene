@@ -3139,6 +3139,10 @@
     "errorLabel": {
       "__id__": 81
     },
+    "confirmDialogPrefab": {
+      "__uuid__": "d00ddcf2-3fe4-4812-a28b-7ce05ff2269f",
+      "__expectedType__": "cc.Prefab"
+    },
     "_id": "38lg3J2xRNU7yy8ij0K2NW"
   },
   {
