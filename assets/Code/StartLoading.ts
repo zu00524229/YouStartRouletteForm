@@ -44,4 +44,6 @@ export class StartLoading extends Component {
 console.log("這是我的修改")
 console.log("這是我的修改")
 console.log("這是我的修改")
+
+console.log("建立分支練習")
 //// 這是別人的修改測試
