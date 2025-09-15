@@ -41,4 +41,6 @@ export class StartLoading extends Component {
 //// 這是別人的修改測試
 //// 這是別人的修改測試
 //// 這是別人的修改測試
+console.log("這是第一份的修改");
+console.log("這是第一份的修改");
 //// 這是別人的修改測試
